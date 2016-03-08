@@ -25,7 +25,7 @@ final class TM_EPO_HTML_base {
 	 *	Ouputs a fontawesome icon
 	 */
 	public function tm_icon($id="",$echo=1){
-		$id="<i class='fa fa-$id'></i>";
+		$id="<i class='tcfa tcfa-$id'></i>";
 		if ($echo!=1){
 			return $id;
 		}else{
@@ -146,8 +146,13 @@ final class TM_EPO_HTML_base {
 		$a="";
 		$tags=array();
 		if (isset($args["tags"]) && is_array($args["tags"])){
-			if (isset($args["type"]) && ($args["type"]=="range" || $args["type"]=="text" || $args["type"]=="hidden")){
+			if (isset($args["type"]) && ($args["type"]=="range" || $args["type"]=="text" || $args["type"]=="number" || $args["type"]=="hidden")){
 				$args["tags"]["value"]=$args["default"];
+				if ($args["type"]=="number"){
+					if (!isset($args["tags"]["step"])){
+						$args["tags"]["step"]="any";
+					}
+				}
 			}
 			if (isset($args["type"]) && $args["type"]=="range" && !isset($args["tags"]["class"])){
 				$args["tags"]["class"]="range";
@@ -189,7 +194,7 @@ final class TM_EPO_HTML_base {
 			if(empty($args["nodiv"])){
 				if(empty($args["nostart"])){
 					if(empty($args["nowrap_start"])){
-						$a .='<div'.$divid.$divstyle.' class="message0x0 clearfix'.(isset($args["message0x0_class"])?" ".$args["message0x0_class"]:"").'">';
+						$a .='<div'.$divid.$divstyle.' class="message0x0 tc-clearfix'.(isset($args["message0x0_class"])?" ".$args["message0x0_class"]:"").'">';
 					}
 					if(!empty($args["nowrap_start"]) && !empty($args["noclear"])){
 						$a .="<div class=\"clear\">&nbsp;</div>";
@@ -218,7 +223,7 @@ final class TM_EPO_HTML_base {
 			if(empty($args["nodiv"])){
 				if(empty($args["nostart"])){
 					if(empty($args["nowrap_start"])){
-						$a .='<div'.$divid.$divstyle.' class="message0x0 clearfix'.(isset($args["message0x0_class"])?" ".$args["message0x0_class"]:"").'">';
+						$a .='<div'.$divid.$divstyle.' class="message0x0 tc-clearfix'.(isset($args["message0x0_class"])?" ".$args["message0x0_class"]:"").'">';
 					}
 					if(!empty($args["nowrap_start"])){
 						$a .="<div class=\"clear\">&nbsp;</div>";
@@ -265,7 +270,7 @@ final class TM_EPO_HTML_base {
 				break;
 			case "text":
 			case "number":
-				$a .="<input ".(isset($args["style"])?$args["style"]:"")." ".$disabled."type=\"text\" $tags />";
+				$a .="<input ".(isset($args["style"])?$args["style"]:"")." ".$disabled."type=\"".$args["type"]."\" $tags />";
 				break;
 			case "range":
 				$a .="<div class=\"rangewrapper\"><input ".$disabled."type=\"text\" $tags /></div>";

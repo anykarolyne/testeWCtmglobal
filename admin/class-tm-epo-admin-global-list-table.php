@@ -43,6 +43,8 @@ class TM_EPO_ADMIN_Global_List_Table extends WP_List_Table {
 	 */
 	var $sticky_posts_count = 0;
 
+	private $is_trash;
+
 	function __construct( $args = array() ) {
 		global $post_type_object, $wpdb;
 
@@ -159,7 +161,6 @@ class TM_EPO_ADMIN_Global_List_Table extends WP_List_Table {
 		$mode = empty( $_REQUEST['mode'] ) ? 'list' : $_REQUEST['mode'];
 
 		$this->is_trash = isset( $_REQUEST['post_status'] ) && $_REQUEST['post_status'] == 'trash';
-
 		$this->set_pagination_args( array(
 			'total_items' => $total_items,
 			'total_pages' => $total_pages,
@@ -707,13 +708,8 @@ class TM_EPO_ADMIN_Global_List_Table extends WP_List_Table {
 
 				$actions = array();
 				if ( $can_edit_post && 'trash' != $post->post_status ) {
-					//função get_edit_post_link não funcionando corretamente, por isso adicionar link direto para conseguir editar os produtos do tm global
-					//$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item', TM_EPO_TRANSLATION ) ) . '">' . __( 'Edit' , TM_EPO_TRANSLATION) . '</a>';
-
-					$actions['edit'] = '<a href="edit.php?post_type=product&page=tm-global-epo&action=edit&post='.$post->ID.'" title="' . esc_attr( __( 'Edit this item', TM_EPO_TRANSLATION ) ) . '">' . __( 'Edit' , TM_EPO_TRANSLATION) . '</a>';
-			
+					$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item', TM_EPO_TRANSLATION ) ) . '">' . __( 'Edit' , TM_EPO_TRANSLATION) . '</a>';
 					$actions['inline hide-if-no-js'] = '<a href="#" class="editinline" title="' . esc_attr( __( 'Edit this item inline' , TM_EPO_TRANSLATION) ) . '">' . __( 'Quick&nbsp;Edit' , TM_EPO_TRANSLATION) . '</a>';
-
 				}
 				if ( current_user_can( 'delete_post', $post->ID ) ) {
 					if ( 'trash' == $post->post_status )

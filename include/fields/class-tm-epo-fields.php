@@ -70,7 +70,7 @@ class TM_EPO_FIELDS {
 	}
 
 	public function validate() {
-		return true;
+		return array('passed'=>true,'message'=>false);
 	}
 
 	public final function add_cart_item_data( $attribute=false, $key=false ) {
@@ -160,10 +160,25 @@ class TM_EPO_FIELDS {
 		/* select placeholder check */
 		if(isset($this->element['options'][esc_attr($this->key)])){
 			$_price=TM_EPO()->calculate_price( $this->element, $this->key, $this->attribute, $this->per_product_pricing, $this->cpf_product_price, $this->variation_id );
-			$_image_key= array_search($this->key, $this->element['option_values']);
-			if ($_image_key===NULL || $_image_key===FALSE){
+			$use_images = !empty($this->element['use_images'])?$this->element['use_images']:"";
+			if($use_images){
+				$_image_key= array_search($this->key, $this->element['option_values']);
+				if ($_image_key===NULL || $_image_key===FALSE){
+					$_image_key=FALSE;
+				}					
+			}else{
 				$_image_key=FALSE;
 			}
+			$changes_product_image = !empty($this->element['changes_product_image'])?$this->element['changes_product_image']:"";
+			if($changes_product_image){
+				$c_image_key= array_search($this->key, $this->element['option_values']);
+				if ($c_image_key===NULL || $c_image_key===FALSE){
+					$c_image_key=FALSE;
+				}					
+			}else{
+				$c_image_key=FALSE;
+			}
+			
 			return array(
 				'mode' 					=> 'builder',
 				'cssclass' 				=> esc_html( $this->element['class'] ),
@@ -179,9 +194,9 @@ class TM_EPO_FIELDS {
 
 				'multiple' 				=> '1',
 				'key' 					=> esc_attr($this->key),
-				'use_images' 			=> !empty($this->element['use_images'])?$this->element['use_images']:"",
-				'changes_product_image' => !empty($this->element['changes_product_image'])?$this->element['changes_product_image']:"",
-				'imagesp' 				=> ($_image_key!==FALSE && isset($this->element['imagesp'][$_image_key]))?$this->element['imagesp'][$_image_key]:"",
+				'use_images' 			=> $use_images,
+				'changes_product_image' => $changes_product_image,
+				'imagesp' 				=> ($c_image_key!==FALSE && isset($this->element['imagesp'][$c_image_key]))?$this->element['imagesp'][$c_image_key]:"",
 				'images' 				=> ($_image_key!==FALSE && isset($this->element['images'][$_image_key]))?$this->element['images'][$_image_key]:""				
 			);
 		}
@@ -222,8 +237,13 @@ class TM_EPO_FIELDS {
 		/* select placeholder check */
 		if(isset($this->element['options'][esc_attr($this->key)])){
 			$_price=TM_EPO()->calculate_price( $this->element, $this->key, $this->attribute, $this->per_product_pricing, $this->cpf_product_price, $this->variation_id );
-			$_image_key= array_search($this->key, $this->element['option_values']);
-			if ($_image_key===NULL || $_image_key===FALSE){
+			$use_images = !empty($this->element['use_images'])?$this->element['use_images']:"";
+			if($use_images){
+				$_image_key= array_search($this->key, $this->element['option_values']);
+				if ($_image_key===NULL || $_image_key===FALSE){
+					$_image_key=FALSE;
+				}
+			}else{
 				$_image_key=FALSE;
 			}
 			TM_EPO()->tmfee=TM_EPO()->tmfee+(float)$_price;
@@ -243,7 +263,7 @@ class TM_EPO_FIELDS {
 				'subscription_fees' 	=> 'multiple',
 				'multiple' 				=> '1',
 				'key' 					=> esc_attr($this->key),
-				'use_images' 			=> !empty($this->element['use_images'])?$this->element['use_images']:"",
+				'use_images' 			=> $use_images,
 				'changes_product_image' => !empty($this->element['changes_product_image'])?$this->element['changes_product_image']:"",
 				'images' 				=> ($_image_key!==FALSE && isset($this->element['images'][$_image_key]))?$this->element['images'][$_image_key]:""
 			);
@@ -287,8 +307,13 @@ class TM_EPO_FIELDS {
 		/* select placeholder check */
 		if(isset($this->element['options'][esc_attr($this->key)])){
 			$_price=TM_EPO()->calculate_price( $this->element, $this->key, $this->attribute, $this->per_product_pricing, $this->cpf_product_price, $this->variation_id );
-			$_image_key= array_search($this->key, $this->element['option_values']);
-			if ($_image_key===NULL || $_image_key===FALSE){
+			$use_images = !empty($this->element['use_images'])?$this->element['use_images']:"";
+			if($use_images){
+				$_image_key= array_search($this->key, $this->element['option_values']);
+				if ($_image_key===NULL || $_image_key===FALSE){
+					$_image_key=FALSE;
+				}
+			}else{
 				$_image_key=FALSE;
 			}
 			return array(
@@ -306,7 +331,7 @@ class TM_EPO_FIELDS {
 
 				'cart_fees' 			=> 'multiple',
 				'key' 					=> esc_attr($this->key),
-				'use_images' 			=> !empty($this->element['use_images'])?$this->element['use_images']:"",
+				'use_images' 			=> $use_images,
 				'changes_product_image' => !empty($this->element['changes_product_image'])?$this->element['changes_product_image']:"",
 				'images' 				=> ($_image_key!==FALSE && isset($this->element['images'][$_image_key]))?$this->element['images'][$_image_key]:""
 			);

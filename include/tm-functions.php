@@ -4,10 +4,34 @@ if (!defined('TM_EPO_PLUGIN_SECURITY')){
 	die();
 }
 
+function tm_get_price_decimal_separator() {
+	if (function_exists('wc_get_price_decimal_separator')){
+		return wc_get_price_decimal_separator();
+	}
+	$separator = stripslashes( get_option( 'woocommerce_price_decimal_sep' ) );
+	return $separator ? $separator : '.';
+}
+
+function tm_convert_local_numbers($input=""){
+	$locale   = localeconv();
+	$decimals = array( tm_get_price_decimal_separator(), $locale['decimal_point'], $locale['mon_decimal_point'] );
+
+	// Remove whitespace from string
+	$input = preg_replace( '/\s+/', '', $input );
+
+	// Remove locale from string
+	$input = str_replace( $decimals, '.', $input );
+
+	// Trim invalid start/end characters
+	$input = rtrim( ltrim( $input, "\t\n\r\0\x0B+*/" ), "\t\n\r\0\x0B+-*/" );
+
+	return $input;
+}
+
 function tm_needs_wc_db_update(){
 	$_tm_current_woo_version=get_option( 'woocommerce_db_version' );
 	$_tm_needs_wc_db_update=false;
-	if (version_compare( get_option( 'woocommerce_db_version' ), '2.3', '<' )){
+	if (version_compare( get_option( 'woocommerce_db_version' ), '2.3', '<' ) && version_compare( get_option( 'woocommerce_version' ), '2.4', '<' ) ){
 		$_tm_notice_check='_wc_needs_update';
 		$_tm_needs_wc_db_update=get_option( $_tm_notice_check );
 	}else{

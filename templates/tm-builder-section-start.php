@@ -3,7 +3,7 @@
 if (!defined('TM_EPO_PLUGIN_SECURITY')){
 	die();
 }
-if (!empty ($sections_type)){
+if (isset($sections_type) && $sections_type=="popup"){
 	$sections_class .=" section_popup";
 }
 if (!$haslogic){
@@ -13,15 +13,17 @@ $tm_product_id_class="";
 if (!empty($tm_product_id)){
 	$tm_product_id_class=" tm-product-id-".$tm_product_id;
 }
-
+if ($sections_type=="slider"){
+	$column .=" tm-owl-slider-section";
+}
 ?>
 <div data-uniqid="<?php echo $uniqid;?>" 
 	data-logic="<?php echo $logic;?>" 
 	data-haslogic="<?php echo $haslogic;?>" 
-	class="cpf-section row cell <?php echo $column;?> <?php echo $sections_class.$tm_product_id_class;?>">
+	class="cpf-section tm-row tm-cell <?php echo $column;?> <?php echo $sections_class.$tm_product_id_class;?>">
 <?php
 
-if (!empty ($sections_type)){
+if (isset($sections_type) && $sections_type=="popup"){
 	$_popuplinkitle=(!empty(TM_EPO()->tm_epo_additional_options_text))?TM_EPO()->tm_epo_additional_options_text:__( 'Additional options', TM_EPO_TRANSLATION );
 	if (!empty ($title)){
 		$_popuplinkitle=$title;
@@ -37,29 +39,50 @@ if ($style=="box"){
 }
 if ($style=="collapse" || $style=="collapseclosed" || $style=="accordion"){
 	echo '<div class="tm-collapse'.($style=="accordion"?' tmaccordion':'').'">';
-	$icon='<span class="fa fa-angle-down tm-arrow"></span>';
+	$icon='<span class="tcfa tcfa-angle-down tm-arrow"></span>';
 	$toggler=' tm-toggle';
 	if ($title==''){
 		$title='&nbsp;';
 	}
 }
 
-
-	if ($title!=''){
+	if ((!empty($title) && $title_position!="disable") || (!empty($description) && ($description_position=="icontooltipright" | $description_position=="icontooltipleft") ) ){
+	//if ($title!=''){
 		echo '<'.$title_size;
 		if(!empty($title_color)){
 			echo ' style="color:'.$title_color.'"';
 		}
-		echo ' class="tm-epo-field-label tm-section-label'.$toggler.'">'.$title;
-		
+		$class='';
+		if(!empty($description) && $description_position=="tooltip"){
+			$class=" tm-tooltip";
+		}
+		if (!empty($title_position)){
+			$class .=" tm-".$title_position;
+		}
+		if(!empty($description) && !empty($description_position) && $description_position=="tooltip"){
+			echo ' data-tm-tooltip-swatch="on"';
+		}
+		echo ' class="tm-epo-field-label tm-section-label'.$toggler.$class.'">';
+		if($description_position=="icontooltipleft"){
+			echo '<i data-tm-tooltip-swatch="on" class="tm-tooltip tc-tooltip tcfa tcfa-question-circle"></i>';
+		}
+		if(!empty($title) && $title_position!="disable"){
+			echo $title;
+		}else{
+			echo "&nbsp;";
+		}
+		if($description_position=="icontooltipright"){
+			echo '<i data-tm-tooltip-swatch="on" class="tm-tooltip tc-tooltip tcfa tcfa-question-circle"></i>';
+		}
 		echo $icon.'</'.$title_size.'>';
 	}
-	if(!empty($description)){
+	if(!empty($description) && (empty($description_position) || $description_position=="tooltip" || $description_position=="icontooltipright" | $description_position=="icontooltipleft") ){
 		echo'<div'; 
 		if(!empty($description_color)){
 			echo ' style="color:'.$description_color.'"';
 		}
-		echo' class="tm-description">'.do_shortcode($description).'</div>';
+		echo' class="tm-description'.($description_position=="tooltip" || $description_position=="icontooltipright" || $description_position=="icontooltipleft"?" tm-tip-html":"").'">'.do_shortcode($description).'</div>';
+		
 	}
 	echo $divider;
 if ($style=="collapse"){

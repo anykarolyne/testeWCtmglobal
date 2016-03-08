@@ -18,11 +18,11 @@ class TM_EPO_FIELDS_checkbox extends TM_EPO_FIELDS {
 			}
 			if ($this->items_per_row=="auto"){
 				$this->items_per_row=0;
-				$this->css_string=".tm-product-id-".$args['product_id']." .".$containter_css_id.$args['element_counter'].$args["form_prefix"]." li{float:left !important;width:auto !important;}";
+				$this->css_string=".tm-product-id-".$args['product_id']." .".$containter_css_id.$args['element_counter'].$args["form_prefix"]." li{float:".TM_EPO()->float_direction." !important;width:auto !important;}";
 			}else{
 				$this->items_per_row=(float) $element['items_per_row'];
 				$this->_percent=(float) (100/$this->items_per_row);
-				$this->css_string=".tm-product-id-".$args['product_id']." .".$containter_css_id.$args['element_counter'].$args["form_prefix"]." li{float:left !important;width:".$this->_percent."% !important;}";	
+				$this->css_string=".tm-product-id-".$args['product_id']." .".$containter_css_id.$args['element_counter'].$args["form_prefix"]." li{float:".TM_EPO()->float_direction." !important;width:".$this->_percent."% !important;}";	
 			}
 								
 			$this->css_string = str_replace(array("\r", "\n"), "", $this->css_string);
@@ -91,9 +91,11 @@ class TM_EPO_FIELDS_checkbox extends TM_EPO_FIELDS {
 			'label'   		=> wptexturize( apply_filters( 'woocommerce_tm_epo_option_name', $args['label'] ) ),
 			'value'   		=> esc_attr( ( $args['value'] ) ),
 			'id'    		=> 'tmcp_choice_'.$args['element_counter']."_".$args['field_counter']."_".$args['tabindex'].$args['form_prefix'],
+			'textbeforeprice'=> isset( $element['text_before_price'] )?$element['text_before_price']:"",
 			'textafterprice'=> isset( $element['text_after_price'] )?$element['text_after_price']:"",
 			'hide_amount'  	=> isset( $element['hide_amount'] )?" ".$element['hide_amount']:"",
 			'use_images'	=> $element['use_images'],
+			'use_lightbox'	=> isset($element['use_lightbox'])?$element['use_lightbox']:"",
 			'use_url'		=> $element['use_url'],
 			'grid_break'	=> $this->grid_break,
 			'items_per_row' => $this->items_per_row,
@@ -123,20 +125,31 @@ class TM_EPO_FIELDS_checkbox extends TM_EPO_FIELDS {
 	public function validate() {
 
 		$passed = true;
+		$message = array();
+		
+		foreach ( $this->tmcp_attributes as $k=>$attribute ) {
+			if (isset($this->epo_post_fields[$attribute]) && isset($this->epo_post_fields[$attribute.'_quantity']) && !$this->epo_post_fields[$attribute.'_quantity']>0){
+				$passed = false;
+				$message[] = sprintf( __( 'The quantity for "%s" must be greater than 0', TM_EPO_TRANSLATION ),  $this->element['options'][$this->epo_post_fields[$attribute]] );
+			}
+		}
 
-		$check1=array_intersect( $this->tmcp_attributes, array_keys( $this->epo_post_fields ) );
-		$check2=array_intersect( $this->tmcp_attributes_fee, array_keys( $this->epo_post_fields ) );
-		$check3=array_intersect( $this->tmcp_attributes_subscription_fee, array_keys( $this->epo_post_fields ) );
+		if($this->element['required']){
+			$check1=array_intersect( $this->tmcp_attributes, array_keys( $this->epo_post_fields ) );
+			$check2=array_intersect( $this->tmcp_attributes_fee, array_keys( $this->epo_post_fields ) );
+			$check3=array_intersect( $this->tmcp_attributes_subscription_fee, array_keys( $this->epo_post_fields ) );
 
-		if ( empty( $check1 ) || count( $check1 )==0 ) {
-			if ( empty( $check2 ) || count( $check2 )==0 ) {
-				if ( empty( $check3 ) || count( $check3 )==0 ) {
-					$passed = false;
+			if ( empty( $check1 ) || count( $check1 )==0 ) {
+				if ( empty( $check2 ) || count( $check2 )==0 ) {
+					if ( empty( $check3 ) || count( $check3 )==0 ) {
+						$passed = false;
+						$message[] = 'required';
+					}
 				}
 			}
 		}
 
-		return $passed;
+		return array('passed'=>$passed,'message'=>$message);
 	}
 
 	

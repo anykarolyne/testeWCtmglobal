@@ -5,6 +5,7 @@ class TM_EPO_FIELDS_upload extends TM_EPO_FIELDS {
 		return array(
 				'max_size' 		=> size_format( wp_max_upload_size() ),
 				'style' 		=> isset( $element['button_type'] )?$element['button_type']:"",
+				'textbeforeprice'=> isset( $element['text_before_price'] )?$element['text_before_price']:"",
 				'textafterprice'=> isset( $element['text_after_price'] )?$element['text_after_price']:"",
 				'hide_amount'  	=> isset( $element['hide_amount'] )?" ".$element['hide_amount']:"",
 				'quantity' 		=> isset( $element['quantity'] )?$element['quantity']:"",
@@ -14,15 +15,19 @@ class TM_EPO_FIELDS_upload extends TM_EPO_FIELDS {
 	public function validate() {
 
 		$passed = true;
-									
-		foreach ( $this->field_names as $attribute ) {
-			if ( empty( $_FILES[ $attribute ] ) || empty( $_FILES[ $attribute ]['name'] ) ) {
-				$passed = false;
-				break;
-			}										
+		$message = array();
+		
+		if($this->element['required']){									
+			foreach ( $this->field_names as $attribute ) {
+				if ( empty( $_FILES[ $attribute ] ) || empty( $_FILES[ $attribute ]['name'] ) ) {
+					$passed = false;
+					$message[] = 'required';
+					break;
+				}										
+			}
 		}
 
-		return $passed;
+		return array('passed'=>$passed,'message'=>$message);
 	}
 
 	public function add_cart_item_data_single() {

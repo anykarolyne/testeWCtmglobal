@@ -7,45 +7,35 @@
  * @version     2.3.8
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-if ( strtolower(TM_EPO()->get_theme('Name'))=="flatsome" ){
-	include_once("flatsome/cart.php");
-	return;
-}
-if ( strtolower(TM_EPO()->get_theme('Name'))=="salient" ){
-	include_once("salient/cart.php");
-	return;
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 wc_print_notices();
 
-do_action( 'woocommerce_before_cart' ); ?>
+do_action( 'woocommerce_before_cart' ); 
+wp_enqueue_script('iosSlider'); ?>
 
 <form action="<?php echo esc_url( WC()->cart->get_cart_url() ); ?>" method="post">
 
+
+<div class="row">
+<div class="col span_8">
 <?php do_action( 'woocommerce_before_cart_table' ); ?>
 
 <table class="shop_table cart" cellspacing="0">
 	<thead>
-		<tr class="tm-epo-cart-row-header">
+		<tr>
 			<th class="product-remove">&nbsp;</th>
 			<th class="product-thumbnail">&nbsp;</th>
 			<th class="product-name"><?php _e( 'Product', 'woocommerce' ); ?></th>
 			<th class="product-price"><?php _e( 'Price', 'woocommerce' ); ?></th>
 			<th class="product-quantity"><?php _e( 'Quantity', 'woocommerce' ); ?></th>
 			<th class="product-subtotal"><?php _e( 'Total', 'woocommerce' ); ?></th>
-			<?php
-				do_action( 'tm_woocommerce_cart_after_column_header');
-			?>
 		</tr>
 	</thead>
 	<tbody>
 		<?php do_action( 'woocommerce_before_cart_contents' ); ?>
 
-		<?php 
-
+		<?php
 		foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 			$_product     = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 			$product_id   = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
@@ -72,16 +62,16 @@ do_action( 'woocommerce_before_cart' ); ?>
 							if ( ! $_product->is_visible() )
 								echo $thumbnail;
 							else
-								printf( '<a href="%s">%s</a>', $_product->get_permalink( $cart_item ), $thumbnail );
+								printf( '<a href="%s">%s</a>', $_product->get_permalink(), $thumbnail );
 						?>
 					</td>
 
 					<td class="product-name">
 						<?php
 							if ( ! $_product->is_visible() )
-								echo apply_filters( 'woocommerce_cart_item_name', $_product->get_title(), $cart_item, $cart_item_key ) . '&nbsp;';
+								echo apply_filters( 'woocommerce_cart_item_name', $_product->get_title(), $cart_item, $cart_item_key );
 							else
-								echo apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s">%s </a>', $_product->get_permalink( $cart_item ), $_product->get_title() ), $cart_item, $cart_item_key );
+								echo apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s">%s</a>', $_product->get_permalink(), $_product->get_title() ), $cart_item, $cart_item_key );
 
 							// Meta data
 							echo WC()->cart->get_item_data( $cart_item );
@@ -103,7 +93,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 					</td>
 
 					<td class="product-quantity">
-						<?php 
+						<?php
 							if ( empty($cart_item["tmcartepo"]) && empty($cart_item["tmsubscriptionfee"]) ){//tmcartfee
 								if ( $_product->is_sold_individually() ) {
 									$product_quantity = sprintf( '1 <input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );
@@ -116,7 +106,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 									), $_product, false );
 								}
 
-								echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key );
+							echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item );
 							}else{
 								if ( $_product->is_sold_individually() ) {
 									echo apply_filters( 'wc_tm_epo_ac_product_qty', '1', $cart_item_key, $cart_item, $_product, $product_id ) ;
@@ -146,11 +136,11 @@ do_action( 'woocommerce_before_cart' ); ?>
 							}
 						?>
 					</td>
-					<?php
+					<?php 
 					do_action( 'tm_woocommerce_cart_after_column', $cart_item_key, $cart_item, $_product, $product_id );
 					?>
 				</tr>
-				<?php
+				<?php 
 				do_action( 'tm_woocommerce_cart_after_row', $cart_item_key, $cart_item, $_product, $product_id );
 			}
 		}
@@ -165,16 +155,12 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 						<label for="coupon_code"><?php _e( 'Coupon', 'woocommerce' ); ?>:</label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php _e( 'Coupon code', 'woocommerce' ); ?>" /> <input type="submit" class="button" name="apply_coupon" value="<?php _e( 'Apply Coupon', 'woocommerce' ); ?>" />
 
-						<?php do_action( 'woocommerce_cart_coupon' ); ?>
+						<?php do_action('woocommerce_cart_coupon'); ?>
 
 					</div>
 				<?php } ?>
 
-				<input type="submit" class="button" name="update_cart" value="<?php _e( 'Update Cart', 'woocommerce' ); ?>" />
-
-				<?php do_action( 'woocommerce_cart_actions' ); ?>
-
-				<?php wp_nonce_field( 'woocommerce-cart' ); ?>
+				
 			</td>
 		</tr>
 
@@ -182,19 +168,29 @@ do_action( 'woocommerce_before_cart' ); ?>
 	</tbody>
 </table>
 
+
+<?php do_action('woocommerce_cart_collaterals'); ?>
+
+</div><!--/span-8-->
+
+<div class="col span_4">
+
+	<div class="cart-collaterals">
+
+		<?php woocommerce_cart_totals(); ?>
+		<?php woocommerce_shipping_calculator(); ?>
+		<input type="submit" class="button" name="update_cart" value="<?php _e( 'Update Cart', 'woocommerce' ); ?>" /> <input type="submit" class="checkout-button button alt wc-forward" name="proceed" value="<?php _e( 'Proceed to Checkout', 'woocommerce' ); ?>" />
+
+		<?php wp_nonce_field( 'woocommerce-cart' ); ?>
+
+	</div>
+
+</div><!--/span-4-->
+
+</div><!--/row-->
+
 <?php do_action( 'woocommerce_after_cart_table' ); ?>
 
 </form>
-
-<div class="cart-collaterals">
-
-	<?php do_action( 'woocommerce_cart_collaterals' ); ?>
-
-	<?php 	if(version_compare( get_option( 'woocommerce_db_version' ), '2.3.8', '<' )){
-				woocommerce_cart_totals();
-			}
-	?>
-
-</div>
 
 <?php do_action( 'woocommerce_after_cart' ); ?>

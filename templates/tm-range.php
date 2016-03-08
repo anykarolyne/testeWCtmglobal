@@ -6,12 +6,20 @@ if (!defined('TM_EPO_PLUGIN_SECURITY')){
 if (!isset($fieldtype)){
 	$fieldtype="tmcp-field";
 }
+if (isset($textbeforeprice) && $textbeforeprice!=''){
+	$textbeforeprice = '<span class="before-amount'.(!empty($hide_amount)?" ".$hide_amount:"").'">'.$textbeforeprice.'</span>';
+}
 if (isset($textafterprice) && $textafterprice!=''){
 	$textafterprice = '<span class="after-amount'.(!empty($hide_amount)?" ".$hide_amount:"").'">'.$textafterprice.'</span>';
 }
 if (!empty($class)){
 	$fieldtype .=" ".$class;
 }
+
+	if ($min!='' && $default_value==''){
+		$default_value=$min;
+	}
+
 ?>
 <li class="tmcp-field-wrap<?php if(!empty($show_picker_value))echo " tm-show-picker-".$show_picker_value; ?>">
 	<?php include('_quantity_start.php'); ?>
@@ -21,6 +29,7 @@ if (!empty($class)){
 	data-max="<?php echo $max; ?>" 
 	data-step="<?php echo $step; ?>" 
 	data-pips="<?php echo $pips; ?>" 
+	data-noofpips="<?php echo $noofpips; ?>" 
 	data-show-picker-value="<?php echo $show_picker_value; ?>" 
 	data-field-id="<?php echo $id; ?>" 
 	data-start="<?php 
@@ -60,7 +69,7 @@ if (!empty($class)){
 	id="<?php echo $id; ?>" 
 	tabindex="<?php echo $tabindex; ?>" 
 	type="hidden" />
-	<span class="amount<?php if (!empty($hide_amount)){echo " ".$hide_amount;} ?>"><?php echo $amount; ?></span>
-	<?php echo $textafterprice; ?>
+	<?php include('_price.php'); ?>
 	<?php include('_quantity_end.php'); ?>
+	<?php do_action( 'tm_after_element' , isset($tm_element_settings)?$tm_element_settings:array() ); ?>
 </li>

@@ -182,8 +182,20 @@ final class TM_EPO_ADMIN_CSV {
 
                 if ( ( $handle = fopen( $file['tmp_name'], "r" ) ) !== FALSE ) {
                     $csv = new tm_convert_array_to_csv();
-                    $header   = fgetcsv( $handle, 0, $csv->delimiter );
-                    $header=$this->remove_utf8_bom($header);
+                    
+                    //$header   = fgetcsv( $handle, 0, $csv->delimiter );
+                    //$header=$this->remove_utf8_bom($header);
+                    
+                    while ( ( $header = fgetcsv( $handle, 0, $csv->delimiter ) ) !== FALSE ) {
+                        $header=$this->remove_utf8_bom($header);
+
+                        $position = ftell( $handle );
+
+                        if (!empty($header[0])){
+                            $start_pos = $position;
+                            break;
+                        }
+                    }                    
                     
                     if ( $start_pos != 0 )
                         fseek( $handle, $start_pos );
@@ -289,13 +301,16 @@ final class TM_EPO_ADMIN_CSV {
             session_start();
         }
         $message='';
+        $postMax = ini_get('post_max_size');
+        /* post_max_size debug */
         if(empty($_FILES) 
             && empty($_POST) 
             && isset($_SERVER['REQUEST_METHOD']) 
-            && strtolower($_SERVER['REQUEST_METHOD']) == 'post'){
-
-            $postMax = ini_get('post_max_size');
-            //$message= sprintf( __( 'Trying to upload files larger than %s is not allowed!', TM_EPO_TRANSLATION ), $postMax );
+            && strtolower($_SERVER['REQUEST_METHOD']) == 'post'
+            && isset($_SERVER['CONTENT_LENGTH'])
+            && (float)$_SERVER['CONTENT_LENGTH']>$postMax
+            ){
+             $message= sprintf( __( 'Trying to upload files larger than %s is not allowed!', TM_EPO_TRANSLATION ), $postMax );
         }
 
         $import=$this->check_for_import();

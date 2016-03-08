@@ -69,7 +69,42 @@ class TM_EPO_WPML_base {
 	// get original post id
 	public function get_original_id($id=0, $post_type='product'){
 		if ($this->is_wpml){
+			$check_post=get_post($id);
+			if ($check_post && property_exists($check_post,'ID') && property_exists($check_post,'post_type')){
+				if (!($check_post->post_type=="product" || $check_post->post_type==TM_EPO_GLOBAL_POST_TYPE)){
+					return $id;
+				}
+			}
 			if($post_type == 'product'){
+
+				if ( $id ) {
+					global $wpdb;
+					$res  = $this->sitepress->get_element_language_details( $id, 'post_' . $post_type );
+					$trid = @intval( $res->trid );
+					if ( $trid ) {
+						$element_lang_code = $res->language_code;
+					} else {
+						$translation_id    = $this->sitepress->set_element_language_details( $id, 'post_' . $post_type, null, $this->get_lang()  );
+						$trid_sql          = "SELECT trid FROM {$wpdb->prefix}icl_translations WHERE translation_id = %d";
+						$trid_prepared     = $wpdb->prepare( $trid_sql, array( $translation_id ) );
+						$trid              = $wpdb->get_var( $trid_prepared );
+						$element_lang_code = $this->get_lang() ;
+					}
+				} else {
+					$trid              = isset( $_GET[ 'trid' ] ) ? intval( $_GET[ 'trid' ] ) : false;
+					$element_lang_code = isset( $_GET[ 'lang' ] ) ? strip_tags( $_GET[ 'lang' ] ) : $this->get_lang() ;
+				}
+
+				$translations = array();
+				if ( $trid ) {
+					$translations = $this->sitepress->get_element_translations( $trid, 'post_' . $post_type );
+				}
+				foreach ($translations as $key => $value) {
+					if($value->source_language_code===NULL){
+						return $value->element_id;
+					}
+				}
+				
 				return icl_object_id( $id, 'any', false, $this->get_default_lang() );
 			}elseif($post_type == TM_EPO_GLOBAL_POST_TYPE){
 				if ( !empty($_GET['tmparentpostid']) && !empty($_GET['tmaddlang']) 
@@ -148,7 +183,7 @@ class TM_EPO_WPML_base {
 			// restore WPML term filters
 			add_filter('terms_clauses', array($this->sitepress,'terms_clauses'), 10, 4);
 			add_filter('get_term', array($this->sitepress,'get_term_adjust_id'));
-			add_filter('get_terms_args', array($this->sitepress, 'get_terms_args_filter'));
+			add_filter('get_terms_args', array($this->sitepress, 'get_terms_args_filter'),10,2);
 			$this->remove_term_filters_done = 0;
 		}		
 	}
@@ -404,7 +439,7 @@ class TM_EPO_WPML_base {
 		if ($this->is_wpml){
 			$alt = sprintf( __( 'Add translation to %s', 'sitepress' ), $v[ 'display_name' ] );
             $post_new_file = add_query_arg( array("tmparentpostid"=>$post_id,"tmaddlang"=>$lang), $post_new_file );
-            $post_new_file = '<a title="' . $alt . '" alt="' . $alt . '" class="tmwpmllink" href="'. esc_url($post_new_file) .'"><i class="fa fa-plus"></i></a>';
+            $post_new_file = '<a title="' . $alt . '" alt="' . $alt . '" class="tmwpmllink" href="'. esc_url($post_new_file) .'"><i class="tcfa tcfa-plus"></i></a>';
 		}
         return $post_new_file; 
 	}
@@ -418,7 +453,7 @@ class TM_EPO_WPML_base {
             if(empty($noadd)){
             	$post_new_file = add_query_arg( array("tmparentpostid"=>$main_post_id,"tmaddlang"=>$lang), $post_new_file );
             }
-            $post_new_file = '<a title="' . $alt . '" alt="' . $alt . '" class="tmwpmllink" href="'.esc_url($post_new_file).'"><i class="fa fa-pencil"></i></a>';
+            $post_new_file = '<a title="' . $alt . '" alt="' . $alt . '" class="tmwpmllink" href="'.esc_url($post_new_file).'"><i class="tcfa tcfa-pencil"></i></a>';
 		}
         return $post_new_file; 
 	}

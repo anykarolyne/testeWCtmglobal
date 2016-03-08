@@ -47,6 +47,12 @@ if (!isset($fieldtype)){
 		$date_mask='00-00-0000';
 		break;
 	}
+
+	if (is_rtl()){
+		$date_format=strrev($date_format);
+		$date_placeholder=strrev($date_placeholder);
+		$date_mask=strrev($date_mask);
+	}
 	if ($style!="picker"){
 		if (isset($_GET[$name]) && empty($_POST)){
 			$unixtime = strtotime($_GET[$name]);
@@ -82,16 +88,27 @@ if (!isset($fieldtype)){
 	    }
 		$year_html=TM_EPO_HTML()->tm_make_select($selectArray , $select_options, $selectedvalue=isset($_POST[$name."_year"])?$_POST[$name."_year"]:"",1,0);
 		
+
 		switch ($format){
 		case "0":
 		case "2":
 		case "4":
-			echo $day_html.$month_html.$year_html;
+			if(is_rtl()){
+				echo $year_html.$month_html.$day_html;	
+			}else{
+				echo $day_html.$month_html.$year_html;	
+			}
+			
 			break;
 		case "1":
 		case "3":
 		case "5":
-			echo $month_html.$day_html.$year_html;
+			if(is_rtl()){
+				echo $year_html.$day_html.$month_html;
+			}else{
+				echo $month_html.$day_html.$year_html;	
+			}
+			
 			break;
 		}
 	}
@@ -103,6 +120,9 @@ if (!isset($fieldtype)){
 		$showon="focus";
 		$mask='';
 	}
+	if (isset($textbeforeprice) && $textbeforeprice!=''){
+		$textbeforeprice = '<span class="before-amount'.(!empty($hide_amount)?" ".$hide_amount:"").'">'.$textbeforeprice.'</span>';
+	}
 	if (isset($textafterprice) && $textafterprice!=''){
 		$textafterprice = '<span class="after-amount'.(!empty($hide_amount)?" ".$hide_amount:"").'">'.$textafterprice.'</span>';
 	}
@@ -110,7 +130,7 @@ if (!isset($fieldtype)){
 		$fieldtype .=" ".$class;
 	}	
 	?>
-	<label for="<?php echo $id; ?>">
+	<label for="<?php echo $id; ?>" class="tm-epo-datepicker-label-container">
 	<input type="<?php echo $input_type; ?>" class="<?php echo $fieldtype;?> tm-epo-field tmcp-date tm-epo-datepicker" 
 	data-date-showon="<?php echo $showon; ?>" 
 	<?php echo $mask; ?> 
@@ -135,8 +155,8 @@ if (!isset($fieldtype)){
 	}
 	?>" 
 	name="<?php echo $name; ?>" /> 
-	</label>	
-	<span class="amount<?php if (!empty($hide_amount)){echo " ".$hide_amount;} ?>"><?php echo $amount; ?></span>
-	<?php echo $textafterprice; ?>
+	</label>
+	<?php include('_price.php'); ?>
 	<?php include('_quantity_end.php'); ?>
+	<?php do_action( 'tm_after_element' , isset($tm_element_settings)?$tm_element_settings:array() ); ?>
 </li>

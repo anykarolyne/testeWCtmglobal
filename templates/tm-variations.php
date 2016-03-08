@@ -24,7 +24,7 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 	if ( ! empty( $available_variations ) ) {
 		
 		$loop = 0;
-		
+
 		foreach ( $attributes as $name => $options ){
 			
 			$loop++;
@@ -49,6 +49,10 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 				$changes_product_image = "";
 				if (isset($variations_options[$att_id]) && !empty($variations_options[$att_id]['variations_changes_product_image'])){
 					$changes_product_image = $variations_options[$att_id]['variations_changes_product_image'];
+				}
+				$variations_label = "";
+				if (isset($variations_options[$att_id]) && !empty($variations_options[$att_id]['variations_label'])){
+					$variations_label = $variations_options[$att_id]['variations_label'];
 				}
 				$variations_class = "";
 				if (isset($variations_options[$att_id]) && !empty($variations_options[$att_id]['variations_class'])){
@@ -102,20 +106,30 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 
 					$terms = get_terms( $att_id, $args );
 
+					$flipped_haystack = array_flip($options);
 					$_index = 0;
 					foreach ( $terms as $term ) {
-						if ( ! in_array( $term->slug, $options ) )
+						if ( !isset($flipped_haystack[$term->slug]) ) 
+						//if ( ! in_array( $term->slug, $options ) )
 							continue;
 						
 						$options_array[esc_attr( $term->slug )] = apply_filters( 'woocommerce_variation_option_name', $term->name );
 						if (sanitize_title( $selected_value ) == sanitize_title( $term->slug )){
 							$default_value = $_index;
 						}
-						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_imagep']) && !empty($variations_options[$att_id]['variations_imagep'][$term->slug])){
-							$imagesp[$_index] = $variations_options[$att_id]['variations_imagep'][$term->slug];
+						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_imagep'])){
+							if(!empty($variations_options[$att_id]['variations_imagep'][$term->slug])){
+								$imagesp[$_index] = $variations_options[$att_id]['variations_imagep'][$term->slug];
+							}else{
+								$imagesp[$_index] = apply_filters( 'woocommerce_tm_epo_variation_product_image', "", $term->slug, $options, $available_variations);
+							}							
 						}
-						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_image']) && !empty($variations_options[$att_id]['variations_image'][$term->slug])){
-							$images[$_index] = $variations_options[$att_id]['variations_image'][$term->slug];
+						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_image'])){
+							if (!empty($variations_options[$att_id]['variations_image'][$term->slug])){
+								$images[$_index] = $variations_options[$att_id]['variations_image'][$term->slug];
+							}else{
+								$images[$_index] = apply_filters( 'woocommerce_tm_epo_variation_image', "", $term->slug, $options, $available_variations);
+							}							
 						}
 						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_color']) && isset($variations_options[$att_id]['variations_color'][$term->slug])){
 							$color[$_index] = $variations_options[$att_id]['variations_color'][$term->slug];
@@ -128,15 +142,29 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 					$_index = 0;
 					foreach ( $options as $option ) {
 						$option = html_entity_decode($option,ENT_COMPAT | ENT_HTML401,'UTF-8');
-						$options_array[sanitize_title( $option )] = apply_filters( 'woocommerce_variation_option_name', $option );
+						if ( version_compare( get_option( 'woocommerce_db_version' ), '2.4', '<' )  ){
+							$options_array[sanitize_title( $option )] = apply_filters( 'woocommerce_variation_option_name', $option );
+						}else{
+							$options_array[ $option ] = apply_filters( 'woocommerce_variation_option_name', $option );
+						}
+						
 						if (sanitize_title( $selected_value ) == sanitize_title( $option )){
 							$default_value = $_index;
 						}
-						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_imagep']) && !empty($variations_options[$att_id]['variations_imagep'][$option])){
-							$imagesp[$_index] = $variations_options[$att_id]['variations_imagep'][$option];
+						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_imagep'])){
+							if(!empty($variations_options[$att_id]['variations_imagep'][$option])){
+								$imagesp[$_index] = $variations_options[$att_id]['variations_imagep'][$option];
+							}else{
+								$imagesp[$_index] = apply_filters( 'woocommerce_tm_epo_variation_product_image', "", $option, $options, $available_variations);
+							}
+							
 						}
-						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_image']) && !empty($variations_options[$att_id]['variations_image'][$option])){
-							$images[$_index] = $variations_options[$att_id]['variations_image'][$option];
+						if(isset($variations_options[$att_id]) && isset($variations_options[$att_id]['variations_image'])){
+							if(!empty($variations_options[$att_id]['variations_image'][$option])){
+								$images[$_index] = $variations_options[$att_id]['variations_image'][$option];
+							}else{
+								$images[$_index] = apply_filters( 'woocommerce_tm_epo_variation_image', "", $option, $options, $available_variations);
+							}							
 						}
 						if(isset($variations_options[$att_id]) 
 							&& isset($variations_options[$att_id]['variations_color']) 
@@ -157,11 +185,13 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 
 							$fake_element = array(
 								"use_url" 				=> "",
+								"textbeforeprice" 		=> "",
 								"textafterprice" 		=> "",
 								"hide_amount" 			=> "hidden",
 								"changes_product_image" => $changes_product_image,
 								"placeholder" 			=> __( 'Choose an option', 'woocommerce' ),
 								"default_value" 		=> $default_value,
+								"default_value_override"=> true,
 								"imagesp" 				=> $imagesp,
 								"containter_css_id" 	=> "variation-element-",
 								"options" 				=> $options_array
@@ -192,7 +222,7 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 									$variations_builder_element_start_args["class"] = $variations_builder_element_start_args_class." ".$variations_class;
 								}								
 								$variations_builder_element_start_args["required"] = 1;
-								$variations_builder_element_start_args["title"] = wc_attribute_label( $name );
+								$variations_builder_element_start_args["title"] = !empty($variations_label)?$variations_label:wc_attribute_label( $name );
 								$variations_builder_element_start_args["class_id"] = "tm-variation-ul-".$variations_display_as." variation-element-".$loop.$form_prefix;
 								$variations_builder_element_start_args["tm_undo_button"]="";
 								$variations_builder_element_start_args["tm_product_id"]=isset($tm_product_id)?$tm_product_id:0;
@@ -234,10 +264,11 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 								$variations_builder_element_start_args["class"] = $variations_builder_element_start_args_class." ".$variations_class;
 							}								
 							$variations_builder_element_start_args["required"] = 1;
-							$variations_builder_element_start_args["title"] = wc_attribute_label( $name );
+							$variations_builder_element_start_args["title"] = !empty($variations_label)?$variations_label:wc_attribute_label( $name );
+
 							$variations_builder_element_start_args["class_id"] = "tm-variation-ul-".$variations_display_as." variation-element-".$loop.$form_prefix;
 							if (!empty($variations_show_reset_button)){
-								$variations_builder_element_start_args["tm_undo_button"]='<span data-tm-for-variation="'.$att_id.'" class="tm-epo-reset-variation"><i class="fa fa-undo"></i></span>';
+								$variations_builder_element_start_args["tm_undo_button"]='<span data-tm-for-variation="'.$att_id.'" class="tm-epo-reset-variation"><i class="tcfa tcfa-undo"></i></span>';
 							}else{
 								$variations_builder_element_start_args["tm_undo_button"]="";
 							}
@@ -253,7 +284,9 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 
 							$fake_element = array(
 								"default_value" 		=> $default_value,
+								"default_value_override"=> true,
 								"class" 				=> $variations_class." tm-epo-variation-element",
+								"textbeforeprice" 		=> "",
 								"textafterprice" 		=> "",
 								"hide_amount" 			=> "hidden",
 								"use_images" 			=> ($variations_display_as=="image" || $variations_display_as=="color")?"images":"",
@@ -301,6 +334,7 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 								if (is_array($display)){
 								
 									$field_args = array(
+										'tm_element_settings' 	=> $fake_element,
 										'id'    			=> 'tm_attribute_id_'.$att_id."_".$loop."_".$v_field_counter."_".intval($v_field_counter+$loop).$form_prefix,//doesn't actually gets that value
 										'name'    			=> 'tm_attribute_'.$att_id."_".$loop.$form_prefix,
 										'class'   			=> $variations_class." tm-epo-variation-element",								
@@ -345,3 +379,4 @@ if ( !empty($tm_product) && is_object($tm_product) && method_exists($tm_product,
 	}
 
 }
+do_action( 'tm_after_styled_variations' , $tm_product);

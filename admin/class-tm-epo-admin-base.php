@@ -246,7 +246,7 @@ final class TM_EPO_Admin_base {
             $params = array(
                 'post_id'                       => isset( $post->ID ) ? $post->ID : '',
                 'plugin_url'                    => $this->plugin_url,
-                'ajax_url'                      => admin_url( 'admin-ajax.php' ),
+                'ajax_url'                      => admin_url( 'admin-ajax' ).'.php',//WPML 3.3.3 fix
                 'add_tm_epo_nonce'              => wp_create_nonce( "add-tm-epo" ),
                 'delete_tm_epo_nonce'           => wp_create_nonce( "delete-tm-epo" ),
                 'check_attributes_nonce'        => wp_create_nonce( "check_attributes" ),

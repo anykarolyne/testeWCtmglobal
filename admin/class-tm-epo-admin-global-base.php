@@ -64,7 +64,81 @@ final class TM_EPO_ADMIN_Global_base {
 
         /* Variations check */
         add_action( 'wp_ajax_woocommerce_tm_variations_check' , array( $this, 'tm_variations_check' ) );
+        add_action( 'wp_ajax_nopriv_woocommerce_tm_variations_check' , array( $this, 'tm_variations_check' ) );
+        add_action( 'wp_ajax_woocommerce_tm_get_variations_array' , array( $this, 'tm_get_variations_array' ) );
+        add_action( 'wp_ajax_nopriv_woocommerce_tm_get_variations_array' , array( $this, 'tm_get_variations_array' ) );
 
+        /* File manager */
+        add_action( 'wp_ajax_tm_mn_movetodir' , array( $this, 'tm_mn_movetodir' ) );
+        add_action( 'wp_ajax_tm_mn_deldir' , array( $this, 'tm_mn_deldir' ) );
+        add_action( 'wp_ajax_tm_mn_delfile' , array( $this, 'tm_mn_delfile' ) );
+
+    }
+
+    /* File manager */
+    public function tm_mn_deldir(){
+
+        if (isset($_POST["tmdir"])){
+            $subdir=TM_EPO()->upload_dir.$_POST["tmdir"];
+            $param = wp_upload_dir();
+            if ( empty( $param['subdir'] ) ) {
+                $param['path']      = $param['path'] . $subdir;
+                $param['url']       = $param['url']. $subdir;
+                $param['subdir']    = $subdir;
+            } else {
+                $param['path']      = str_replace( $param['subdir'], $subdir, $param['path'] );
+                $param['url']       = str_replace( $param['subdir'], $subdir, $param['url'] );
+                $param['subdir']    = str_replace( $param['subdir'], $subdir, $param['subdir'] );
+            }
+            $html=TM_EPO_HELPER()->file_rmdir($param['path']);
+        }
+
+        $this->tm_mn_movetodir();
+    }
+
+    public function tm_mn_delfile(){
+
+        if (isset($_POST["tmfile"]) && isset($_POST["tmdir"])){
+            $subdir=TM_EPO()->upload_dir.$_POST["tmdir"];
+            $param = wp_upload_dir();
+            if ( empty( $param['subdir'] ) ) {
+                $param['path']      = $param['path'] . $subdir;
+                $param['url']       = $param['url']. $subdir;
+                $param['subdir']    = $subdir;
+            } else {
+                $param['path']      = str_replace( $param['subdir'], $subdir, $param['path'] );
+                $param['url']       = str_replace( $param['subdir'], $subdir, $param['url'] );
+                $param['subdir']    = str_replace( $param['subdir'], $subdir, $param['subdir'] );
+            }
+            $html=TM_EPO_HELPER()->file_delete($param['path']."/".$_POST["tmfile"]);
+        }
+
+        $this->tm_mn_movetodir();
+    }
+
+    public function tm_mn_movetodir(){      
+
+        check_ajax_referer( 'settings-nonce', 'security' );
+        
+        $html='';
+        if (isset($_POST["dir"])){
+            $html=TM_EPO_HELPER()->file_manager(TM_EPO()->upload_dir,$_POST["dir"]);
+        }
+        if ($html){
+            echo json_encode( 
+                array( 
+                    'result' => $html
+                ) 
+            );
+        }else{
+            echo json_encode( 
+                array( 
+                    'error' => 1,
+                    'message' =>__( 'File manager is not supported on your server.', TM_EPO_TRANSLATION )
+                ) 
+            );            
+        }
+        die();
     }
 
     /* Variations check */
@@ -82,6 +156,97 @@ final class TM_EPO_ADMIN_Global_base {
         }
         die();
     }
+
+    public function get_available_variations($product) {
+        $available_variations = array();
+
+        foreach ( $product->get_children() as $child_id ) {
+            $variation = $product->get_child( $child_id );
+
+            // Hide out of stock variations if 'Hide out of stock items from the catalog' is checked
+            if ( empty( $variation->variation_id ) || ( 'yes' === get_option( 'woocommerce_hide_out_of_stock_items' ) && ! $variation->is_in_stock() ) ) {
+                continue;
+            }
+
+            // Filter 'woocommerce_hide_invisible_variations' to optionally hide invisible variations (disabled variations and variations with empty price)
+            if ( apply_filters( 'woocommerce_hide_invisible_variations', false, $product->id, $variation ) && ! $variation->variation_is_visible() ) {
+                continue;
+            }
+
+            $available_variations[] = $this->get_available_variation( $variation,$product );
+        }
+
+        return $available_variations;
+    }
+
+    public function get_available_variation( $variation,$product ) {
+        if ( is_numeric( $variation ) ) {
+            $variation = $product->get_child( $variation );
+        }
+
+/*        if ( has_post_thumbnail( $variation->get_variation_id() ) ) {
+            $attachment_id   = get_post_thumbnail_id( $variation->get_variation_id() );
+            $attachment      = wp_get_attachment_image_src( $attachment_id, 'shop_single' );
+            $full_attachment = wp_get_attachment_image_src( $attachment_id, 'full' );
+            $image           = $attachment ? current( $attachment ) : '';
+            $image_link      = $full_attachment ? current( $full_attachment ) : '';
+            $image_title     = get_the_title( $attachment_id );
+            $image_alt       = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+        } else {
+            $image = $image_link = $image_title = $image_alt = '';
+        }
+
+        $availability      = $variation->get_availability();
+        $availability_html = empty( $availability['availability'] ) ? '' : '<p class="stock ' . esc_attr( $availability['class'] ) . '">' . wp_kses_post( $availability['availability'] ) . '</p>';
+        $availability_html = apply_filters( 'woocommerce_stock_html', $availability_html, $availability['availability'], $variation );*/
+
+        return apply_filters( 'woocommerce_available_variation', array(
+            'variation_id'          => $variation->variation_id,
+            'attributes'            => $variation->get_variation_attributes(),
+            /*'variation_is_visible'  => $variation->variation_is_visible(),
+            'variation_is_active'   => $variation->variation_is_active(),
+            'is_purchasable'        => $variation->is_purchasable(),
+            'display_price'         => $variation->get_display_price(),
+            'display_regular_price' => $variation->get_display_price( $variation->get_regular_price() ),
+            'image_src'             => $image,
+            'image_link'            => $image_link,
+            'image_title'           => $image_title,
+            'image_alt'             => $image_alt,
+            'price_html'            => apply_filters( 'woocommerce_show_variation_price', $variation->get_price() === "" || $this->get_variation_price( 'min' ) !== $this->get_variation_price( 'max' ), $this, $variation ) ? '<span class="price">' . $variation->get_price_html() . '</span>' : '',
+            'availability_html'     => $availability_html,
+            'sku'                   => $variation->get_sku(),
+            'weight'                => $variation->get_weight() . ' ' . esc_attr( get_option('woocommerce_weight_unit' ) ),
+            'dimensions'            => $variation->get_dimensions(),
+            'min_qty'               => 1,
+            'max_qty'               => $variation->backorders_allowed() ? '' : $variation->get_stock_quantity(),
+            'backorders_allowed'    => $variation->backorders_allowed(),*/
+            'is_in_stock'           => $variation->is_in_stock(),/*
+            'is_downloadable'       => $variation->is_downloadable() ,
+            'is_virtual'            => $variation->is_virtual(),
+            'is_sold_individually'  => $variation->is_sold_individually() ? 'yes' : 'no',
+            'variation_description' => $variation->get_variation_description(),*/
+        ), $product, $variation );
+    }
+
+    public function tm_get_variations_array() {
+        $variations=array();
+        $attributes=array();
+        if (isset($_POST['post_id'])){
+            if (class_exists('Woocommerce_Waitlist')){
+                remove_filter( 'woocommerce_get_availability', array( Woocommerce_Waitlist::get_instance(), 'wew_check_product_availability' ), 2, 2 );
+                remove_filter( 'woocommerce_get_availability', array( Woocommerce_Waitlist::get_instance(), 'wew_check_product_availability' ) );
+            }
+
+            $product = wc_get_product( $_POST['post_id'] );
+            
+            if($product && is_object($product) && method_exists($product, 'get_available_variations')){
+                $variations = $this->get_available_variations($product);
+                $attributes = $product->get_variation_attributes();
+            }
+
+        }
+        echo json_encode(array('variations'=>$variations,'attributes'=>$attributes)); die();
+     }
 
     /**
      * Export a form.
@@ -234,24 +399,40 @@ final class TM_EPO_ADMIN_Global_base {
                 echo TM_EPO_WPML()->get_flag($tm_meta_lang);
                 foreach (TM_EPO_WPML()->get_active_languages() as $key => $value) {
                     if($key!=$tm_meta_lang || TM_EPO_WPML()->get_lang()=='all'){
-                        $meta_query=TM_EPO_HELPER()->build_meta_query('AND',TM_EPO_WPML_LANG_META,$key,'=', 'EXISTS');
-                        $meta_query[] =  array(
-                            'key' => TM_EPO_WPML_PARENT_POSTID, 
-                            'value' => $main_post_id,
-                            'compare' => '='
-                        );
+                        
                         if ($key==TM_EPO_WPML()->get_default_lang()){
-                            $meta_query=TM_EPO_HELPER()->build_meta_query('OR',TM_EPO_WPML_LANG_META,$tm_meta_lang,'=', 'NOT EXISTS');
+                            $query = new WP_Query( 
+                            array(
+                                'post_type'     => TM_EPO_GLOBAL_POST_TYPE,
+                                'post_status'   => array( 'publish' ), 
+                                'numberposts'   => -1,
+                                'orderby'       => 'date',
+                                'order'         => 'asc',
+                                'p'             => $main_post_id
+                            ));
+                        }else{
+
+                            $meta_query=TM_EPO_HELPER()->build_meta_query('AND',TM_EPO_WPML_LANG_META,$key,'=', 'EXISTS');
+                            $meta_query[] =  array(
+                                'key' => TM_EPO_WPML_PARENT_POSTID, 
+                                'value' => $main_post_id,
+                                'compare' => '='
+                            );
+                            /*if ($key==TM_EPO_WPML()->get_default_lang()){
+                                $meta_query=TM_EPO_HELPER()->build_meta_query('OR',TM_EPO_WPML_LANG_META,$tm_meta_lang,'=', 'NOT EXISTS');
+                            }*/
+                            $query = new WP_Query( 
+                            array(
+                                'post_type'     => TM_EPO_GLOBAL_POST_TYPE,
+                                'post_status'   => array( 'publish' ), 
+                                'numberposts'   => -1,
+                                'orderby'       => 'date',
+                                'order'         => 'asc',
+                                'meta_query'    => $meta_query
+                            ));               
+
                         }
-                        $query = new WP_Query( 
-                        array(
-                            'post_type'     => TM_EPO_GLOBAL_POST_TYPE,
-                            'post_status'   => array( 'publish' ), 
-                            'numberposts'   => -1,
-                            'orderby'       => 'date',
-                            'order'         => 'asc',
-                            'meta_query'    => $meta_query
-                        ));               
+
                         if ( !empty($query->posts)  ){
                             echo TM_EPO_WPML()->edit_lang_link($query->post->ID,$key,$value,$main_post_id);
                         }elseif(empty($query->posts)){
@@ -289,13 +470,15 @@ final class TM_EPO_ADMIN_Global_base {
 
                 if (!empty($tm_meta)){
                     if (is_array($tm_meta)){
-                        if (count($tm_meta)==1){
+                        if (count($tm_meta)==1 && !empty($tm_meta[0])){
                                 $title=get_the_title( $tm_meta[0] );
                                 $tm_meta[0]='<a title="'.esc_attr($title).'" href="'.admin_url( 'post.php?action=edit&post='.$tm_meta[0] ).'">'.$title.'</a>';
                         }else{
                             foreach ($tm_meta as $key => $value) {
-                                $title=get_the_title( $value );
-                                $tm_meta[$key]='<a class="tm-tooltip" title="'.esc_attr($title).'" href="'.admin_url( 'post.php?action=edit&post='.$value ).'">'.$value.'</a>';
+                                if(!empty($value)){
+                                    $title=get_the_title( $value );
+                                    $tm_meta[$key]='<a class="tm-tooltip" title="'.esc_attr($title).'" href="'.admin_url( 'post.php?action=edit&post='.$value ).'">'.$value.'</a>';
+                                }
                             }
                         }                        
                         echo implode(" , ", $tm_meta);        
@@ -358,7 +541,7 @@ final class TM_EPO_ADMIN_Global_base {
         add_meta_box("postexcerpt", __('Description', TM_EPO_TRANSLATION), array( $this, 'tm_description_meta_box' ), null, "normal", "core");
         
         // Price rules meta box
-        add_meta_box("tmformfieldsbuilder", __('Form Fields Builder', TM_EPO_TRANSLATION), array( $this, 'tm_form_fields_builder_meta_box' ), null, "normal", "core");
+        add_meta_box("tmformfieldsbuilder", __('Extra Product Options Form Builder', TM_EPO_TRANSLATION), array( $this, 'tm_form_fields_builder_meta_box' ), null, "normal", "core");
     }
 
     // Description meta box
@@ -447,31 +630,21 @@ final class TM_EPO_ADMIN_Global_base {
                 $id_for_meta = floatval(TM_EPO_WPML()->get_original_id( $post->ID, $post->post_type ));
             }
 
-
-           /*if ( !empty($_GET['tmparentpostid']) && !empty($_GET['tmaddlang']) 
-                && ( isset($_REQUEST['action']) && $_REQUEST['action']=='add' ) ){
-                $id_for_meta = (int) $_GET['tmparentpostid'];
-            }elseif($post->post_type=='product'){
-                $wpml_is_original_product=TM_EPO_WPML()->is_original_product($post->ID,$post->post_type);
-                if (!$wpml_is_original_product){
-                    $id_for_meta = floatval(TM_EPO_WPML()->get_original_id( $post->ID, $post->post_type ));
-                }
-            }*/
         }
         if ($wpml_is_original_product){
             echo "<div class='builder_selector'>"
-            . '<div class="row">'
-            . '<div class="cell col-6">'
-            . '<a id="builder_add_section" class="builder_add_section tm-button-dotted bsbb" href="#"><i class="fa fa-plus-square"></i> '.__("Add section",TM_EPO_TRANSLATION).'</a>'
-            . '<a id="builder_add_variation" class="builder_add_variation tm-button-dotted tm-hidden bsbb" href="#"><i class="fa fa-bullseye"></i> '.__("Style variations",TM_EPO_TRANSLATION).'</a>'
+            . '<div class="tm-row">'
+            . '<div class="tm-cell col-6">'
+            . '<a id="builder_add_section" class="builder_add_section tm-button-dotted bsbb" href="#"><i class="tcfa tcfa-plus-square"></i> '.__("Add section",TM_EPO_TRANSLATION).'</a>'
+            . '<a id="builder_add_variation" class="builder_add_variation tm-button-dotted tm-hidden bsbb" href="#"><i class="tcfa tcfa-bullseye"></i> '.__("Style variations",TM_EPO_TRANSLATION).'</a>'
             . '</div>'
             //. '<div class="tm-ajax-info cell col-2">'
             //. '</div>'
-            . '<div class="cell col-6">'
+            . '<div class="tm-cell col-6">'
             . '<a id="builder_fullsize_close" class="tm-button button button-primary button-large builder_fullsize_close" href="#">'.__("Close",TM_EPO_TRANSLATION).'</a>'
-            . '<a id="builder_fullsize" class="tm-button button button-primary button-large builder_fullsize clearfix" href="#">'.__("Fullsize",TM_EPO_TRANSLATION).'</a>'
-            . '<a id="builder_export" class="tm-button button button-primary button-large builder-export clearfix" href="#">'.__("Export CSV",TM_EPO_TRANSLATION).'</a>'
-            . '<a id="builder_import" class="tm-button button button-primary button-large builder-import clearfix" href="#">'.__("Import CSV",TM_EPO_TRANSLATION).'</a>'
+            . '<a id="builder_fullsize" class="tm-button button button-primary button-large builder_fullsize tc-clearfix" href="#">'.__("Fullsize",TM_EPO_TRANSLATION).'</a>'
+            . '<a id="builder_export" class="tm-button button button-primary button-large builder-export tc-clearfix" href="#">'.__("Export CSV",TM_EPO_TRANSLATION).'</a>'
+            . '<a id="builder_import" class="tm-button button button-primary button-large builder-import tc-clearfix" href="#">'.__("Import CSV",TM_EPO_TRANSLATION).'</a>'
             . '<input id="builder_import_file" name="builder_import_file" type="file" class="builder-import-file" />'
             . '</div>'
             . '</div>'
@@ -481,6 +654,11 @@ final class TM_EPO_ADMIN_Global_base {
             . "<div class='builder_layout'>"
             . TM_EPO_BUILDER()->print_saved_elements(0,$id_for_meta,$post->ID,$wpml_is_original_product)
             . "</div>";
+        if ($wpml_is_original_product){
+            echo "<div class='builder-add-section-action'>"
+                . "<div class='tm-add-section-action'><a title='".__("Add element in a new section",TM_EPO_TRANSLATION)."' class='builder_add_section_and_element tmfa tcfa tcfa-plus'></a></div>"
+                . "</div>";
+        }
         ?>
         </div>
     <?php
@@ -1102,13 +1280,13 @@ final class TM_EPO_ADMIN_Global_base {
             wp_dequeue_style( 'jquery-ui-style' );
             wp_dequeue_style( 'wp-color-picker' );
             wp_dequeue_style( 'woocommerce_admin_dashboard_styles' );
+
         }
-        
-        wp_enqueue_style( 'tm-font-awesome', $this->plugin_url .'/external/font-awesome/css/font-awesome.min.css', false, '4.2', 'screen' );
+        wp_enqueue_style( 'tc-font-awesome', $this->plugin_url .'/external/font-awesome/css/font-awesome.min.css', false, '4.2', 'screen' );
         wp_enqueue_style( 'tm_global_epo_animate_css', $this->plugin_url  . '/assets/css/animate.css' );
         wp_enqueue_style( 'tm_global_epo_admin_css', $this->plugin_url  . '/assets/css/admin/tm-global-epo-admin.css' );
         
-        wp_enqueue_style( 'tm_global_epo_admin_font', 'http://fonts.googleapis.com/css?family=Roboto:400,100,300,700,900,400italic,700italic' );
+        wp_enqueue_style( 'tm_global_epo_admin_font', 'https://fonts.googleapis.com/css?family=Roboto:400,100,300,700,900,400italic,700italic' );
     }
 
     /**
@@ -1130,8 +1308,7 @@ final class TM_EPO_ADMIN_Global_base {
         wp_dequeue_script( 'dhvc-woo-admin' );
 
         wp_register_script( 'tm-modernizr', $this->plugin_url. '/assets/js/modernizr.js', array(   ), '2.8.3' );
-        wp_register_script( 'minicolors', $this->plugin_url. '/external/minicolors/jquery.minicolors.js', array('jquery'), '1.0.0');
-        wp_enqueue_style( 'minicolors', $this->plugin_url. '/external/minicolors/jquery.minicolors.css', false, '1.0.0', 'screen' );
+        wp_enqueue_style( 'tm-spectrum', $this->plugin_url. '/assets/css/tm-spectrum.css', false, '1.7.1', 'screen' );
         wp_register_script( 'tm-scripts', $this->plugin_url . '/assets/js/tm-scripts.js', '', TM_EPO_VERSION );
         
         wp_register_script( 'tm_iframe_transport', $this->plugin_url. '/external/jquery.fileupload/js/jquery.iframe-transport.js', array('jquery'), '1.8.2');
@@ -1145,7 +1322,6 @@ final class TM_EPO_ADMIN_Global_base {
                 'jquery-ui-droppable',
                 'jquery-ui-sortable',
                 'jquery-ui-tabs',
-                'minicolors',
                 'json2',
                 'tm-scripts',
                 'tm-modernizr', 
@@ -1159,8 +1335,10 @@ final class TM_EPO_ADMIN_Global_base {
             'settings_nonce'        => wp_create_nonce("settings-nonce"),
             'export_nonce'          => wp_create_nonce("export-nonce"),
             'check_attributes_nonce' => wp_create_nonce( "check_attributes" ),
-            'ajax_url'              => admin_url('admin-ajax.php'),
+            'ajax_url'              => admin_url( 'admin-ajax' ).'.php',//WPML 3.3.3 fix
             'plugin_url'            => $this->plugin_url,
+            'mn_delete_file'        => __( 'Are you sure you want to delete this file?', TM_EPO_TRANSLATION ),
+            'mn_delete_folder'        => __( 'Are you sure you want to delete this folder and all of its contents?', TM_EPO_TRANSLATION ),
             'delete_style'          => __( 'Are you sure you want to delete this style?', TM_EPO_TRANSLATION ),    
             'builder_delete'        => __( 'Are you sure you want to delete this item?', TM_EPO_TRANSLATION ),
             'builder_clone'         => __( 'Are you sure you want to clone this item?', TM_EPO_TRANSLATION ),
@@ -1182,9 +1360,92 @@ final class TM_EPO_ADMIN_Global_base {
             'import_url'            => $import_url,
             'import_title'          => __( 'Importing data', TM_EPO_TRANSLATION ),
             'i18n_error_title'      => __( 'Error', TM_EPO_TRANSLATION ),
+            'i18n_add_element'      => __( 'Add element', TM_EPO_TRANSLATION ),
+            'element_data'          => $this->js_element_data(),
         );
         wp_localize_script( 'tm_global_epo_admin', 'tm_epo_admin', $params );
         wp_enqueue_script( 'tm_global_epo_admin' );                   
+    }
+
+    public function js_element_data($button_class=""){
+
+        $drag_elements = array();
+        $tags=array();
+        foreach ( TM_EPO_BUILDER()->get_elements() as $element=>$settings ) {
+            if ( isset( TM_EPO_BUILDER()->elements_array[$element] ) ) {
+               
+                if( $settings['show_on_backend'] ){
+                    $tagclass="";
+                    if ($settings['_is_addon']){
+                        $tags[ $settings['namespace'] ][sanitize_title("tc-".$settings['tags'])] = $settings['tags'];
+                        $tagclass .=" tc-".sanitize_title($settings['tags'])." tc-".sanitize_title($settings['namespace']);
+                    }else{
+                        $tag = explode(" ", $settings['tags']);
+                        foreach ($tag as $key => $value) {
+                            $tags[ $settings['namespace'] ][sanitize_title($value)] = $value;
+                            $tagclass .=" tc-".sanitize_title($value);
+                        }
+                    }
+                    
+                    $_drag_elements ='<li class="transition tm-element-button'.$tagclass.'">';
+                    $_drag_elements .="<div data-element='".$element."' class='".$button_class." tc-element-button element-".$element."'>"
+                    ."<div class='tm-label'>"
+                    ."<i class='tmfa tcfa ".$settings["icon"]."'></i> "
+                    ."<span class='tm-element-name'>".$settings["name"]."</span>"
+                    ."<i class='tm-description'>".$settings["description"]."</i>"
+                    ."</div></div>";
+                    $_drag_elements .='</li>';
+
+                    $drag_elements[ $settings['namespace'] ][] = $_drag_elements;
+
+                }
+
+            }
+        }
+
+        $tm_drag_elements = $drag_elements[ TM_EPO_BUILDER()->elements_namespace ];
+        unset($drag_elements[ TM_EPO_BUILDER()->elements_namespace ]);
+        $drag_elements_html = implode("", $tm_drag_elements);
+        foreach ($drag_elements as $key => $value) {
+            $drag_elements_html .= implode("", $value);
+        }
+
+        $tm_tags = $tags[ TM_EPO_BUILDER()->elements_namespace ];
+        unset($tags[ TM_EPO_BUILDER()->elements_namespace ]);
+
+        //$tags = array_unique($tags,SORT_REGULAR);//requires php > 5.2.9
+        $tags = array_map('unserialize', array_unique(array_map('serialize', $tags)));
+
+        $tag_counter=1;
+        $out = '<div class="transition tm-tabs tm-tags-container">';
+        
+            $out .= '<div class="transition tm-tab-headers">';
+                $out   .= '<div class="tm-box tma-tab-label">'
+                        . '<h4 class="tab-header open" data-tm-tag="'.esc_attr("all").'" data-id="tc-tag'.$tag_counter.'-tab">'.__( 'All', TM_EPO_TRANSLATION ).'</h4>'
+                        . '</div>';
+            foreach ($tm_tags as $key => $value) {
+                $tag_counter++;
+                $out   .= '<div class="tm-box tma-tab-label">'
+                        . '<h4 class="tab-header closed" data-tm-tag="tc-'.esc_attr($key).'" data-id="tc-tag'.$tag_counter.'-tab">'.$value.'</h4>'
+                        . '</div>';
+            }            
+            foreach ($tags as $key => $value) {
+                $tag_counter++;
+                $out   .= '<div class="tm-box tma-tab-label">'
+                        . '<h4 class="tab-header closed" data-tm-tag="tc-'.esc_attr(sanitize_title($key)).'" data-id="tc-tag'.$tag_counter.'-tab">'.$key.'</h4>'
+                        . '</div>';
+            }
+            $out .= '</div>';
+
+            $out .= '<div class="transition tm-tab tc-tag'.$tag_counter.'-tab">';
+                $out .= '<ul class="tm-elements-container tm-bsbb-all">';
+                $out .= $drag_elements_html;
+                $out .= '</ul>';
+            $out .= '</div>';
+
+        $out .= '</div>';
+
+        return $out;
     }
 
     /**
@@ -1470,16 +1731,13 @@ final class TM_EPO_ADMIN_Global_base {
         $csv->export_by_id($post);
 
     }
-    public function tm_clone_form_action($post=0 ){        
+    public function tm_clone_form_action($original_id=0){        
         // Get access to the database
         global $wpdb;
         
         // Check the nonce
-        check_ajax_referer( 'tmclone_form_nonce_'.$post, 'security' );
-        
-        // Get variables
-        $original_id  = $post;
-        
+        check_ajax_referer( 'tmclone_form_nonce_'.$original_id, 'security' );
+                
         // Get the post as an array
         $duplicate = get_post( $original_id, 'ARRAY_A' );
 

@@ -1,3 +1,14 @@
+#tm_extra_product_options {
+    background: #fff none repeat scroll 0 0 !important;
+    border: 0 none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+}
 .tm-att-value{
     background: none repeat scroll 0% 0% #1E8CBE;
     color: #FFF;
@@ -25,6 +36,18 @@
 .woocommerce_order_items_wrapper table.woocommerce_order_items .tm_quantity{
     text-align: center;
 }
+.woocommerce_order_items_wrapper table.woocommerce_order_items .tm_quantity .edit,.woocommerce_order_items_wrapper table.woocommerce_order_items .tm_quantity .view{
+    min-width: 100px;
+}
+.woocommerce_order_items_wrapper table.woocommerce_order_items .tm_quantity .edit input{
+    float: left;
+    width: 70%;
+}
+.woocommerce_order_items_wrapper table.woocommerce_order_items .tm_quantity .edit small{
+    float: right;
+    width: 20%;
+}
+
 .tm-50{
     float: left;
     width: 50%;
@@ -157,6 +180,7 @@
     line-height: 4em !important;
     margin: 1em !important;
     width: 7em !important;
+    text-shadow:none !important;
 }
 .tm_mode_selector.tm_hidden .tm_select_mode.button-primary {
     background: none repeat scroll 0 0 #fff !important;
@@ -220,7 +244,9 @@
 .tmcp_attr_list {
     margin-right: 5px;
 }
-
+.tm_mode_local.tm_wrapper .toolbar {
+    text-align: right;
+}
 
 .wc-order-items-editable .tm-delete-order-item {
 text-indent:-9999px;

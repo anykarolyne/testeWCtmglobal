@@ -22,28 +22,36 @@ class TM_EPO_Admin_Welcome {
 		$welcome_page_name  = __( 'About WooCommerce TM Extra Product Options', TM_EPO_TRANSLATION );
 		$welcome_page_title = __( 'Welcome to WooCommerce TM Extra Product Options', TM_EPO_TRANSLATION );
 
-		if($_GET['page']=='tm-about'){
-			$page = add_dashboard_page( $welcome_page_title, $welcome_page_name, 'manage_options', 'tm-about', array( $this, 'welcome_screen' ) );
+		if($_GET['page']=='tc-about'){
+			$page = add_dashboard_page( $welcome_page_title, $welcome_page_name, 'manage_options', 'tc-about', array( $this, 'welcome_screen' ) );
 		}
 	}
 
 	public function admin_head() {
-		remove_submenu_page( 'index.php', 'tm-about' );
+		remove_submenu_page( 'index.php', 'tc-about' );
 
-		if (!empty($_GET['page']) && $_GET['page']=='tm-about'){
+		if (!empty($_GET['page']) && $_GET['page']=='tc-about'){
 		?>
-		<link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300italic,300,400italic,500,500italic,700,700italic,900,900italic&subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic' rel='stylesheet' type='text/css'>
+		<link href='<?php echo TM_PLUGIN_URL .'/external/font-awesome/css/font-awesome.min.css'; ?>' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300italic,300,400italic,500,500italic,700,700italic,900,900italic&subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic' rel='stylesheet' type='text/css'>
 		<style type="text/css">
 			/*<![CDATA[*/
 			.notice, div.updated, div.error {
 				display: none;
 			}
 			#wpcontent{
-				background: #fff;
     			color: #2c3e50;
 				font-family: 'Roboto',"Open Sans",sans-serif;
 			}
 			.wp-core-ui .button-primary:hover,.wp-core-ui .button-primary:focus {
+			    background: none repeat scroll 0 0 #1abc9c;
+			    border-color: #1abc9c;
+			    -webkit-box-shadow: none;
+			    box-shadow: none;
+			    color: #fff;
+			    text-decoration: none;
+			}
+			.wp-core-ui .button-primary {
 			    background: none repeat scroll 0 0 #95a5a6;
 			    border-color: #7f8c8d;
 			    -webkit-box-shadow: none;
@@ -51,22 +59,14 @@ class TM_EPO_Admin_Welcome {
 			    color: #fff;
 			    text-decoration: none;
 			}
-			.wp-core-ui .button-primary {
-			    background: none repeat scroll 0 0 #ecf0f1;
-			    border-color: #ecf0f1;
-			    -webkit-box-shadow: none;
-			    box-shadow: none;
-			    color: #7f8c8d;
-			    text-decoration: none;
-			}
 			.about-wrap h1 {
     			color: #34495e;
 			}
 			a {
-    			color: #16a085;
+    			color: #e67e22;
 			    text-decoration: none;
 			}
-			a:hover,a:focus{color:#2ecc71;text-decoration: underline;}
+			a:hover,a:focus{color:#e67e22;text-decoration: underline;}
 
 			p.tm-actions .twitter-share-button {
 			    margin-left: 3px;
@@ -74,41 +74,47 @@ class TM_EPO_Admin_Welcome {
 			    vertical-align: middle;
 			}
 
-			.tm-logo:before {
-				font-family: fontawesome !important;
-				content: "\f042";
-				color: #fff;
-				-webkit-font-smoothing: antialiased;
-				-moz-osx-font-smoothing: grayscale;
-				font-size: 80px;
-				font-weight: normal;
-				width: 165px;
-				height: 165px;
-				line-height: 165px;
-				text-align: center;
-				position: absolute;
-				top: 0;
-				<?php echo is_rtl() ? 'right' : 'left'; ?>: 0;
-				margin: 0;
-				vertical-align: middle;
+			.about-wrap h3{
+				color: #00aa00;
+			}
+
+			.tm-logo-text {
+			    font-size: 3em;
+			    font-weight: 100;
+			    height: 110px;
+			    left: 0;
+			    line-height: 110px;
+			    margin: 0;
+			    position: absolute;
+			    text-align: center;
+			    top: 0;
+			    vertical-align: middle;
+			    width: 150px;
+			}
+			.tm-logo-text-e{
+				color: #e67e22;
+			}
+			.tm-version {
+			    background: #00aa00 none repeat scroll 0 0;
+			    color: #fff;
+			    display: block;
+			    height: 40px;
+			    line-height: 40px;
+			    margin-top: 110px;
 			}
 			.tm-logo {
-				position: relative;
-				background: #16a085 none repeat scroll 0 0;
-				text-rendering: optimizeLegibility;
-				padding-top: 130px;
-				height: 35px;
-				width: 165px;
-				font-weight: 600;
+				background: #fff none repeat scroll 0 0;
+				color: #00aa00;
 				font-size: 14px;
+				font-weight: 400;
+				height: 110px;
+				margin: 5px 0 0;
+				position: absolute;
 				text-align: center;
-				color: #fff;
-				margin: 5px 0 0 0;
-				-webkit-box-shadow: 0 0 2px 3px rgba(0, 0, 0, 0.1);
-				box-shadow: 0 0 2px 3px rgba(0, 0, 0, 0.1);
-				-web-kit-border-radius: 100%;
-				-moz-border-radius: 100%;
-				border-radius: 100%;
+				text-rendering: optimizelegibility;
+				width: 150px;
+				-webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 			}
 			.about-wrap .tm-logo {
 				position: absolute;
@@ -116,10 +122,11 @@ class TM_EPO_Admin_Welcome {
 				<?php echo is_rtl() ? 'left' : 'right'; ?>: 0;
 			}
 			.about-wrap .feature-section h4{
-				color: #16a085;
+				color: #00aa00;
 			}
 			.about-wrap .feature-section {
 			    border: 0 none;
+			    padding:0;
 			}
 			
 			.about-new {
@@ -139,6 +146,37 @@ class TM_EPO_Admin_Welcome {
 			.feature-wrap h4 {
 				line-height: 1.4;
 			}
+
+
+			img.tc-featured-img {
+			    float: left;
+			    margin: 0 5%;
+			}
+			.tc-feature-wrap {
+			    overflow: hidden;
+			    padding: 0 0 40px;
+			}
+
+			.feature-wrap {
+			    background: #fff none repeat scroll 0 0;
+			    margin: 20px 0 0;
+			    padding: 20px;
+			}
+			.feature-section div {
+			    -moz-box-sizing: border-box;
+			    -webkit-box-sizing: border-box;
+			    -ms-box-sizing: border-box;
+			    -o-box-sizing: border-box;
+			    box-sizing: border-box;   
+			    float: left;
+			    padding: 0 15px;
+			    width: 33.3333%;
+			}
+
+			.about-wrap .about-description, .about-wrap .about-text,.about-wrap h3,.about-wrap p,.about-wrap .feature-section h4 {
+				font-weight: 300;
+			}
+
 			/*]]>*/
 		</style>
 		<?php }
@@ -159,7 +197,7 @@ class TM_EPO_Admin_Welcome {
 			?>
 		</div>
 
-		<div class="tm-logo"><?php printf( __( 'Version %s', 'woocommerce' ), TM_EPO_VERSION ); ?></div>
+		<div class="tm-logo"><span class="tm-logo-text"><span class="tm-logo-text-e">E</span><span class="tm-logo-text-po">PO</span></span><span class="tm-version"><?php printf( __( 'Version %s', 'woocommerce' ), TM_EPO_VERSION ); ?></span></div>
 
 		<p class="tm-actions">
 			<a href="<?php echo admin_url('admin.php?page=wc-settings&tab=tm_extra_product_options'); ?>" class="button button-primary"><?php _e( 'Settings', TM_EPO_TRANSLATION ); ?></a>
@@ -167,7 +205,7 @@ class TM_EPO_Admin_Welcome {
 			<a href="<?php echo esc_url('http://support.themecomplete.com/'); ?>" class="docs button button-primary"><?php _e( 'Support', TM_EPO_TRANSLATION ); ?></a>
 			<a href="https://twitter.com/share" class="twitter-share-button" 
 			data-url="http://codecanyon.net/item/woocommerce-extra-product-options/7908619?utm_source=sharetw" 
-			data-text="Check out 'WooCommerce Extra Product Options' on #EnvatoMarket by @assetsp #codecanyon" 
+			data-text="Check out 'WooCommerce Extra Product Options' on #EnvatoMarket by @themecomplete #codecanyon" 
 			data-via="themeComplete" 
 			data-size="large" 
 			data-hashtags="themecomplete">Tweet</a>
@@ -180,15 +218,36 @@ class TM_EPO_Admin_Welcome {
 
 	public function welcome_screen() {
 		?>
+
 		<div class="wrap about-wrap">
 
 			<?php $this->welcome_header(); ?>			
 
-			<div class="feature-wrap">
+<h2 class="nav-tab-wrapper"></h2>
+
+
+
+
+
+
+<div class="changelog">
+	<div class="tc-feature-wrap">
+		<div>
+			<img class="tc-featured-img" src="<?php echo TM_PLUGIN_URL. '/assets/images/about-1.png' ; ?>"/>
+
+			<h3><?php _e( 'Extend-able elements', TM_EPO_TRANSLATION ); ?></h3>
+
+			<p><?php _e( 'Extra Product Options can now be extended by creating addon plugins. You can create you own elements or customize the default ones.', TM_EPO_TRANSLATION ); ?></p>
+			<p><?php _e( 'If you are interested in developing an addon to Extra Product Options contact us for more information.', TM_EPO_TRANSLATION ); ?></p>
+		</div>
+	</div>
+
+	
+<div class="feature-wrap">
 
 				
 
-				<div class="feature-wrap">
+				<div class="tm-feature-wrap">
 					<div class="wc-feature feature-section col three-col">
 						<div>
 							<h4><?php _e( 'Validation features', TM_EPO_TRANSLATION ); ?></h4>
@@ -205,16 +264,29 @@ class TM_EPO_Admin_Welcome {
 					</div>
 				</div>
 			</div>
+	
 
-			<div class="feature-wrap about-warning">
-					<div class="wc-feature feature-section">
-						<div>
-							<h4><?php _e( 'IMPORTANT NOTICE', TM_EPO_TRANSLATION ); ?></h4>
-							<p><?php _e( 'For translating options with WPML please create the product in the default language first.', TM_EPO_TRANSLATION ); ?></p>
-						</div>
-						 
-					</div>
-				</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			
 				<p><?php _e( 'For any problems feel free to contact us at the', TM_EPO_TRANSLATION ); ?> <a href="<?php echo esc_url('http://support.themecomplete.com/'); ?>"><?php _e( 'Support forum', TM_EPO_TRANSLATION ); ?></a>.</p>
 
@@ -237,7 +309,7 @@ class TM_EPO_Admin_Welcome {
 			return;
 		}
 
-		wp_redirect( admin_url( 'index.php?page=tm-about' ) );
+		wp_redirect( admin_url( 'index.php?page=tc-about' ) );
 		exit;
 	}
 

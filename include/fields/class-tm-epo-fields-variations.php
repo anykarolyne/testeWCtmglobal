@@ -10,7 +10,7 @@ class TM_EPO_FIELDS_variations extends TM_EPO_FIELDS {
 	}
 
 	public function validate() {
-		return true;
+		return array('passed'=>true,'message'=>false);
 	}
 	
 }

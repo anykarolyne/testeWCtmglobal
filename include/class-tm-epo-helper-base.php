@@ -21,6 +21,99 @@ final class TM_EPO_HELPER_base {
 	function __construct( $args = array() ) {		
 	}
 
+	/* Check if current request is made via AJAX */
+	public function is_ajax_request() {
+		if ( ! empty( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) == 'xmlhttprequest' ) {
+			return true;
+		}
+			
+		return false;
+	}
+
+	public function sum_array_values($input=array()){
+		$r=array();
+
+		if (is_array($input)){
+			foreach ($input as $key => $value) {
+				if (is_array($value)){
+					foreach ($value as $key2 => $value2) {
+						if(!($key2=="min" || $key2=="max")){
+							continue;
+						}
+						$a=0;
+						if (isset($r[$key2])){
+							$a=floatval($r[$key2]);
+						}
+						if ((!$value['section_logic'] && !$value['logic'] && $key2=="min") || $key2=="max"){
+							$r[$key2] = floatval($value2) + $a;
+						}
+					}
+				}
+			}			
+		}
+
+		return $r;
+	}
+
+	public function add_array_values($input=array(),$add=array()){
+		$r=array();
+
+		if (is_array($input) && is_array($add)){
+			foreach ($input as $key => $value) {
+				$a=0;
+				if (isset($add[$key])){
+					$a=floatval($add[$key]);
+				}
+
+				$r[$key] = floatval($value) + $a;
+			}
+		}
+
+		return $r;
+	}
+
+	public function merge_price_array($a=array(),$b=array()){
+		if (!is_array($a) || !is_array($b)){
+			return $a;
+		}
+
+		$r=array();
+		
+		foreach ($b as $key => $value) {
+			if($value===''){
+				$r[$key]=$a[$key];
+			}else{
+				$r[$key]=$value;
+			}
+		}
+		return $r;		
+	}
+
+	public function build_array($a=array(),$b=array()){
+		if (!is_array($a) || !is_array($b)){
+			return $a;
+		}
+
+		$r=array();
+
+		foreach ($b as $key => $value) {
+			if (is_array($value)){
+				if (isset($a[$key])){
+					$r[$key]=$value;
+				}else{
+					$r[$key]=$this->build_array($a[$key],$b[$key]);	
+				}				
+			}else{
+				if(isset($a[$key])){
+					$r[$key]=$a[$key];
+				}else{
+					$r[$key]=$value;
+				}
+			}
+		}
+		return $r;
+	}
+
 	/**
 	 * Filters an $input array by key.
 	 */
@@ -298,7 +391,7 @@ final class TM_EPO_HELPER_base {
 			if ($_lang==TM_EPO_WPML()->get_default_lang()){
 				$query .= " AND ( ( ".$wpdb->prefix."postmeta.meta_key = '".TM_EPO_WPML_LANG_META."' AND CAST(".$wpdb->prefix."postmeta.meta_value AS CHAR) = '".TM_EPO_WPML()->get_lang()."' ) OR mt1.post_id IS NULL ) ";
 			}else{
-				$query .= " AND pm.meta_key = '".TM_EPO_WPML_LANG_META."' AND pm.meta_value = '".TM_EPO_WPML()->get_lang()."'";
+				$query .= " AND p.ID=pm.post_id AND pm.meta_key = '".TM_EPO_WPML_LANG_META."' AND pm.meta_value = '".TM_EPO_WPML()->get_lang()."'";
 			}
 		}
 
@@ -372,6 +465,166 @@ final class TM_EPO_HELPER_base {
 		}
 	}
 
+	public function formatBytes($bytes, $precision = 2) { 
+	    $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+
+	    $bytes = max($bytes, 0); 
+	    $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+	    $pow = min($pow, count($units) - 1); 
+
+	    // Uncomment one of the following alternatives
+	     $bytes /= pow(1024, $pow);
+	    // $bytes /= (1 << (10 * $pow)); 
+
+	    return round($bytes, $precision) . ' ' . $units[$pow]; 
+	} 
+
+	public function convert_to_right_icon($label='',$icon='tcfa-angle-right'){
+		$label = str_replace("/", "", $label);
+		$label .= '<i class="tm-icon tmfa tcfa '.$icon.'"></i>';
+		return $label;
+	}
+
+	public function url_to_links($url='',$main_path='',$main_path_label=''){
+
+		$param = str_replace($main_path, "", $url);
+		$param = explode("/", $param);
+
+		$html = '';
+		
+		$a = '<a class="tm-mn-movetodir" data-tm-dir="" href="'.esc_attr($main_path).'">'.$this->convert_to_right_icon(esc_html($main_path_label)).'</a>';
+		$html .= $a;
+		$todir='';
+		foreach ($param as $key => $value) {
+			if ($key==count($param)-1){
+				$a = '<span class="tm-mn-currentdir">'.esc_html($value).'</span>';
+			}else{
+				$data_tm_dir = (empty($todir))?$value:$todir."/".$value;
+				$a = '<a class="tm-mn-movetodir" data-tm-dir="'.esc_attr($data_tm_dir).'" href="'.esc_attr($main_path.$data_tm_dir).'">'.$this->convert_to_right_icon(esc_html($value."/")).'</a>';
+				$todir=$data_tm_dir;				
+			}
+			$html .= $a;
+		}
+		
+		
+		return $html;//$main_path_label.$param;
+	}
+
+	public function init_filesystem(){
+		if (function_exists('get_filesystem_method')){
+			$access_type = get_filesystem_method();
+			if($access_type === 'direct'){
+				/* you can safely run request_filesystem_credentials() without any issues and don't need to worry about passing in a URL */
+				$creds = request_filesystem_credentials(site_url() . '/wp-admin/', '', false, false, array());
+
+				/* initialize the API */
+				if ( ! WP_Filesystem($creds) ) {
+					/* any problems and we exit */
+					return '';
+				}
+				return true;
+			}			
+		}
+		return false;	
+	}
+
+	public function file_rmdir($file=''){
+		if($this->init_filesystem()){
+			global $wp_filesystem;
+			$mn=$wp_filesystem->rmdir($file,true);
+			clearstatcache();
+			return $mn;
+		}
+		return false;
+	}
+
+	public function file_delete($file=''){
+		if($this->init_filesystem()){
+			global $wp_filesystem;
+			$mn=$wp_filesystem->delete($file);
+			clearstatcache();
+			return $mn;
+		}
+		return false;
+	}
+
+	public function file_manager($main_path='',$todir=''){
+		$html="";
+		
+		if($this->init_filesystem()){
+
+			global $wp_filesystem;
+
+			$subdir=$main_path.$todir;
+			$param = wp_upload_dir();
+			if ( empty( $param['subdir'] ) ) {
+				$param['path']   	= $param['path'] . $subdir;
+				$param['url']    	= $param['url']. $subdir;
+				$param['subdir'] 	= $subdir;
+				$base_url 			= $param['url'].$main_path;
+			} else {
+				$param['path']   	= str_replace( $param['subdir'], $subdir, $param['path'] );
+				$param['url']    	= str_replace( $param['subdir'], $subdir, $param['url'] );
+				$param['subdir'] 	= str_replace( $param['subdir'], $subdir, $param['subdir'] );
+				$base_url 			= str_replace( $param['subdir'], $main_path, $param['url'] );
+			}
+
+			clearstatcache();
+			$mn=$wp_filesystem->dirlist($param['path'], true, false);
+			
+			$files=array();
+			$directories=array();
+			if($mn){
+				foreach ($mn as $key => $value) {
+					if (isset($value["type"]) && isset($value["name"]) && isset($value["size"] )){
+						switch (strtolower($value["type"])) {
+							case 'd':
+								$directories[]=array("name"=>$value["name"],"size"=>0);
+								break;
+								
+							case 'f':
+								$files[]=array("name"=>$value["name"],"size"=>$value["size"]);
+								break;
+						}
+					}
+				}
+			}
+
+			$html .='<div class="tm-mn-header"><div class="tm-mn-path">'.$this->url_to_links($param['url'],$base_url,$main_path).'</div></div>';
+			$html .='<div class="tm-mn-wrap-heading tm-row nopadding nomargin">';
+				$html .='<div class="tm-mn-name tm-cell col-6">'.__( 'Filename', TM_EPO_TRANSLATION ).'</div>';
+				$html .='<div class="tm-mn-size tm-cell col-3">'.__( 'Size', TM_EPO_TRANSLATION ).'</div>';
+				$html .='<div class="tm-mn-op tm-cell col-3">&nbsp;</div>';
+			$html .='</div>';
+			foreach ($directories as $key => $value) {
+				$filetype = wp_check_filetype($value["name"]);
+				$img = '<img class="tm-mime" src="'.esc_attr(wp_mime_type_icon($filetype['type'])).'" /> ';
+				$html .='<div class="tm-mn-wrap-dir tm-row nopadding nomargin">';
+					$data_tm_dir=(empty($todir))?$value["name"]:$todir."/".$value["name"];
+					$html .='<div class="tm-mn-name tm-cell col-6">'.$img.'<a class="tm-mn-movetodir" data-tm-dir="'.esc_attr($data_tm_dir).'" href="'.esc_attr($param['url'].$value["name"]).'">'.esc_html($value["name"]).'</a></div>';
+					$html .='<div class="tm-mn-size tm-cell col-3">&nbsp;</div>';
+					$html .='<div class="tm-mn-op tm-cell col-3">'
+					.'<a title="'.__( 'Delete', TM_EPO_TRANSLATION ).'" href="#" data-tm-dir="'.esc_attr($todir).'" data-tm-deldir="'.esc_attr($data_tm_dir).'" class="tm-mn-deldir"><i class="tm-icon tmfa tcfa tcfa-times"></i></a>'
+					.'</div>';
+				$html .='</div>';
+			}
+			foreach ($files as $key => $value) {
+				$filetype = wp_check_filetype($value["name"]);
+				$img = '<img class="tm-mime" src="'.esc_attr(wp_mime_type_icon($filetype['type'])).'" /> ';			
+
+				$html .='<div class="tm-mn-wrap-file tm-row nopadding nomargin">';
+					$data_tm_dir=$todir;
+					$html .='<div class="tm-mn-name tm-cell col-6">'.$img.esc_html($value["name"]).'</div>';
+					$html .='<div class="tm-mn-size tm-cell col-3">'.$this->formatBytes($value["size"],2).'</div>';
+					$html .='<div class="tm-mn-op tm-cell col-3">'
+					.'<a title="'.__( 'Delete', TM_EPO_TRANSLATION ).'" href="#" data-tm-dir="'.esc_attr($todir).'" data-tm-deldir="'.esc_attr($data_tm_dir).'" data-tm-delfile="'.esc_attr($value["name"]).'" class="tm-mn-delfile"><i class="tm-icon tmfa tcfa tcfa-times"></i></a>'
+					.'</div>';
+				$html .='</div>';
+			}
+
+		}
+		return $html;
+	}
 
 }
 

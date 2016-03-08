@@ -10,8 +10,8 @@ if (class_exists('WC_Settings_Page')){
 	TM_EPO_ADMIN_GLOBAL()->tm_load_scripts();
 
 	class TM_EPO_ADMIN_SETTINGS extends WC_Settings_Page {
+		
 		var $other_settings=0;
-
 		var $settings_options=array();
 		var $settings_array=array();
 
@@ -30,7 +30,8 @@ if (class_exists('WC_Settings_Page')){
 				"style" 	=> __( 'Style', TM_EPO_TRANSLATION ),
 				"global" 	=> __( 'Global', TM_EPO_TRANSLATION ),
 				"other" 	=> "other",
-				"license" 	=> __( 'License', TM_EPO_TRANSLATION )
+				"license" 	=> __( 'License', TM_EPO_TRANSLATION ),
+				"upload" 	=> __('Upload manager', TM_EPO_TRANSLATION)
 				);
 
 			foreach ($this->settings_options as $key => $value) {
@@ -43,6 +44,7 @@ if (class_exists('WC_Settings_Page')){
 
 			add_action( 'woocommerce_admin_field_tm_tabs_header', 					array( $this, 'tm_tabs_header_setting' ) );
 			add_action( 'woocommerce_admin_field_tm_title', 						array( $this, 'tm_title_setting' ) );
+			add_action( 'woocommerce_admin_field_tm_html', 							array( $this, 'tm_html_setting' ) );
 			add_action( 'woocommerce_admin_field_tm_sectionend', 					array( $this, 'tm_sectionend_setting' ) );
 
 			add_action( 'tm_woocommerce_settings_' . 'epo_page_options' , 			array( $this, 'tm_settings_hook' ) );
@@ -55,7 +57,7 @@ if (class_exists('WC_Settings_Page')){
 			echo '<div class="tm-box">'
 				. '<h4 class="tab-header '.($counter == 1?'open':'closed').'" data-id="tmsettings'.$counter.'-tab">'
 				. $label
-				. '<span class="fa tm-arrow2 fa-angle-down2"></span></h4>'
+				. '<span class="tcfa tm-arrow2 tcfa-angle-down2"></span></h4>'
 				. '</div>';
 		}
 
@@ -70,6 +72,29 @@ if (class_exists('WC_Settings_Page')){
 				echo wpautop( wptexturize( wp_kses_post( $value['desc'] ) ) );
 			}
 			echo '<table class="form-table">'. "\n\n";
+		}
+
+		public function tm_html_setting($value) {
+			if ( ! isset( $value['id'] ) ) {
+				$value['id'] = '';
+			}
+			if ( ! isset( $value['title'] ) ) {
+				$value['title'] = isset( $value['name'] ) ? $value['name'] : '';
+			}
+
+			if ( ! empty( $value['id'] ) ) {
+				do_action( 'tm_woocommerce_settings_' . sanitize_title( $value['id'] ) );
+			}?>
+			<tr valign="top">
+						<td colspan="2" class="forminp forminp-<?php echo sanitize_title( $value['type'] ) ?>">
+							<?php 
+								if ( ! empty( $value['html'] ) ) {
+									echo  $value['html'] ;
+								} 
+							?>
+						</td>
+					</tr>
+			<?php
 		}
 
 		public function tm_sectionend_setting($value) {
@@ -103,7 +128,7 @@ if (class_exists('WC_Settings_Page')){
 						}
 					}
 				
-				echo '</div>';
+					echo '</div>';
 			
 		}
 
@@ -117,7 +142,7 @@ if (class_exists('WC_Settings_Page')){
 		}
 
 		public function tm_settings_hook_all_end() {
-			echo '</div></div>'; // close transition tm-tabs , tm-settings-wrap
+			echo '</div></div>'; // close .transition.tm-tabs , .tm-settings-wrap
 		}
 
 		public function get_other_settings_headers(){
@@ -217,6 +242,7 @@ if (class_exists('WC_Settings_Page')){
 								'hideifoptionsiszero' 	=> __( 'Hide Final total box if Options total is zero', TM_EPO_TRANSLATION ),
 								'hide' 					=> __( 'Hide Final total box', TM_EPO_TRANSLATION ),
 								'pxq' 					=> __( 'Always show only Final total (Price x Quantity)', TM_EPO_TRANSLATION ),
+								'disable' 				=> __( 'Disable', TM_EPO_TRANSLATION ),
 							),
 							'desc_tip'	=>  false,
 						),		
@@ -360,7 +386,7 @@ if (class_exists('WC_Settings_Page')){
 								'bottom right' 	=> __( 'Bottom right', TM_EPO_TRANSLATION ),
 								'bottom left' 	=> __( 'Bottom left', TM_EPO_TRANSLATION ),
 								'top right' 	=> __( 'Top right', TM_EPO_TRANSLATION ),
-								'top left' 		=> __( 'Bottom left', TM_EPO_TRANSLATION ),
+								'top left' 		=> __( 'Top left', TM_EPO_TRANSLATION ),
 							),
 							'desc_tip'	=>  false,
 						),
@@ -376,6 +402,14 @@ if (class_exists('WC_Settings_Page')){
 								'normal' 	=> __( 'Disable', TM_EPO_TRANSLATION ),
 								'display' 	=> __( 'Enable', TM_EPO_TRANSLATION ),
 							),
+							'desc_tip'	=>  false,
+						),
+					array(
+							'title' 	=> __( 'Enable extra options in shop and category view', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'Check to enable the display of extra options on the shop page and category view. This setting is theme dependent and some aspect may not work as expected.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_enable_in_shop',
+							'default' 	=> 'no',
+							'type' 		=> 'checkbox',					
 							'desc_tip'	=>  false,
 						),
 					array(
@@ -422,13 +456,21 @@ if (class_exists('WC_Settings_Page')){
 					?
 					array(
 							'title' 	=> __( 'Use translated values when possible on admin Order', TM_EPO_TRANSLATION ),
-							'desc' 		=> '<span>'.__( 'Please note that if the options on the Order change or get deleted you will get worng results by enabling this!', TM_EPO_TRANSLATION ).'</span>',
+							'desc' 		=> '<span>'.__( 'Please note that if the options on the Order change or get deleted you will get wrong results by enabling this!', TM_EPO_TRANSLATION ).'</span>',
 							'id' 		=> 'tm_epo_wpml_order_translate',
 							'default' 	=> 'no',
 							'type' 		=> 'checkbox',					
 							'desc_tip'	=>  false,
 						)
 					:array(),
+					array(
+							'title' 	=> __( 'Use the "From" string on displayed product prices', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'Check this to alter the price display of a product when it has extra options with prices.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_use_from_on_price',
+							'default' 	=> 'no',
+							'type' 		=> 'checkbox',					
+							'desc_tip'	=>  false,
+						),
 					array( 'type' => 'tm_sectionend', 'id' => 'epo_page_options' ),
 			);
 		}
@@ -506,6 +548,14 @@ if (class_exists('WC_Settings_Page')){
 							'title' 	=> __( 'Prevent negative priced products', TM_EPO_TRANSLATION ),
 							'desc' 		=> '<span>'.__( 'Prevent adding to the cart negative priced products.', TM_EPO_TRANSLATION ).'</span>',
 							'id' 		=> 'tm_epo_no_negative_priced_products',
+							'default' 	=> 'no',
+							'type' 		=> 'checkbox',					
+							'desc_tip'	=>  false,
+						),
+					array(
+							'title' 	=> __( 'Show image replacement in cart and checkout', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'Enabling this will show the images of elements that have an image replacement.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_show_image_replacement',
 							'default' 	=> 'no',
 							'type' 		=> 'checkbox',					
 							'desc_tip'	=>  false,
@@ -594,7 +644,7 @@ if (class_exists('WC_Settings_Page')){
 					array(
 							'title' 	=> __( 'Calendar close button text replacement', TM_EPO_TRANSLATION ),
 							'desc' 		=> '<span>'.__( 'Enter a text to replace the Close button text on the calendar.', TM_EPO_TRANSLATION ).'</span>',
-							'id' 		=> 'tm_epo_closeText',
+							'id' 		=> 'tm_epo_closetext',
 							'default' 	=> '',
 							'type' 		=> 'text',					
 							'desc_tip'	=>  false,
@@ -602,7 +652,39 @@ if (class_exists('WC_Settings_Page')){
 					array(
 							'title' 	=> __( 'Calendar today button text replacement', TM_EPO_TRANSLATION ),
 							'desc' 		=> '<span>'.__( 'Enter a text to replace the Today button text on the calendar.', TM_EPO_TRANSLATION ).'</span>',
-							'id' 		=> 'tm_epo_currentText',
+							'id' 		=> 'tm_epo_currenttext',
+							'default' 	=> '',
+							'type' 		=> 'text',					
+							'desc_tip'	=>  false,
+						),
+					array(
+							'title' 	=> __( 'Slider previous text', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'Enter a text to replace the previous button text for slider.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_slider_prev_text',
+							'default' 	=> '',
+							'type' 		=> 'text',					
+							'desc_tip'	=>  false,
+						),
+					array(
+							'title' 	=> __( 'Slider next text', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'Enter a text to replace the next button text for slider.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_slider_next_text',
+							'default' 	=> '',
+							'type' 		=> 'text',					
+							'desc_tip'	=>  false,
+						),
+					array(
+							'title' 	=> __( 'Force Select options text', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'Enter a text to replace the add to cart button text when using the Force select option.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_force_select_text',
+							'default' 	=> '',
+							'type' 		=> 'text',					
+							'desc_tip'	=>  false,
+						),
+					array(
+							'title' 	=> __( 'Empty cart text', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'Enter a text to replace the empty cart button text.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_empty_cart_text',
 							'default' 	=> '',
 							'type' 		=> 'text',					
 							'desc_tip'	=>  false,
@@ -766,6 +848,14 @@ if (class_exists('WC_Settings_Page')){
 							'desc_tip'	=>  false,
 						),
 					array(
+							'title' 	=> __( 'Load generated styles inline', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'This will prevent some load flickering but it will produce invalid html.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_global_load_generated_styles_inline',
+							'default' 	=> 'yes',
+							'type' 		=> 'checkbox',					
+							'desc_tip'	=>  false,
+						),
+					array(
 							'title' 	=> __( 'Datepicker theme', TM_EPO_TRANSLATION ),
 							'desc' 		=> '<span>'.__( 'Select the theme for the datepicker.', TM_EPO_TRANSLATION ).'</span>',
 							'id' 		=> 'tm_epo_global_datepicker_theme',
@@ -885,6 +975,38 @@ if (class_exists('WC_Settings_Page')){
 				):array();
 			
 			return $_license_settings;
+		}
+
+		private function _get_setting_upload($setting,$label){
+			$html=TM_EPO_HELPER()->file_manager(TM_EPO()->upload_dir,'');
+
+			$_upload_settings=
+				array(				
+					array( 
+						'type' 	=> 'tm_title', 
+						'id' 	=> 'epo_page_options',
+						'title' => $label 
+						),
+					array(
+							'title' 	=> __( 'Upload folder', TM_EPO_TRANSLATION ),
+							'desc' 		=> '<span>'.__( 'Changing this will only affect future uploads.', TM_EPO_TRANSLATION ).'</span>',
+							'id' 		=> 'tm_epo_upload_folder',
+							'default'	=> 'extra_product_options',
+							'type' 		=> 'text',					
+							'desc_tip'	=>  false,
+							
+							//'custom_attributes'=>(TM_EPO_LICENSE()->get_license())?array('disabled'=>'disabled'):""
+						),
+					array( 
+						'type' 	=> 'tm_html', 
+						'id' 	=> 'epo_page_options_html',
+						'title' => __( 'File manager', TM_EPO_TRANSLATION ),
+						'html' 	=> $html 
+						),
+					array( 'type' => 'tm_sectionend', 'id' => 'epo_page_options' ),		
+				);
+			
+			return $_upload_settings;
 		}
 
 		/**

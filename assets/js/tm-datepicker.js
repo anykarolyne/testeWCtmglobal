@@ -26,6 +26,10 @@
  * http://api.jqueryui.com/datepicker/
  */
 
+$.ui.tm_datepicker = $.ui.tm_datepicker || {};
+    if ($.ui.tm_datepicker.version) {
+        return;
+    }
 
 $.extend($.ui, { tm_datepicker: { version: "1.11.4" } });
 
@@ -1765,16 +1769,16 @@ $.extend(Datepicker.prototype, {
                 can_adjust_4 = this._tm_canAdjustMonth(inst, +12, drawYear, drawMonth);
 
             tm_prev_arrow_m = '<div class="tm-ui-dp-button-prev tm-ui-dp-button">'+
-                            '<div '+(can_adjust_1 ? 'data-handler="prevM" data-event="click" ' :'')+'aria-label="'+prevText+'" class="'+(can_adjust_1 ? '': 'tm-ui-dp-button-disabled ')+'tm-ui-dp-button-arrow fa fa-angle-left" tabindex="0" role="button"></div>'+
+                            '<div '+(can_adjust_1 ? 'data-handler="prevM" data-event="click" ' :'')+'aria-label="'+prevText+'" class="'+(can_adjust_1 ? '': 'tm-ui-dp-button-disabled ')+'tm-ui-dp-button-arrow tcfa tcfa-angle-left" tabindex="0" role="button"></div>'+
                             '</div>';
             tm_next_arrow_m = '<div class="tm-ui-dp-button-next tm-ui-dp-button">'+
-                            '<div '+(can_adjust_2 ? 'data-handler="nextM" data-event="click" ' :'')+'aria-label="'+nextText+'" class="'+(can_adjust_2 ? '': 'tm-ui-dp-button-disabled ')+'tm-ui-dp-button-arrow fa fa-angle-right" tabindex="0" role="button"></div>'+
+                            '<div '+(can_adjust_2 ? 'data-handler="nextM" data-event="click" ' :'')+'aria-label="'+nextText+'" class="'+(can_adjust_2 ? '': 'tm-ui-dp-button-disabled ')+'tm-ui-dp-button-arrow tcfa tcfa-angle-right" tabindex="0" role="button"></div>'+
                             '</div>';
             tm_prev_arrow_y = '<div class="tm-ui-dp-button-prev tm-ui-dp-button">'+
-                            '<div '+(can_adjust_3 ? 'data-handler="prevY" data-event="click" ' :'')+'aria-label="'+prevText+'" class="'+(can_adjust_3 ? '': 'tm-ui-dp-button-disabled ')+'tm-ui-dp-button-arrow fa fa-angle-left" tabindex="0" role="button"></div>'+
+                            '<div '+(can_adjust_3 ? 'data-handler="prevY" data-event="click" ' :'')+'aria-label="'+prevText+'" class="'+(can_adjust_3 ? '': 'tm-ui-dp-button-disabled ')+'tm-ui-dp-button-arrow tcfa tcfa-angle-left" tabindex="0" role="button"></div>'+
                             '</div>';
             tm_next_arrow_y = '<div class="tm-ui-dp-button-next tm-ui-dp-button">'+
-                            '<div '+(can_adjust_4 ? 'data-handler="nextY" data-event="click" ' :'')+'aria-label="'+nextText+'" class="'+(can_adjust_4 ? '': 'tm-ui-dp-button-disabled ')+'tm-ui-dp-button-arrow fa fa-angle-right" tabindex="0" role="button"></div>'+
+                            '<div '+(can_adjust_4 ? 'data-handler="nextY" data-event="click" ' :'')+'aria-label="'+nextText+'" class="'+(can_adjust_4 ? '': 'tm-ui-dp-button-disabled ')+'tm-ui-dp-button-arrow tcfa tcfa-angle-right" tabindex="0" role="button"></div>'+
                             '</div>';
 
 

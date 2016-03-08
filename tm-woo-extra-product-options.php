@@ -3,13 +3,18 @@
 Plugin Name: WooCommerce TM Extra Product Options
 Plugin URI: http://epo.themecomplete.com/
 Description: A WooCommerce plugin for adding extra product options.
-Version: 4.0.5
+Version: 4.2.3
 Author: themecomplete
 Author URI: http://themecomplete.com/
 */
 
+// Prevents direct file access
+if ( ! defined( 'WPINC' ) ) {
+    die;
+}
+
 define ( 'TM_EPO_PLUGIN_SECURITY', 1 );
-define ( 'TM_EPO_VERSION', "4.0.5" );
+define ( 'TM_EPO_VERSION', "4.2.3" );
 define ( 'TM_PLUGIN_ID', '7908619' );
 define ( 'TM_EPO_TRANSLATION', 'woocommerce-tm-extra-product-options' );
 define ( 'TM_EPO_LOCAL_POST_TYPE', "tm_product_cp" );
@@ -138,7 +143,8 @@ if ( tm_woocommerce_check() ) {
                 'show_in_nav_menus'     => false,
                 'public'                => false,
                 'hierarchical'          => false,
-                'supports'              => false
+                'supports'              => false,
+                '_edit_link'            => 'post.php?post=%d' //WordPress 4.4 fix
             )
         );
         register_post_type( TM_EPO_GLOBAL_POST_TYPE,
@@ -171,7 +177,8 @@ if ( tm_woocommerce_check() ) {
                 'query_var'           => false,
                 'supports'            => array( 'title', 'excerpt' ),
                 'has_archive'         => false,
-                'show_in_nav_menus'   => false
+                'show_in_nav_menus'   => false,
+                '_edit_link'          => 'post.php?post=%d' //WordPress 4.4 fix
             )
 
         );
@@ -222,7 +229,7 @@ if ( tm_woocommerce_check() ) {
         }
         TM_EPO_ADMIN()->init();
         
-    }
+    } 
 
     /**
      * Load main plugin interface
@@ -231,6 +238,108 @@ if ( tm_woocommerce_check() ) {
         return TM_Extra_Product_Options::instance();
     }
     TM_EPO()->init();
+
+    // Shortcode tc_epo_show
+    // Used for echoing a custom action.
+    function tc_epo_show_shortcode($atts, $content = null) {
+        extract( shortcode_atts( array(
+        'action' => ''
+        ), $atts ) );
+        
+        ob_start();
+        do_action($action);
+        
+        $content = ob_get_contents();
+        ob_end_clean();
+        
+        return $content;
+    }
+
+    add_shortcode('tc_epo_show', 'tc_epo_show_shortcode');
+
+    // Epo Widget
+    // Used for for eachoing a custom action
+    add_action( 'widgets_init', 'tc_epo_widget' );
+
+    function tc_epo_widget() {
+
+        register_widget( 'TC_EPO_Widget' );
+    }
+
+    class TC_EPO_Widget extends WP_Widget {
+        
+        function TC_EPO_Widget() {
+            $widget_ops = array( 'classname' => 'tc_epo_show_widget', 'description' => __('Echo a custom action', TM_EPO_TRANSLATION) );
+            
+            $control_ops = array( 'width' => 300, 'height' => 350, 'id_base' => 'tc_epo_show_widget' );
+            
+            parent::__construct( 'tc_epo_show_widget', __('EPO custom action', TM_EPO_TRANSLATION), $widget_ops, $control_ops );
+        }
+
+        function widget($args, $instance) {
+
+            $cache = wp_cache_get('widget_recent_posts', 'widget');
+
+            if ( !is_array($cache) )
+                $cache = array();
+
+            if ( ! isset( $args['widget_id'] ) )
+                $args['widget_id'] = $this->id;
+
+            if ( isset( $cache[ $args['widget_id'] ] ) ) {
+                echo $cache[ $args['widget_id'] ];
+                return;
+            }
+
+            ob_start();
+            extract($args);
+
+            $title = empty($instance['title']) ? '' : $instance['title'];
+            $action = empty($instance['action']) ? 'tc_show_epo' : $instance['action'];
+
+            echo $before_widget; 
+            echo $title;
+            do_action($action);
+
+            echo $after_widget;
+
+            $cache[$args['widget_id']] = ob_get_flush();
+            wp_cache_set('widget_recent_posts', $cache, 'widget');
+        }
+
+        function update( $new_instance, $old_instance ) {
+            $instance = $old_instance;
+            $instance['title'] = strip_tags($new_instance['title']);
+            $instance['action'] = strip_tags($new_instance['action']);
+            
+            $this->flush_widget_cache();
+
+            $alloptions = wp_cache_get( 'alloptions', 'options' );
+            if ( isset($alloptions['widget_recent_entries']) )
+                delete_option('widget_recent_entries');
+
+            return $instance;
+        }
+
+        function flush_widget_cache() {
+            wp_cache_delete('widget_recent_posts', 'widget');
+        }
+
+        function form( $instance ) {
+            $title     = isset( $instance['title'] ) ? esc_attr( $instance['title'] ) : '';
+            $action     = isset( $instance['action'] ) ? esc_attr( $instance['action'] ) : '';
+             
+    ?>
+            <p><label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', TM_EPO_TRANSLATION); ?></label>
+            <input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo $title; ?>" /></p>
+            <p><label for="<?php echo $this->get_field_id( 'action' ); ?>"><?php _e( 'Custom action:', TM_EPO_TRANSLATION ); ?></label>
+            <input class="widefat" id="<?php echo $this->get_field_id( 'action' ); ?>" name="<?php echo $this->get_field_name( 'action' ); ?>" type="text" value="<?php echo $action; ?>" /></p>
+
+    <?php
+        }
+    }
+
+
 }
 
 ?>

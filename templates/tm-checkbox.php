@@ -29,6 +29,9 @@ if (!empty($use_images)){
 			}else{
 				$altsrc='src="'.$image.'"';
 			}
+			if(!empty($use_lightbox) && $use_lightbox=="lightbox"){
+				$swatch_class .= " tc-lightbox-image";
+			}
 			$label='<img class="tmlazy '.$border_type.' checkbox_image'.$swatch_class.'" alt="" '.$altsrc.$swatch.' />'.'<span class="checkbox_image_label">'.$label.'</span>';
 		}else{
 			// check for hex color
@@ -85,7 +88,7 @@ if (isset($_POST[$name]) ){
 elseif (isset($_GET[$name]) ){
 	$selected_value=$_GET[$name];
 }
-elseif (empty($_POST) && empty($_GET['tm_cart_item_key'])){
+elseif ( empty($_POST) && empty(TM_EPO()->cart_edit_key) ){
 	$selected_value=-1;
 }
 
@@ -101,6 +104,12 @@ if($selected_value==-1){
 	if (esc_attr(stripcslashes($selected_value))==esc_attr( ( $value ) ) ){
 		$checked=true;
 	}
+}
+
+if (isset($textbeforeprice) && $textbeforeprice!=''){
+	$textbeforeprice = '<span class="before-amount'.(!empty($hide_amount)?" ".$hide_amount:"").'">'.$textbeforeprice.'</span>';
+}else{
+	$textbeforeprice='';
 }
 
 if (isset($textafterprice) && $textafterprice!=''){
@@ -121,12 +130,23 @@ if (!empty($element_data_attr_html)){
 if (empty($image)){
 	$image = '';
 }
-if (empty($imagep)){
+if (empty($imagep) || empty($changes_product_image)){
 	$imagep = '';
 }
+
+$labelclass='';
+$labelclass_start='';
+$labelclass_end='';
+if (TM_EPO()->tm_epo_css_styles=="on" && empty($use_images)){
+	$labelclass=' class="tm-epo-style '.TM_EPO()->tm_epo_css_styles_style.'"';
+	$labelclass_start='<span class="tm-epo-style-wrapper '.TM_EPO()->tm_epo_css_styles_style.'">';
+	$labelclass_end='</span>';
+}
+
 ?>
 <li class="tmcp-field-wrap<?php echo $grid_break.$li_class;?>">
 	<?php include('_quantity_start.php'); ?>
+	<?php echo $labelclass_start; ?>
 	<input class="<?php echo $fieldtype;?> tm-epo-field tmcp-checkbox<?php echo $use; ?>" 
 	name="<?php echo $name; ?>" 
 	data-limit="<?php echo $limit; ?>" 
@@ -142,8 +162,17 @@ if (empty($imagep)){
 	tabindex="<?php echo $tabindex; ?>" 
 	type="checkbox" 
 	<?php checked( $checked, true ); ?> />
-	<label for="<?php echo $id; ?>"><?php echo $label; ?></label>
-	<span class="amount<?php if (!empty($hide_amount)){echo " ".$hide_amount;} ?>"><?php echo $amount; ?></span>
-	<?php echo $textafterprice; ?>
+	<?php 
+	if (empty($use_images)){
+		echo '<label'.$labelclass.' for="'.$id.'"></label>';
+		echo $labelclass_end;
+		echo '<label for="'.$id.'"><span class="tm-label">'.$label.'</span></label>';
+	}else{
+		echo '<label'.$labelclass.' for="'.$id.'">'.$label.'</label>';
+		echo $labelclass_end;
+	}
+	?>
+	<?php include('_price.php'); ?>
 	<?php include('_quantity_end.php'); ?>
+	<?php do_action( 'tm_after_element' , isset($tm_element_settings)?$tm_element_settings:array() ); ?>
 </li>

@@ -7,45 +7,38 @@
  * @version     2.3.8
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
-}
-if ( strtolower(TM_EPO()->get_theme('Name'))=="flatsome" ){
-	include_once("flatsome/cart.php");
-	return;
-}
-if ( strtolower(TM_EPO()->get_theme('Name'))=="salient" ){
-	include_once("salient/cart.php");
-	return;
-}
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+global $flatsome_opt;
 
 wc_print_notices();
+?>
 
-do_action( 'woocommerce_before_cart' ); ?>
+<?php do_action( 'woocommerce_before_cart' ); ?>
 
 <form action="<?php echo esc_url( WC()->cart->get_cart_url() ); ?>" method="post">
 
-<?php do_action( 'woocommerce_before_cart_table' ); ?>
 
-<table class="shop_table cart" cellspacing="0">
+<div class="row">
+<div class="large-8 small-12 columns">
+
+<?php do_action( 'woocommerce_before_cart_table' ); ?>
+<?php do_action( 'woocommerce_before_cart_contents' ); ?>
+
+<div class="cart-wrapper">
+<table class="shop_table cart responsive" cellspacing="0">
 	<thead>
-		<tr class="tm-epo-cart-row-header">
-			<th class="product-remove">&nbsp;</th>
-			<th class="product-thumbnail">&nbsp;</th>
-			<th class="product-name"><?php _e( 'Product', 'woocommerce' ); ?></th>
+		<tr>
+			<th class="product-name" colspan="3"><?php _e( 'Product', 'woocommerce' ); ?></th>
 			<th class="product-price"><?php _e( 'Price', 'woocommerce' ); ?></th>
 			<th class="product-quantity"><?php _e( 'Quantity', 'woocommerce' ); ?></th>
 			<th class="product-subtotal"><?php _e( 'Total', 'woocommerce' ); ?></th>
-			<?php
-				do_action( 'tm_woocommerce_cart_after_column_header');
-			?>
 		</tr>
 	</thead>
+
 	<tbody>
-		<?php do_action( 'woocommerce_before_cart_contents' ); ?>
 
-		<?php 
-
+		<?php
 		foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
 			$_product     = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 			$product_id   = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
@@ -94,7 +87,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 					<td class="product-price">
 						<?php
-							if (TM_EPO()->tm_epo_hide_options_in_cart=="normal"){
+							if (TM_EPO()->tm_epo_hide_options_in_cart=="normal" && isset($cart_item['tm_epo_product_original_price'])){
 								echo apply_filters( 'wc_tm_epo_ac_product_price', apply_filters( 'woocommerce_cart_item_price', TM_EPO()->get_price_for_cart( $cart_item['tm_epo_product_original_price']  ,$cart_item,""), $cart_item, $cart_item_key ) , $cart_item_key, $cart_item, $original_product, $product_id );
 							}else{
 								echo apply_filters( 'wc_tm_epo_ac_product_price', apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key ) , $cart_item_key, $cart_item, $_product, $product_id );
@@ -103,7 +96,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 					</td>
 
 					<td class="product-quantity">
-						<?php 
+						<?php
 							if ( empty($cart_item["tmcartepo"]) && empty($cart_item["tmsubscriptionfee"]) ){//tmcartfee
 								if ( $_product->is_sold_individually() ) {
 									$product_quantity = sprintf( '1 <input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );
@@ -129,7 +122,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 
 					<td class="product-subtotal">
 						<?php 
-							if (TM_EPO()->tm_epo_cart_field_display=="advanced"){
+							if (TM_EPO()->tm_epo_cart_field_display=="advanced" && isset($cart_item['tm_epo_product_original_price'])){
 								if (TM_EPO()->tm_epo_hide_options_in_cart=="normal"){
 									if (isset($cart_item['tm_epo_product_after_adjustment']) && TM_EPO()->tm_epo_dpd_enable=="no"){
 										$price = $cart_item['tm_epo_product_after_adjustment'];
@@ -146,55 +139,59 @@ do_action( 'woocommerce_before_cart' ); ?>
 							}
 						?>
 					</td>
-					<?php
+					<?php 
 					do_action( 'tm_woocommerce_cart_after_column', $cart_item_key, $cart_item, $_product, $product_id );
 					?>
 				</tr>
-				<?php
+				<?php 
 				do_action( 'tm_woocommerce_cart_after_row', $cart_item_key, $cart_item, $_product, $product_id );
 			}
 		}
 
 		do_action( 'woocommerce_cart_contents' );
 		?>
-		<tr>
-			<td colspan="6" class="actions">
 
-				<?php if ( WC()->cart->coupons_enabled() ) { ?>
-					<div class="coupon">
-
-						<label for="coupon_code"><?php _e( 'Coupon', 'woocommerce' ); ?>:</label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php _e( 'Coupon code', 'woocommerce' ); ?>" /> <input type="submit" class="button" name="apply_coupon" value="<?php _e( 'Apply Coupon', 'woocommerce' ); ?>" />
-
-						<?php do_action( 'woocommerce_cart_coupon' ); ?>
-
-					</div>
-				<?php } ?>
-
-				<input type="submit" class="button" name="update_cart" value="<?php _e( 'Update Cart', 'woocommerce' ); ?>" />
-
-				<?php do_action( 'woocommerce_cart_actions' ); ?>
-
-				<?php wp_nonce_field( 'woocommerce-cart' ); ?>
-			</td>
-		</tr>
-
-		<?php do_action( 'woocommerce_after_cart_contents' ); ?>
 	</tbody>
+
 </table>
+<?php do_action( 'woocommerce_after_cart_contents' ); ?>
+
+<?php do_action('woocommerce_cart_collaterals'); ?>
+
+
+</div><!-- .cart-wrapper -->
+</div><!-- .large-8 -->
+
+
+
+<div class="large-4 small-12 columns">
+	<div class="cart-sidebar actions">
+
+		<?php woocommerce_cart_totals(); ?>
+
+		<input type="submit" class="button expand" name="update_cart" value="<?php _e( 'Update Cart', 'woocommerce' ); ?>" /> 
+		<input type="submit" class="checkout-button secondary expand button" name="proceed" value="<?php _e( 'Proceed to Checkout', 'woocommerce' ); ?>" />
+
+		<?php wp_nonce_field( 'woocommerce-cart' ); ?>
+
+		<?php if ( WC()->cart->coupons_enabled() ) { ?>
+		<div class="coupon">
+			<h3 class="widget-title"><?php _e( 'Coupon', 'woocommerce' ); ?></h3>
+			<input type="text" name="coupon_code"  id="coupon_code" value="" placeholder="<?php _e( 'Enter Coupon', 'flatsome' ); ?>"/> 
+			<input type="submit" class="button small expand" name="apply_coupon" value="<?php _e( 'Apply Coupon', 'woocommerce' ); ?>" />
+			<?php do_action('woocommerce_cart_coupon'); ?>
+
+		</div>
+		<?php } ?>
+
+
+	</div><!-- .cart-sidebar -->
+
+</div><!-- .large-4 -->
+</div><!-- .row -->
 
 <?php do_action( 'woocommerce_after_cart_table' ); ?>
 
 </form>
-
-<div class="cart-collaterals">
-
-	<?php do_action( 'woocommerce_cart_collaterals' ); ?>
-
-	<?php 	if(version_compare( get_option( 'woocommerce_db_version' ), '2.3.8', '<' )){
-				woocommerce_cart_totals();
-			}
-	?>
-
-</div>
 
 <?php do_action( 'woocommerce_after_cart' ); ?>

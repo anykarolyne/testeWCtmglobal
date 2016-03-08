@@ -67,7 +67,7 @@ if(!empty($_field_attribute)){
 ?>
 <div data-epo-attr="<?php echo esc_attr( sanitize_title( $tmcp_attribute_selected_value ) ); ?>" class="woocommerce_tm_epo wc-metabox closed">
     <h3>
-        <button type="button" class="remove_tm_epo button" rel="<?php echo esc_attr( $tmcp_id ); ?>"><?php _e( 'Remove', TM_EPO_TRANSLATION ); ?></button>
+        <button type="button" class="remove_tm_epo tm-button" rel="<?php echo esc_attr( $tmcp_id ); ?>"><?php _e( 'Remove', TM_EPO_TRANSLATION ); ?></button>
         <div class="handlediv" title="<?php _e( 'Click to toggle', TM_EPO_TRANSLATION ); ?>"></div>
             <span class="tm-att-id">#<?php echo esc_html( $tmcp_id ); ?> &mdash; </span>
             <span class="tm-att-label"><?php _e( 'Attribute:', TM_EPO_TRANSLATION ); ?></span>
@@ -173,7 +173,7 @@ if(!empty($_field_attribute)){
 ?>
 <div data-epo-attr="<?php echo esc_attr( sanitize_title( $tmcp_attribute_selected_value ) ); ?>" class="woocommerce_tm_epo wc-metabox closed">
     <h3>
-        <button type="button" class="remove_tm_epo button" rel="<?php echo esc_attr( $tmcp_id ); ?>"><?php _e( 'Remove', TM_EPO_TRANSLATION ); ?></button>
+        <button type="button" class="remove_tm_epo tm-button" rel="<?php echo esc_attr( $tmcp_id ); ?>"><?php _e( 'Remove', TM_EPO_TRANSLATION ); ?></button>
         <div class="handlediv" title="<?php _e( 'Click to toggle', TM_EPO_TRANSLATION ); ?>"></div>
             <span class="tm-att-id">#<?php echo esc_html( $tmcp_id ); ?> &mdash; </span>
             <span class="tm-att-label"><?php _e( 'Attribute:', TM_EPO_TRANSLATION ); ?></span>

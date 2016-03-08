@@ -1,56 +1,11 @@
 (function($) {
     "use strict";
 
+    var global_variation_object=false;
+
     $.tmEPOAdmin = {
 
-        initialitize: function() {
-            
-            $.tmEPOAdmin.isinit=true;
-            $.tmEPOAdmin.is_original=($('.tm-wmpl-disabled').length==0);
-            $.tmEPOAdmin.current_edit_label=false;
-            
-            $.tmEPOAdmin.toggle_variation_button();
-
-            if($.tmEPOAdmin.is_original){
-                // Sections sortable
-                $(".builder_layout").sortable({
-                    handle: ".move",
-                    cursor: "move",
-                    items: ".builder_wrapper:not(.tma-nomove)",
-                    stop: function(e, ui) {
-                        $.tmEPOAdmin.builder_reorder_multiple();
-                    },
-                    cancel:'.tma-nomove',
-                    forcePlaceholderSize: true,
-                    placeholder: 'bitem pl2',
-                    tolerance: 'pointer'
-                });
-
-                // Elements sortable
-                $.tmEPOAdmin.builder_items_sortable($(".builder_wrapper .bitem_wrapper"));
-
-                // Elements draggable
-                $(".builder_elements .ditem").draggable({
-                    zIndex: 5000,
-                    scroll: true,
-                    helper: "clone",
-                    start: function(event, ui) {
-                        var current = $(event.target);
-                        current.css({
-                            opacity: 0.3
-                        });
-                        $(".builder_layout .bitem_wrapper").addClass("highlight");
-                    },
-                    stop: function(event, ui) {
-                        $(".builder_layout .bitem_wrapper").removeClass("highlight");
-                        $(event.target).css({
-                            opacity: 1
-                        });
-                    },
-                    connectToSortable: ".builder_layout .bitem_wrapper:not(.tma-nomove .bitem_wrapper)"
-                });
-            }
-
+        add_events: function() {
             // Export button
             $(document).on("click.cpf", "#builder_export", function(e) {
                 e.preventDefault();
@@ -58,7 +13,7 @@
                 if ($this.data('doing_export')){
                     return;
                 }
-                $this.data('doing_export',1).prepend('<i class="tm-icon fa fa-refresh fa-spin"></i>');
+                $this.data('doing_export',1).prepend('<i class="tm-icon tcfa tcfa-refresh tcfa-spin"></i>');
                 var tm_meta,data,frame;            
                 // disable variations customization.   
                 $(".tma-variations-wrap :input").prop("disabled", true);
@@ -233,11 +188,13 @@
             });
 
             // Add Element button
-            $(document).on("click.cpf", ".builder_add", $.tmEPOAdmin.builder_add_onClick);
-            $(document).on("click.cpf", ".builder_add_on_section", $.tmEPOAdmin.builder_add_on_section_onClick);
-            $(document).on("click.cpf", ".builder_drag_elements.float .ditem", $.tmEPOAdmin.builder_float_add_onClick);
+            //$(document).on("click.cpf", ".builder_add_on_section", $.tmEPOAdmin.builder_add_on_section_onClick);
+            //$(document).on("click.cpf", ".builder_drag_elements.float .ditem", $.tmEPOAdmin.builder_float_add_onClick);
+            
+            $(document).on("click.cpf", ".builder_add_element", $.tmEPOAdmin.builder_add_element_onClick);
             // Section add button
             $(document).on("click.cpf", ".builder_add_section", $.tmEPOAdmin.builder_add_section_onClick);
+            $(document).on("click.cpf", ".builder_add_section_and_element", $.tmEPOAdmin.builder_add_section_and_element_onClick);
             // Variation button
             $(document).on("click.cpf", ".builder_add_variation", $.tmEPOAdmin.builder_add_variation_onClick);
 
@@ -284,12 +241,35 @@
             $(document).on("click.cpf", ".tm_upload_button", $.tmEPOAdmin.upload);
             $(document).on("change.cpf", ".use_images", $.tmEPOAdmin.tm_upload);
             $(document).on("change.cpf", ".use_url", $.tmEPOAdmin.tm_url);
-            
+            $(document).on("change.cpf", ".tm-qty-selector", $.tmEPOAdmin.tm_qty_selector);
+
             $(document).on("change.cpf", ".variations-display-as", $.tmEPOAdmin.variations_display_as);
             $(document).on("change.cpf", ".tm-attribute .tm-changes-product-image", $.tmEPOAdmin.variations_display_as);
             $(document).on("click.cpf", ".tm-upload-button-remove", $.tmEPOAdmin.tm_upload_button_remove_onClick);
 
             $(document).on("change.cpf", ".tm-weekday-picker", $.tmEPOAdmin.tm_weekday_picker);
+            
+            $(document).on("click.cpf", ".tm-tags-container .tab-header", function() {
+
+                var $this = $(this),
+                    tm_tags_container=$this.closest('.tm-tags-container'),
+                    tm_elements_container=tm_tags_container.find('.tm-elements-container'),
+                    elements=tm_elements_container.find("li.tm-element-button"),
+                    headers=tm_tags_container.find('.tab-header'),
+                    tag_to_show=$this.attr("data-tm-tag");
+
+                headers.removeClass("open").addClass("closed");
+                $this.removeClass("closed").addClass("open");
+
+                if (tag_to_show=="all"){
+                    elements.removeClass("tm-hidden");
+                }else{
+                    elements.addClass("tm-hidden");
+                    elements.filter("."+tag_to_show).removeClass("tm-hidden");
+                }
+                
+            });
+
             // popup editor identification
             $(document).on("click.cpf", ".tm_editor_wrap", function() {
                 var t = $(this).find('textarea');
@@ -325,11 +305,30 @@
                     }                
                 }else{
                     cpf_logic_value=false;
-                }                
+                }
+                var select=$(this).closest('.tm-logic-rule').find('.tm-logic-value');
+                var selectoperator=$(this).closest('.tm-logic-rule').find('.cpf-logic-operator');
                 if (cpf_logic_value){
                     cpf_logic_value=$(cpf_logic_value);
-                    var select=$(this).closest('.tm-logic-rule').find('.tm-logic-value');
+                    
                     select.empty().append(cpf_logic_value);
+
+                    selectoperator.find("[value='is']").show();
+                    selectoperator.find("[value='isnot']").show();
+                }else{
+                    if (element==section){
+                        var value=selectoperator.val();
+                        if (value=='is' || value=='isnot'){
+                            selectoperator.val("isempty");
+                        }                        
+                        selectoperator.find("[value='is']").hide();
+                        selectoperator.find("[value='isnot']").hide();
+                        selectoperator.trigger("change.cpf");
+
+                    }else{
+                        selectoperator.find("[value='is']").show();
+                        selectoperator.find("[value='isnot']").show();
+                    }
                 }
             });
 
@@ -386,37 +385,49 @@
                     panels_wrap.find(".multiple_radiobuttons_options").filter(function(){return this.value=='fee'}).val($(this).val());
                 }
             });
-
             $(document).on("click.cpf", ".cpf-add-rule", $.tmEPOAdmin.cpf_add_rule);
             $(document).on("click.cpf", ".cpf-delete-rule", $.tmEPOAdmin.cpf_delete_rule);
 
             // General fold button
             $(document).on("click.cpf", ".tma-handle-wrap .tma-handle", $.tmEPOAdmin.builder_fold_onClick);
 
-            // Check section logic
-            $.tmEPOAdmin.check_section_logic();
-            // Check element logic
-            $.tmEPOAdmin.check_element_logic();
-            // Start logic
-            $.tmEPOAdmin.section_logic_start();
-            $.tmEPOAdmin.element_logic_start();
+            $(document).on('keyup change', '#temp_for_floatbox_insert .n[type=text]', function(){
+                var value       = $(this).val(),
+                    regex       = new RegExp( "[^\-0-9\%.\\" + woocommerce_admin.mon_decimal_point + "]+", "gi" ),
+                    newvalue    = value.replace( regex, '' );
 
-            // Prevent refresh page changes to hidden elements
-            $.tmEPOAdmin.set_hidden();
-            
-            $.tmEPOAdmin.set_fields_change();
-             $(document).on("change.cpf", ".builder_textfield_price_type", function() {
-                $.tmEPOAdmin.set_fields_change($(this));
+                if ( value !== newvalue ) {
+                    $(this).val( newvalue );
+                    if ( $(this).parent().find('.wc_error_tip').size() == 0 ) {
+                        var offset = $(this).position();
+                        $(this).after( '<div class="wc_error_tip">' + woocommerce_admin.i18n_mon_decimal_error + '</div>' );
+                        $('.wc_error_tip')
+                            .css('left', offset.left + $(this).width() - ( $(this).width() / 2 ) - ( $('.wc_error_tip').width() / 2 ) )
+                            .css('top', offset.top + $(this).height() )
+                            .fadeIn('100');
+                    }
+                }
+                return this;
             });
 
-            $.tmEPOAdmin.set_field_title();
+            $(document).on('click', '.builder_elements .tc-handle', function(){
+                var $this=$(this);
+                
+                var handle_wrapper = $this.closest(".builder_elements");
+                if (!$this.data("folded") && $this.data("folded")!=undefined ){
+                    $this.data("folded",true);
+                    $this.removeClass("tcfa-caret-down").addClass("tcfa-caret-up");
+                    handle_wrapper.addClass('closed');
+                }else{
+                    $this.data("folded",false);
+                    $this.removeClass("tcfa-caret-up").addClass("tcfa-caret-down");
+                    handle_wrapper.removeClass('closed');
+                }
 
-            $(document).on("changetitle.cpf", ".tm-header-title", function() {
-                $.tmEPOAdmin.set_field_title($(this));
+                $.tmEPOAdmin.fix_content_float();
+
             });
 
-            $(".tm-tabs").tmtabs();
-            
             if ($().ajaxChosen){
                 $("select.ajax_chosen_select_tm_product_ids").ajaxChosen({
                     method:     'GET',
@@ -439,13 +450,6 @@
                 });
             }
 
-            $.tmEPOAdmin.disable_categories();
-            $(document).on("click.cpf", ".meta-disable-categories", function() {
-                $.tmEPOAdmin.disable_categories();
-            });
-            $.tmEPOAdmin.fix_content_float();
-            $.tmEPOAdmin.init_sections_check();
-            
             $("body").on("woocommerce-product-type-change", function() {
                 $.tmEPOAdmin.init_sections_check();
                 $.tmEPOAdmin.fix_content_float();
@@ -473,15 +477,192 @@
                     }
                 }
             });
+
+        },
+        initialitize: function() {
+            $.tmEPOAdmin.set_global_variation_object("initialitize_on");
+        },
+        initialitize_on: function() {
+            $.tmEPOAdmin.isinit=true;
+            $.tmEPOAdmin.pre_element_logic_init_obj={};
+            $.tmEPOAdmin.pre_element_logic_init_obj_options={};
+
+            $.tmEPOAdmin.pre_element_logic_init(true);
+            $.tmEPOAdmin.pre_element_logic_init_done=true;
+
+            $.tmEPOAdmin.is_original=($('.tm-wmpl-disabled').length==0);
+            $.tmEPOAdmin.current_edit_label=false;
+            
+            $.tmEPOAdmin.toggle_variation_button();
+
+            if($.tmEPOAdmin.is_original){
+                // Sections sortable
+                $(".builder_layout").sortable({
+                    handle: ".move",
+                    cursor: "move",
+                    items: ".builder_wrapper:not(.tma-nomove)",
+                    start:function(e, ui) {
+                        ui.placeholder.height(ui.helper.outerHeight());ui.placeholder.width(ui.helper.outerWidth());
+                    },
+                    stop: function(e, ui) {
+                        $.tmEPOAdmin.builder_reorder_multiple();
+                    },
+                    cancel:'.tma-nomove',
+                    forcePlaceholderSize: true,
+                    placeholder: 'bitem pl2',
+                    tolerance: 'pointer'
+                });
+
+                // Elements sortable
+                $.tmEPOAdmin.builder_items_sortable($(".builder_wrapper .bitem_wrapper"));
+
+                // Elements draggable
+                $(".builder_elements .ditem").draggable({
+                    zIndex: 5000,
+                    scroll: true,
+                    helper: "clone",
+                    start: function(event, ui) {
+                        var current = $(event.target);
+                        current.css({
+                            opacity: 0.3
+                        });
+                        $(".builder_layout .bitem_wrapper").not(".tma-variations-wrap .bitem_wrapper").addClass("highlight");
+                    },
+                    stop: function(event, ui) {
+                        $(".builder_layout .bitem_wrapper").removeClass("highlight");
+                        $(event.target).css({
+                            opacity: 1
+                        });
+                    },
+                    connectToSortable: ".builder_layout .bitem_wrapper:not(.tma-nomove .bitem_wrapper)"
+                });
+            }
+
+            $.tmEPOAdmin.add_events();
+
+            // Check section logic
+            $.tmEPOAdmin.check_section_logic();
+            // Check element logic
+            $.tmEPOAdmin.check_element_logic();
+            // Start logic
+            $.tmEPOAdmin.section_logic_start();
+            $.tmEPOAdmin.element_logic_start();
+
+            // Prevent refresh page changes to hidden elements
+            $.tmEPOAdmin.set_hidden();
+            
+            $.tmEPOAdmin.set_fields_change();
+            $(document).on("change.cpf", ".builder_textfield_price_type", function() {
+                $.tmEPOAdmin.set_fields_change($(this));
+            });
+
+            $.tmEPOAdmin.set_field_title();
+            $(document).on("changetitle.cpf", ".tm-header-title", function() {
+                $.tmEPOAdmin.set_field_title($(this));
+            });
+
+            $(document).on("sections_type_onChange.cpf", ".builder_wrapper", function() {
+                $.tmEPOAdmin.sections_type_onChange($(this));
+            });
+
+            $(".builder_wrapper.tm-slider-wizard").each(function(){
+                var bw=$(this);
+                $.tmEPOAdmin.create_slider(bw);
+            });
+
+            $.tmEPOAdmin.disable_categories();
+            $(document).on("click.cpf", ".meta-disable-categories", function() {
+                $.tmEPOAdmin.disable_categories();
+            });
+            
+            $.tmEPOAdmin.init_sections_check();
+            $.tmEPOAdmin.fix_content_float();         
             
             $.tmEPOAdmin.fix_form_submit();
 
-            $.tmEPOAdmin.isinit=false;            
+            $.tmEPOAdmin.pre_element_logic_init_done=false;
+            $.tmEPOAdmin.isinit=false;
+        },
+        create_slider:function(bw){
+            bw.tmtabs({
+                headers: ".tm-slider-wizard-headers",
+                header: ".tm-slider-wizard-header",
+                selectedtab:0,
+                showonhover:function(){return $.tmEPOAdmin.is_element_dragged;},
+                useclasstohide:true,
+                afteraddtab:function(h,t){
+                    $.tmEPOAdmin.builder_items_sortable(t);
+                    bw.find(".tm_builder_section_slides").val(function(i, oldval) {
+                        if(!bw.is(".tm-slider-wizard")){
+                            return"";
+                        }
+                        return bw.find('.bitem_wrapper')
+                        .map(function(i,e){
+                            return $(e).children('.bitem').not('.pl2').length;
+                        }).get().join(",");
+                    });
+                },
+                deletebutton:true,
+                deleteconfirm:true,
+                afterdeletetab:function(){
+                    bw.find(".tm_builder_section_slides").val(function(i, oldval) {
+                        if(!bw.is(".tm-slider-wizard")){
+                            return"";
+                        }
+                        return bw.find('.bitem_wrapper')
+                        .map(function(i,e){
+                            return $(e).children('.bitem').not('.pl2').length;
+                        }).get().join(",");
+                    });
+                    $.tmEPOAdmin.builder_reorder_multiple();                
+                    $(".builder_layout .builder_wrapper").each(function(i,el){
+                        $.tmEPOAdmin.logic_init($(el));
+                    });
+                    $.tmEPOAdmin.init_sections_check();
+                    $.tmEPOAdmin.fix_content_float();
+                }
+            });
+        },
+        sections_type_onChange:function(bw){
+            var bitem_wrapper=bw.find(".bitem_wrapper"),
+                style=bw.find(".section_elements .sections_type").val();
+
+            if(style=="slider" && !bw.hasClass("tm-slider-wizard")){
+                bw.addClass("tm-slider-wizard");
+                var tab1='<div class="tm-box"><h4 class="tm-slider-wizard-header" data-id="tm-slide0">1</h4></div>',
+                    add='<div class="tm-box tm-add-box"><h4 class="tm-add-tab"><span class="tcfa tcfa-plus"></span></h4></div>';
+                bitem_wrapper.before('<div class="transition tm-slider-wizard-headers">'+tab1+add+'</div>');
+                bitem_wrapper.addClass("tm-slider-wizard-tab tm-slide0");
+
+                $.tmEPOAdmin.create_slider(bw);
+                
+                bw.find(".tm_builder_section_slides").val(function(i, oldval) {
+                    if(!bw.is(".tm-slider-wizard")){
+                        return"";
+                    }
+                    return bw.find('.bitem_wrapper')
+                    .map(function(i,e){
+                        return $(e).children('.bitem').not('.pl2').length;
+                    }).get().join(",");
+                });
+            }else if(style!="slider" && bw.hasClass("tm-slider-wizard")){
+                bw.find('.bitem_wrapper').wrapAll('<div class="tmtemp"></div>');
+
+                bw.find('.bitem_wrapper .bitem').appendTo(bw.find(".tmtemp"));
+                bw.find('.bitem_wrapper').remove();
+
+                bw.find(".tmtemp").addClass("bitem_wrapper").removeClass("tmtemp");
+                $.tmEPOAdmin.builder_items_sortable(bw.find(".bitem_wrapper"));
+                bw.find(".tm-slider-wizard-headers").remove();
+                bw.removeClass("tm-slider-wizard");
+                bw.find(".tm_builder_section_slides").val("");
+            }
         },
 
         variation_events_success:function(event, xhr, settings){
             setTimeout(function() {
-                $.tmEPOAdmin.logic_reindex_force();
+                //$.tmEPOAdmin.logic_reindex_force();
+                $.tmEPOAdmin.set_global_variation_object("reindex");
             }, 600 );
             $(document).unbind("ajaxSuccess", $.tmEPOAdmin.variation_events_success);
             $.tmEPOAdmin.var_remove("tma-remove_variation-added");
@@ -501,9 +682,11 @@
                 return;
             }
             if ($.tmEPOAdmin.var_is("tma-remove_variation-added")!=true){
-                $( '#variable_product_options' ).on( 'click.tma', 'button.remove_variation', function ( e ) {
+                $( '#variable_product_options' ).on( 'click.tma', '.remove_variation', function ( e ) {
                     $( document ).ajaxSuccess($.tmEPOAdmin.variation_events_success);
                     $.tmEPOAdmin.var_is("tma-remove_variation-added",true);
+
+                     $( document ).ajaxSuccess($.tmEPOAdmin.tm_variations_check_events_success);
                 });
             }
             if ($.tmEPOAdmin.var_is("tma-remove_variation-added")!=true){
@@ -512,12 +695,22 @@
                     if (bulk_edit=="delete_all"){
                         $( document ).ajaxSuccess($.tmEPOAdmin.variation_events_success);
                         $.tmEPOAdmin.var_is("tma-remove_variation-added",true);
+
+                        $( document ).ajaxSuccess($.tmEPOAdmin.tm_variations_check_events_success);
                     }
                 });
             }
             $( '#variable_product_options' ).on( 'woocommerce_variations_added', function () {
-                $.tmEPOAdmin.logic_reindex_force();
+                //$.tmEPOAdmin.logic_reindex_force();
+                $.tmEPOAdmin.set_global_variation_object("reindex");
+                $( document ).ajaxSuccess($.tmEPOAdmin.tm_variations_check_events_success);
             } );
+
+             $( '#woocommerce-product-data' ).on( 'woocommerce_variations_saved', function () {
+                $.tmEPOAdmin.set_global_variation_object("reindex");
+                $( document ).ajaxSuccess($.tmEPOAdmin.tm_variations_check_events_success);
+            } );
+
             $(document).on("click.cpf", ".save_attributes", function(e){
                 $( document ).ajaxSuccess($.tmEPOAdmin.tm_variations_check_events_success);
             });
@@ -531,31 +724,30 @@
                 return;
             }else{
                 if (product_type.val()=="variable" || product_type.val()=="variable-subscription"){
-                    $(".builder_add_section").addClass("inline");
+                    $("a.builder_add_section").addClass("inline");
                     $(".builder_add_variation").addClass("inline").removeClass("tm-hidden");
                     $.tmEPOAdmin.add_variation_events();
                     var variation_element=$(".builder_layout .element-variations");
                     if (variation_element.length){
                         var variation_element_builder_wrapper=variation_element.closest(".builder_wrapper");
-                        variation_element_builder_wrapper.find(".tmicon.clone,.tmicon.builder_add_on_section,.tmicon.size,.tmicon.move,.tmicon.plus,.tmicon.minus").remove();
+                        variation_element_builder_wrapper.find(".tm-add-element-action,.tmicon.clone,.tmicon.builder_add_on_section,.tmicon.size,.tmicon.move,.tmicon.plus,.tmicon.minus").remove();
                         variation_element_builder_wrapper.addClass("tma-nomove tma-variations-wrap");
                         variation_element_builder_wrapper.find(".builder_hide_for_variation").hide();
-                        var _rlogictab=variation_element_builder_wrapper.find(".tma-tab-logic,.tma-tab-css");
+                        var _rlogictab=variation_element_builder_wrapper.find(".tma-tab-title,.tma-tab-logic,.tma-tab-css");
                         _rlogictab.remove();
                         
                         $.tmEPOAdmin.var_is("tm-style-variation-added",true);
 
                         variation_element.addClass("tma-nomove");
                         variation_element.find(".tmicon.size,.tmicon.clone,.tmicon.move,.tmicon.plus,.tmicon.minus,.tmicon.delete").remove();
-                        _rlogictab=variation_element.find(".tma-tab-logic,.tma-tab-css");
+                        _rlogictab=variation_element.find(".tma-tab-title,.tma-tab-logic,.tma-tab-css");
                         _rlogictab.remove();            
 
-                        $(".builder_add_section").removeClass("inline");
-                        $(".builder_add_variation").removeClass("inline").addClass("tm-hidden");                    
-
+                        $("a.builder_add_section").removeClass("inline");
+                        $(".builder_add_variation").removeClass("inline").addClass("tm-hidden");
                     }
                 }else{
-                    $(".builder_add_section").removeClass("inline");
+                    $("a.builder_add_section").removeClass("inline");
                     $(".builder_add_variation").removeClass("inline").addClass("tm-hidden");
                 }
             }
@@ -606,11 +798,9 @@
             return obj;
         },
 
-        did_post_preview:0,
-
         fix_form_submit: function(){          
             $("#post").submit(function(){
-                var tm_meta,data,data_wpml,tm_meta_serialized;
+                var tm_meta,data,data_wpml,tm_meta_serialized,previewField = $('input#wp-preview');
                 tm_meta=$(this).find('[name^="tm_meta["]');
                                 
                 $('.tm_meta_serialized').remove();
@@ -630,16 +820,13 @@
                     $(this).prepend(tm_meta_serialized);                    
                 }
                 tm_meta.attr("disabled", "disabled");
-                if ($.tmEPOAdmin.did_post_preview==1){
+                if (previewField.length>0 && previewField.val()!=""){
                     tm_meta.not('.tm-wmpl-disabled').attr("disabled", false);
                     $('.tm_meta_serialized').remove();
-                    $.tmEPOAdmin.did_post_preview=0;
                 }
                 return true; // ensure form still submits
             });
-            $('#post-preview').on( 'click.post-preview', function( event ) {
-                $.tmEPOAdmin.did_post_preview=1;
-            });
+
         },
 
         init_sections_check: function(){
@@ -704,18 +891,19 @@
                 all=true;
             }
             element.each(function(i,el){
-                var this_element_id=$(el).find('.tm-builder-element-uniqid').val();
+                el=$(el);
+                var this_element_id=el.find('.tm-builder-element-uniqid').val();
                 if ((all && uniqids.indexOf(this_element_id) !== -1 ) || !this_element_id || this_element_id==='' || this_element_id===undefined || this_element_id===false){
-                    $(el).find('.tm-builder-element-uniqid').val($.tm_uniqid("",true));
+                    el.find('.tm-builder-element-uniqid').val($.tm_uniqid("",true));
                 }
                 if (all){
-                    uniqids.push($(el).find('.tm-builder-element-uniqid').val());
+                    uniqids.push(el.find('.tm-builder-element-uniqid').val());
                 }
-                var this_element_activate_element_logic=parseInt($(el).find('.activate-element-logic').val());
+                var this_element_activate_element_logic=parseInt(el.find('.activate-element-logic').val());
                 if (this_element_activate_element_logic==1){
-                    $(el).find('.builder-logic-div').show();
+                    el.find('.builder-logic-div').show();
                 }else{
-                    $(el).find('.builder-logic-div').hide();
+                    el.find('.builder-logic-div').hide();
                 }
             });
             $.tmEPOAdmin.done_check_section_logic=true;
@@ -730,7 +918,7 @@
                 $.tmEPOAdmin.logic_init(el);
                 try{
                     var rules=$.parseJSON(el.find(".section_elements .tm-builder-clogic").val() || "null");
-                    rules=$.tmEPOAdmin.logic_check_section_rules(rules);                
+                    rules=$.tmEPOAdmin.logic_check_section_rules(rules);
                     el.find(".section_elements .tm-builder-clogic").val(JSON.stringify(rules));
                     el.find(".section_elements .epo-rule-toggle").val(rules.toggle);
                     el.find(".section_elements .epo-rule-what").val(rules.what);
@@ -847,78 +1035,48 @@
         builder_panel_populate_onClick: function(e) {
             e.preventDefault();
             $(this).remove();
-            var lines=$('.tm-panel-populate').val().split(/\n/);
-            var cat = lines[0].substr(0, 4);
-            if(cat == 'cat-') {
-                cat = lines[0].split("-");
-                var data = {
-                    'action': 'populate_by_category',
-                    'cat_id': cat[1]
-                };
 
-                // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-                jQuery.post(ajaxurl, data, function(response) {
-                    console.log(response);
-                    lines = jQuery.parseJSON(response);
-                    console.log(lines);
-                    var texts = [];
-                    for (var i=0; i < lines.length; i++) {
-                        // only push this line if it contains a non whitespace character.
-                        if (/\S/.test(lines[i])) {
-                            texts.push($.trim(lines[i]));
-                        }
-                    }
-                    for (var i=0; i < texts.length; i++) {
-                        var line=texts[i].split('|');
-                        var len=line.length;
-                        if (len==0){
-                            continue;
-                        }
-                        if (len==1){
-                            line[1]=0;
-                        }
-                        line[0]=$.trim(line[0]);
-                        line[1]=parseFloat($.trim(line[1]));
-                        if (isNaN(line[1])){
-                            line[1]=0;
-                        }
-                        $.tmEPOAdmin.add_panel_row(line);
-                    }
-                    $('.builder-panel-mass-add').removeClass('disabled');
-                    $('.tm-panel-populate-wrapper').remove();
-                });
-            } else {
-                var texts = [];
-                for (var i = 0; i < lines.length; i++) {
-                    // only push this line if it contains a non whitespace character.
-                    if (/\S/.test(lines[i])) {
-                        texts.push($.trim(lines[i]));
-                    }
-                }
-                for (var i = 0; i < texts.length; i++) {
-                    var line = texts[i].split('|');
-                    var len = line.length;
-                    if (len == 0) {
-                        continue;
-                    }
-                    if (len == 1) {
-                        line[1] = 0;
-                    }
-                    line[0] = $.trim(line[0]);
-                    line[1] = parseFloat($.trim(line[1]));
-                    if (isNaN(line[1])) {
-                        line[1] = 0;
-                    }
-                    $.tmEPOAdmin.add_panel_row(line);
-                }
-                $('.builder-panel-mass-add').removeClass('disabled');
-                $('.tm-panel-populate-wrapper').remove();
-            }
-        },
-
-        add_panel_row: function(line) {
             var panels_wrap=$('.flasho.tm_wrapper').find('.panels_wrap');
             var _last=panels_wrap.children();
+            //var _clone = _last.last().tm_clone();
+            var full_element=$('');
+
+            var lines=$('.tm-panel-populate').val().split(/\n/);
+            var texts = [];
+            for (var i=0; i < lines.length; i++) {
+                // only push this line if it contains a non whitespace character.
+                if (/\S/.test(lines[i])) {
+                    texts.push($.trim(lines[i]));
+                }
+            }
+            for (var i=0; i < texts.length; i++) {
+                var line=texts[i].split('|'); 
+                var len=line.length;
+                if (len==0){
+                    continue;
+                }
+                if (len==1){
+                    line[1]=0;
+                }
+                line[0]=$.trim(line[0]);
+                line[1]=parseFloat($.trim(line[1]));
+                if (isNaN(line[1])){
+                    line[1]=0;
+                }
+                var toadd= $.tmEPOAdmin.add_panel_row(line,panels_wrap,_last);
+                
+                full_element = full_element.add( toadd );
+            }
+            if(full_element.length){
+                panels_wrap.append(full_element);
+                $.tm_tooltip(full_element.find('.tm-tooltip'));
+            }
+            $('.builder-panel-mass-add').removeClass('disabled');
+            $('.tm-panel-populate-wrapper').remove();
+            $.tmEPOAdmin.paginattion_init("last");
+        },
+
+        add_panel_row: function(line,panels_wrap,_last) {
             var _clone = _last.last().tm_clone();
             if (_clone) {
                 _clone.find("[name]").val("");
@@ -941,9 +1099,9 @@
                 _clone.find("input.tm_option_image").val("");
                 _clone.find(".tm-default-radio,.tm-default-checkbox").removeAttr("checked").prop("checked",false).val(_last.length);
 
-                panels_wrap.append(_clone);
-                $.tm_tooltip(_clone.find('.tm-tooltip'));
+                return _clone;
             }
+            return $('');
         },
 
         // Add options button
@@ -966,6 +1124,7 @@
 
                 $(this).prev(".panels_wrap").append(_clone);
                 $.tm_tooltip(_clone.find('.tm-tooltip'));
+                $.tmEPOAdmin.paginattion_init("last");
             }
         },
 
@@ -988,10 +1147,102 @@
                     $.tmEPOAdmin.logic_init(_clone);
                     $.tmEPOAdmin.builder_items_sortable(_clone.find(".bitem_wrapper"));
                     $.tmEPOAdmin.builder_reorder_multiple();
+                    if ($(this).is("a")){
+                        $(window).scrollTo(_clone);
+                    }
+
+                    $.tmEPOAdmin.init_sections_check();
+                    $.tmEPOAdmin.fix_content_float();
+
+                    return _clone;
                 }
             }
-            $.tmEPOAdmin.init_sections_check();
-            $.tmEPOAdmin.fix_content_float();
+
+            return false;
+            
+        },
+
+        builder_add_element_onClick: function(e) {
+            if (e) {
+                e.preventDefault();
+            }
+            var $this = $(this);
+            var $_html = $.tmEPOAdmin.builder_floatbox_template_import({
+                    "id": "temp_for_floatbox_insert",
+                    "html": '<div class="tm-inner">'+tm_epo_admin.element_data+'</div>',
+                    "title": tm_epo_admin.i18n_add_element
+                });
+            var temp_floatbox = $("body").tm_floatbox({
+                    "fps": 1,
+                    "ismodal": false,
+                    "refresh": "fixed",
+                    "width": "70%",
+                    "height": "70%",
+                    "top": "15%",
+                    "left": "15%",
+                    "classname": "flasho tm_wrapper tc-builder-add-element",
+                    "data": $_html
+                });
+            
+            $("#flasho .details_cancel").click(function() {
+                if (temp_floatbox) temp_floatbox.cancelfunc(); 
+            });
+
+            $(".tc-builder-add-element .tc-element-button").on("click.cpf", function(ev){
+                ev.preventDefault();
+                var new_section=$this.closest(".builder_wrapper"),
+                    el=$(this).attr("data-element");
+                
+                if ($this.is(".tc-prepend")){
+                    $.tmEPOAdmin.builder_clone_element(el, new_section,"prepend");    
+                }else{
+                    $.tmEPOAdmin.builder_clone_element(el, new_section);
+                }
+                
+                $.tmEPOAdmin.logic_reindex();
+                $("#flasho .details_cancel").trigger("click");
+            });
+        },
+
+        builder_add_section_and_element_onClick: function(e) {
+            if (e) {
+                e.preventDefault();
+            }
+
+            var $_html = $.tmEPOAdmin.builder_floatbox_template_import({
+                    "id": "temp_for_floatbox_insert",
+                    "html": '<div class="tm-inner">'+tm_epo_admin.element_data+'</div>',
+                    "title": tm_epo_admin.i18n_add_element
+                });
+            var temp_floatbox = $("body").tm_floatbox({
+                    "fps": 1,
+                    "ismodal": false,
+                    "refresh": "fixed",
+                    "width": "70%",
+                    "height": "70%",
+                    "top": "15%",
+                    "left": "15%",
+                    "classname": "flasho tm_wrapper tc-builder-add-section-and-element",
+                    "data": $_html
+                });
+            
+            $("#flasho .details_cancel").click(function() {
+                if (temp_floatbox) temp_floatbox.cancelfunc(); 
+            });
+
+            $(".tc-builder-add-section-and-element .tc-element-button").on("click.cpf", function(ev){
+                ev.preventDefault();
+
+                var new_section = $.tmEPOAdmin.builder_add_section_onClick();
+
+                if (new_section){
+                    var el=$(this).attr("data-element");
+                    $.tmEPOAdmin.builder_clone_element(el, new_section);
+                    $.tmEPOAdmin.logic_reindex();
+                    $("#flasho .details_cancel").trigger("click"); 
+                }
+            });
+
         },
 
         tm_variations_check_for_changes:0,
@@ -1046,11 +1297,11 @@
                     _clone.addClass("appear");
                     _clone.find('.tm-builder-sections-uniqid').val($.tm_uniqid("",true));
 
-                    _clone.find(".tmicon.clone,.tmicon.builder_add_on_section,.tmicon.size,.tmicon.move,.tmicon.plus,.tmicon.minus").remove();
+                    _clone.find(".tm-add-element-action,.tmicon.clone,.tmicon.builder_add_on_section,.tmicon.size,.tmicon.move,.tmicon.plus,.tmicon.minus").remove();
                     _clone.addClass("tma-nomove tma-variations-wrap");
                     _clone.find(".builder_hide_for_variation").hide();
 
-                    var _rlogictab=_clone.find(".tma-tab-logic,.tma-tab-css");
+                    var _rlogictab=_clone.find(".tma-tab-title,.tma-tab-logic,.tma-tab-css");
                     _rlogictab.remove();
 
                     _clone.prependTo(".builder_layout");
@@ -1063,12 +1314,13 @@
                     $.tmEPOAdmin.fix_content_float();
                     $.tmEPOAdmin.var_is("tm-style-variation-added",true);
                     $(".builder_add_variation").addClass("tm-hidden");
-                    $(".builder_add_section").removeClass("inline");
+                    $("a.builder_add_section").removeClass("inline");
 
                     var _clone2=$.tmEPOAdmin.builder_clone_element("variations", $(".builder_layout").find(".builder_wrapper").first());
                     _clone2.find(".tmicon.size,.tmicon.clone,.tmicon.move,.tmicon.plus,.tmicon.minus,.tmicon.delete").remove();
-                    _rlogictab=_clone2.find(".tma-tab-logic,.tma-tab-css");
+                    _rlogictab=_clone2.find(".tma-tab-title,.tma-tab-logic,.tma-tab-css");
                     _clone2.addClass("tma-nomove");
+                    _clone2.find(".builder_hide_for_variation").hide();
                     _rlogictab.remove();            
                     $.tmEPOAdmin.logic_reindex_force();
 
@@ -1112,48 +1364,149 @@
             return decodeURIComponent(val);
         },
 
-        element_logic_init: function(el){
-            var _el=$(el),
-                options=[],
+        get_element_logic_init: function(do_section){
+            if (!$.tmEPOAdmin.pre_element_logic_init_done){
+                $.tmEPOAdmin.pre_element_logic_init(do_section);
+            }
+            if(!$.tmEPOAdmin.isinit){
+                $.tmEPOAdmin.pre_element_logic_init_done=false;    
+            }else{
+                $.tmEPOAdmin.pre_element_logic_init_done=true;
+            }
+            return $.tmEPOAdmin.pre_element_logic_init_obj;
+        },
+        get_element_logic_options_init: function(do_section){
+            if (!$.tmEPOAdmin.pre_element_logic_init_done){
+                $.tmEPOAdmin.pre_element_logic_init(do_section);
+            }
+            if(!$.tmEPOAdmin.isinit){
+                $.tmEPOAdmin.pre_element_logic_init_done=false;    
+            }else{
+                $.tmEPOAdmin.pre_element_logic_init_done=true;
+            }
+            return $.tmEPOAdmin.pre_element_logic_init_obj_options;
+        },
+        find_index:function(is_slider,field){
+            var sib=0;
+            if (is_slider){
+                sib=field.closest('.bitem_wrapper').prevAll('.bitem_wrapper').find('.bitem').length;
+            }
+            return sib+field.index();
+        },
+        set_global_variation_object: function(logic,do_section){
+            if (typeof(tm_global_epo_admin)=="undefined" && typeof(tm_epo_admin_meta_boxes)!="undefined"){
+                var tm_global_epo_admin=tm_epo_admin_meta_boxes;
+            }
+            if (tm_global_epo_admin){         
+                $('#tm_extra_product_options').block({
+                        message: null,
+                        overlayCSS: {
+                            background: '#fff url(' + tm_global_epo_admin.plugin_url + '/assets/images/ajax-loader.gif) no-repeat center',
+                            opacity: 0.6
+                        }
+                    });
+                var data = {
+                    action: 'woocommerce_tm_get_variations_array',
+                    post_id: tm_global_epo_admin.post_id,
+                    security: tm_global_epo_admin.check_attributes_nonce
+                };
+                $.post(tm_global_epo_admin.ajax_url, data, function(response) {
+                    
+                    if(response){
+                        global_variation_object=response;
+                        if (logic==true){
+                             $.tmEPOAdmin.pre_element_logic_init_set(do_section);
+                        }else if (logic=="reindex"){
+                            $.tmEPOAdmin.logic_reindex_force();
+                        }else if (logic=="initialitize_on"){
+                            $.tmEPOAdmin.initialitize_on();
+                        }
+                    }
+                },'json')
+                .always(function(response) {
+                    $('#tm_extra_product_options').unblock();
+                });
+            }else{
+                if (logic=="initialitize_on"){
+                    if (!global_variation_object){
+                        global_variation_object={};
+                    };
+                    $.tmEPOAdmin.initialitize_on();
+                }
+            }
+        },
+
+        pre_element_logic_init: function(do_section){
+            if (!global_variation_object){
+                $.tmEPOAdmin.set_global_variation_object(true,do_section);    
+            }else{
+                $.tmEPOAdmin.pre_element_logic_init_set(do_section);    
+            }
+        },
+
+        pre_element_logic_init_set: function(do_section){
+            if(!global_variation_object){
+                return;
+            }
+            $.tmEPOAdmin.pre_element_logic_init_obj={};
+            $.tmEPOAdmin.pre_element_logic_init_obj_options={};
+
+            var options={},lkjsdfsdf={},
                 logicobj={},
                 sections=$(".builder_layout .builder_wrapper");
-            $.tmEPOAdmin.check_section_logic();
-            $.tmEPOAdmin.check_element_logic(_el);
+
             sections.each(function(i,section){
-                var section_id=$(section).find('.tm-builder-sections-uniqid').val();
-                var fields=$(section).find($.tmEPOAdmin.can_take_logic()).not(_el);
-                var values=[];                               
+                section=$(section);
+                var section_id=section.find('.tm-builder-sections-uniqid').val();
+                options[section_id]=[];
+                if(do_section){
+                    $.tmEPOAdmin.check_section_logic(section);
+                }
+                var _section_name=section.find('.tm-internal-name').val() || "Section";
+                if (!section.is(".tma-variations-wrap")){
+                    options[section_id][0]='<option data-section="'+section_id+'" value="'+section_id+'">'+_section_name+' ('+ section_id + ')</option>';    
+                }                
+                
+                var fields=section.find($.tmEPOAdmin.can_take_logic());                
+                var values=[];
+                var is_slider=section.is(".tm-slider-wizard");
+                
                 // all the fields of current section that can be used as selector in logic
-                fields.each(function(ii,field){                    
-                    var field=$(field),name=field.find('[name^="tm_meta\\[tmfbuilder\\]\\["][name$="_header_title\\]\\[\\]"]');
+                fields.each(function(ii,field){                  
+                    var field=$(field),
+                        name=field.find('[name^="tm_meta\\[tmfbuilder\\]\\["][name$="_header_title\\]\\[\\]"]'),
+                        field_index=$.tmEPOAdmin.find_index(is_slider,field);
                     
                     if (name.length==1){
                         var value=name.val();
                         if (value.length==0){
                             value=name.closest(".bitem").find('.tm-label').text();
                         }
-                        options.push('<option data-section="'+section_id+'" value="'+field.index()+'">'+value+'</option>');
+                        var internal_name=name.closest(".bitem").find('.tm-internal-name').val();
+                        if (internal_name!=value){
+                            value = value + " ("+internal_name+")";
+                        }                       
+
+                        options[section_id][field_index+1]='<option data-section="'+section_id+'" value="'+field_index+'">'+value+'</option>';
                         
                         if (field.is(".element-variations")){
-                            var tm_current_variations=$( '#variable_product_options' ).find('.woocommerce_variation'),
-                                tm_current_variations_atts,
-                                tm_title,
-                                tm_current_variations_id=$( '#variable_product_options' ).find('[name^="variable_post_id["]'),
+                            var tm_title,
                                 field_values=[];
+                            $(global_variation_object["variations"]).each(function(index,variation){
+                                tm_title=[];
+                                $(variation["attributes"]).each(function(i,sel){
+                                    var arr = $.map(sel, function(el) { return el; });
 
-                            if (tm_current_variations.length && tm_current_variations.length==tm_current_variations_id.length){
-                                tm_current_variations.each(function(index,variation){
-                                    tm_title=[];
-                                    tm_current_variations_atts=$(variation).find('select:not(.woocommerce_variable_attributes select)');
-                                    tm_current_variations_atts.each(function(i,sel){
-                                        tm_title.push($(sel).children("option:selected").text());
+                                    $(arr).each(function(i2,sel2){
+                                        tm_title.push(sel2);
                                     });
-                                    tm_title=tm_title.join(' - ');
-                                    field_values.push('<option value="'+$.tmEPOAdmin.tm_escape(tm_current_variations_id.eq(index).val())+'">'+tm_title+'</option>');
-                                });                                
-                            }
+                                    
+                                });
+                                tm_title=tm_title.join(' - ');
+                                field_values.push('<option value="'+$.tmEPOAdmin.tm_escape(variation.variation_id)+'">'+tm_title+'</option>');
+                            });
 
-                            values[field.index()]='<select data-element="'+field.index()+'" data-section="'+section_id+'" class="cpf-logic-value">'+field_values.join('')+'</select>';
+                            values[field_index]='<select data-element="'+field_index+'" data-section="'+section_id+'" class="cpf-logic-value">'+field_values.join('')+'</select>';
                         }
                         else if (field.is(".element-radiobuttons,.element-checkboxes,.element-selectbox")){
 
@@ -1165,11 +1518,11 @@
                                 field_values.push('<option value="'+$.tmEPOAdmin.tm_escape($(tm_option_values[index]).val())+'">'+$(title).val()+'</option>');
                             });
 
-                            values[field.index()]='<select data-element="'+field.index()+'" data-section="'+section_id+'" class="cpf-logic-value">'+field_values.join('')+'</select>';
+                            values[field_index]='<select data-element="'+field_index+'" data-section="'+section_id+'" class="cpf-logic-value">'+field_values.join('')+'</select>';
                                                       
                         }else{
 
-                            values[field.index()]='<input data-element="'+field.index()+'" data-section="'+section_id+'" class="cpf-logic-value" type="text" value="">';
+                            values[field_index]='<input data-element="'+field_index+'" data-section="'+section_id+'" class="cpf-logic-value" type="text" value="">';
                             
                         }
                     }
@@ -1177,6 +1530,40 @@
                 
                 logicobj[section_id]={
                     'values':values
+                }
+
+            });
+            $.tmEPOAdmin.pre_element_logic_init_obj=logicobj;
+            $.tmEPOAdmin.pre_element_logic_init_obj_options=options;
+            
+        },
+
+        element_logic_init: function(el){
+            var _el=$(el),
+                is_slider=_el.closest(".builder_wrapper").is(".tm-slider-wizard"),
+                field_index=$.tmEPOAdmin.find_index(is_slider,_el);
+            $.tmEPOAdmin.check_section_logic();
+            $.tmEPOAdmin.check_element_logic(_el);
+            var logicobj= $.extend(true,{},$.tmEPOAdmin.get_element_logic_init());
+            var options_pre=$.extend(true,{},$.tmEPOAdmin.get_element_logic_options_init()),
+                options=[];
+            var section_to_find=_el.closest(".builder_layout .builder_wrapper");
+            var section_id=section_to_find.find('.tm-builder-sections-uniqid').val();
+            
+            if (section_to_find && section_id && logicobj[section_id] && logicobj[section_id].values[field_index]){
+                delete logicobj[section_id].values[field_index];
+                delete options_pre[section_id][field_index+1];
+                delete options_pre[section_id][0];
+            }else if (section_to_find && section_id && options_pre[section_id] && options_pre[section_id][0]){
+                delete options_pre[section_id][0];
+            }
+            $.each(options_pre,function(i,c){
+                if(c){
+                    $.each(c,function(i,d){
+                        if(d){
+                            options.push(d);
+                        }
+                    });
                 }
             });
             if (!$.tmEPOAdmin.element_logic_object.init){
@@ -1186,83 +1573,32 @@
             $.tmEPOAdmin.logic_append(el,options);
             
         },
-
+        
         logic_init: function(el){
+            el=$(el);
+            $.tmEPOAdmin.check_section_logic(el);
+            var sections=el.siblings(),
+                options=[],
+                logicobj={};
             
-            $.tmEPOAdmin.check_section_logic($(el));
-            var sections=$(el).siblings();
-            var options=[];
-            var logicobj={};
-            
-            // every other section
-            sections.each(function(i,section){
-                $.tmEPOAdmin.check_section_logic($(section));
-                var section_id=$(section).find('.tm-builder-sections-uniqid').val();
-                
-                var fields=$(section).find($.tmEPOAdmin.can_take_logic());
-                var values=[];
-               
-                // all the fields of current section that can be used as selector in logic
-                fields.each(function(ii,field){
-                    
-                    var name=$(field).find('[name^="tm_meta\\[tmfbuilder\\]\\["][name$="_header_title\\]\\[\\]"]');
-                    
-                    if (name.length==1){
+            var logicobj= $.extend(true,{},$.tmEPOAdmin.get_element_logic_init(true));
 
-                        var value=name.val();
-                        if (value.length==0){
-                            value=name.closest(".bitem").find('.tm-label').text();
+            var options_pre=$.extend(true,{},$.tmEPOAdmin.get_element_logic_options_init(true)),
+                options=[];
+            var section_id=el.find('.tm-builder-sections-uniqid').val();
+            if (el && section_id && logicobj[section_id]){
+                delete logicobj[section_id];
+                delete options_pre[section_id];
+            }
+            $.each(options_pre,function(i,c){
+                if(c){
+                    $.each(c,function(i,d){
+                        if(d){
+                            options.push(d);
                         }
-
-                        options.push('<option data-section="'+section_id+'" value="'+$(field).index()+'">'+value+'</option>');
-                        
-                        if ($(field).is(".element-variations")){
-                            var tm_current_variations=$( '#variable_product_options' ).find('.woocommerce_variation'),
-                                tm_current_variations_atts,
-                                tm_title,
-                                tm_current_variations_id=$( '#variable_product_options' ).find('[name^="variable_post_id["]'),
-                                field_values=[];
-
-                            if (tm_current_variations.length && tm_current_variations.length==tm_current_variations_id.length){
-                                tm_current_variations.each(function(index,variation){
-                                    tm_title=[];
-                                    tm_current_variations_atts=$(variation).find('select:not(.woocommerce_variable_attributes select)');
-                                    tm_current_variations_atts.each(function(i,sel){
-                                        tm_title.push($(sel).children("option:selected").text());
-                                    });
-                                    tm_title=tm_title.join(' - ');
-                                    field_values.push('<option value="'+$.tmEPOAdmin.tm_escape(tm_current_variations_id.eq(index).val())+'">'+tm_title+'</option>');
-                                });                                
-                            }
-
-                            values[$(field).index()]='<select data-element="'+$(field).index()+'" data-section="'+section_id+'" class="cpf-logic-value">'+field_values.join('')+'</select>';
-                        }
-                        else if ($(field).is(".element-radiobuttons,.element-checkboxes,.element-selectbox")){
-
-                            var tm_option_titles=$(field).find('.tm_option_title');
-                            var tm_option_values=$(field).find('.tm_option_value');
-                            var field_values=[];
-                            
-                            tm_option_titles.each(function(index,title){
-                                field_values.push('<option value="'+$.tmEPOAdmin.tm_escape($(tm_option_values[index]).val())+'">'+$(title).val()+'</option>');
-                            });
-
-                            values[$(field).index()]='<select data-element="'+$(field).index()+'" data-section="'+section_id+'" class="cpf-logic-value">'+field_values.join('')+'</select>';
-                           
-                        }else{
-
-                            values[$(field).index()]='<input data-element="'+$(field).index()+'" data-section="'+section_id+'" class="cpf-logic-value" type="text" value="">';
-                            
-                        }
-
-                    }
-                });
-                
-                logicobj[section_id]={
-                    'values':values
+                    });
                 }
             });
-
             if (!$.tmEPOAdmin.logic_object.init){
                 $.tmEPOAdmin.logic_object.init=true;
             }
@@ -1291,7 +1627,7 @@
             $.each(rules.rules,function(i,_rule){
                 var section=_rule.section;
                 var element=_rule.element;
-                var found= ((section in _logic) && (element in _logic[section].values));
+                var found= ((section in _logic) && (element in _logic[section].values)) || (section=element);
                 if (!found){                    
                     delete copy.rules[i];
                 }
@@ -1318,7 +1654,7 @@
             $.each(rules.rules,function(i,_rule){
                 var section=_rule.section;
                 var element=_rule.element;
-                var found= ((section in _logic) && (element in _logic[section].values));
+                var found= ((section in _logic) && (element in _logic[section].values)) || (section=element);
                 if (!found){                    
                     delete copy.rules[i];
                 }
@@ -1341,28 +1677,29 @@
             }
             var rules;
             try{
-                rules=$.parseJSON($(obj).find(".tm-builder-clogic").val() || "null");
+                var rawrules=$(obj).find(".tm-builder-clogic").val() || "null";
+                var rulesobj=$.parseJSON(rawrules);
                 if ($(el).is(".bitem")){
-                    rules=$.tmEPOAdmin.logic_check_element_rules(rules);
+                    rules=$.tmEPOAdmin.logic_check_element_rules(rulesobj);
                 }else{
-                    rules=$.tmEPOAdmin.logic_check_section_rules(rules);    
-                }                
+                    rules=$.tmEPOAdmin.logic_check_section_rules(rulesobj);    
+                }
                 $(obj).find(".tm-builder-clogic").val(JSON.stringify(rules));
 
             }catch(err){
             }            
             logic.empty();
             var h='';
-            h = '<div class="row nopadding tm-logic-rule">'
-                    + '<div class="cell col-4 tm-logic-element">'
+            h = '<div class="tm-row nopadding tm-logic-rule">'
+                    + '<div class="tm-cell col-4 tm-logic-element">'
                     + '</div>'                    
-                    + '<div class="cell col-2 tm-logic-operator">'
+                    + '<div class="tm-cell col-2 tm-logic-operator">'
                     + '</div>'                        
-                    + '<div class="cell col-4 tm-logic-value">'
+                    + '<div class="tm-cell col-4 tm-logic-value">'
                     + '</div>'
-                    + '<div class="cell col-2 tm-logic-func">'
-                    + '<a class="button button-secondary button-small cpf-add-rule" href="#cpf-add-rule"><i class="fa fa-plus"></i></a>'
-                    + ' <a class="button button-secondary button-small cpf-delete-rule" href="#cpf-delete-rule"><i class="fa fa-times"></i></a>'
+                    + '<div class="tm-cell col-2 tm-logic-func">'
+                    + '<a class="button button-secondary button-small cpf-add-rule" href="#cpf-add-rule"><i class="tcfa tcfa-plus"></i></a>'
+                    + ' <a class="button button-secondary button-small cpf-delete-rule" href="#cpf-delete-rule"><i class="tcfa tcfa-times"></i></a>'
                     + '</div>'
                 + '</div>';
             var rule=$(h);
@@ -1385,8 +1722,7 @@
                     if (typeof(_rule)!='function' && _rule!=null){
                         var current_rule=rule.clone();
                         current_rule.appendTo(logic);
-                        var set_select=current_rule.find('.cpf-logic-element').
-                        find('option[data-section="'+_rule.section+'"][value="'+_rule.element+'"]');
+                        var set_select=current_rule.find('.cpf-logic-element').find('option[data-section="'+_rule.section+'"][value="'+_rule.element+'"]');
                         if ($(set_select).length){
                             $(set_select)[0].selected = true;
                         }
@@ -1487,37 +1823,6 @@
             }
         },
 
-        builder_add_on_section_onClick: function(e) {
-            e.preventDefault();
-            if (!$(this).data("inserted")){
-                var el=$(".builder_drag_elements").tm_clone().addClass("float").insertAfter($(this));
-                $(this).data("inserted",1);
-                $(this).closest('.builder_wrapper').css('zIndex',2);
-            }else{
-                $(this).closest(".builder_wrapper").find(".float.builder_drag_elements").remove();
-                $(this).data("inserted",0);
-                $(this).closest('.builder_wrapper').css('zIndex','');
-            }
-            
-
-        },
-
-        builder_float_add_onClick: function(e) {
-            e.preventDefault();
-            var el=$(this).attr("data-element"),
-                wr=$(this).closest(".builder_wrapper");
-            $(this).closest(".builder_wrapper").find(".builder_add_on_section").data("inserted",0);
-            $(this).closest(".builder_wrapper").find(".float.builder_drag_elements").remove();
-            $.tmEPOAdmin.builder_clone_element(el, wr);
-            $.tmEPOAdmin.logic_reindex();
-        },
-
-        // Add Element button
-        builder_add_onClick: function(e) {
-            e.preventDefault();
-            $.tmEPOAdmin.builder_clone_element($("#builder_items option:selected").val(), ".builder_wrapper:last");
-        },
-
         builder_items_sortable_obj:{
             "start":{},
             "end":{}
@@ -1545,10 +1850,10 @@
                     // is being dragged on this section
                     $.each(section_rules["rules"],function(i,rule){
                         var copy=rule;
-                        if (rule.element==l.start.element){
+                        if (rule.element==l.start.element && rule.section==l.start.section){
                             // delete rule on this element                                    
                         }
-                        else if (rule.element>l.start.element){
+                        else if (rule.element>l.start.element && rule.secion==l.start.section){
                             copy.element=parseInt(copy.element)-1;
                             copy_rules[i]=$.tmEPOAdmin.validate_rule(copy,$(el));
                         }
@@ -1572,42 +1877,42 @@
                         var copy=rule;
                         if(l.start.section!="check"){
                         // Element is not changing sections
-                        if (rule.section==l.start.section && rule.section==l.end.section){
-                            // Element belonging to a rule is being dragged
-                            if (rule.element==l.start.element){
-                                copy.section=l.end.section;
-                                copy.element=l.end.element;
+                            if (rule.section==l.start.section && rule.section==l.end.section){
+                                // Element belonging to a rule is being dragged
+                                if (rule.element==l.start.element){
+                                    copy.section=l.end.section;
+                                    copy.element=l.end.element;
+                                }
+                                // Element not belonging to a rule is being dragged
+                                // and breaks the rule
+                                else if (rule.element>l.start.element && rule.element<=l.end.element){
+                                            
+                                    copy.element=parseInt(copy.element)-1;
+                                }
+                                else if (rule.element<l.start.element && rule.element>=l.end.element){
+                                            
+                                    copy.element=parseInt(copy.element)+1;
+                                }
                             }
-                            // Element not belonging to a rule is being dragged
-                            // and breaks the rule
-                            else if (rule.element>l.start.element && rule.element<=l.end.element){
-                                        
-                                copy.element=parseInt(copy.element)-1;
+                            // Element is getting dragged off this section
+                            else if (rule.section==l.start.section && rule.section!=l.end.section){
+                                // Element belonging to a rule is being dragged
+                                if (rule.element==l.start.element){
+                                    copy.section=l.end.section;
+                                    copy.element=l.end.element;
+                                }
+                                // Element not belonging to a rule is being dragged
+                                // and breaks the rule
+                                else if (rule.element>l.start.element){
+                                    copy.element=parseInt(copy.element)-1;
+                                }
                             }
-                            else if (rule.element<l.start.element && rule.element>=l.end.element){
-                                        
-                                copy.element=parseInt(copy.element)+1;
+                            // Element is getting dragged on this section
+                            else if (rule.section!=l.start.section && rule.section==l.end.section){
+                                if (rule.element>=l.end.element){
+                                    copy.element=parseInt(copy.element)+1;
+                                }
                             }
-                        }
-                        // Element is getting dragged off this section
-                        else if (rule.section==l.start.section && rule.section!=l.end.section){
-                            // Element belonging to a rule is being dragged
-                            if (rule.element==l.start.element){
-                                copy.section=l.end.section;
-                                copy.element=l.end.element;
-                            }
-                            // Element not belonging to a rule is being dragged
-                            // and breaks the rule
-                            else if (rule.element>l.start.element){
-                                copy.element=parseInt(copy.element)-1;
-                            }
-                        }
-                        // Element is getting dragged on this section
-                        else if (rule.section!=l.start.section && rule.section==l.end.section){
-                            if (rule.element>=l.end.element){
-                                copy.element=parseInt(copy.element)+1;
-                            }
-                        }
                         }
                         if (l.end.section=="delete" && copy.element=="delete"){
                             // rule needs to be deleted                           
@@ -1642,41 +1947,41 @@
                 $.each(element_rules["rules"],function(i,rule){
                     var copy=rule;
                     if (l.start.section!="check"){
-                    // Element is not changing sections
-                    if (rule.section==l.start.section && rule.section==l.end.section){
-                         // Element belonging to a rule is being dragged
-                        if (rule.element==l.start.element){
-                            //copy.section=l.end.section;
-                            copy.element=l.end.element;
+                        // Element is not changing sections
+                        if (rule.section==l.start.section && rule.section==l.end.section){
+                             // Element belonging to a rule is being dragged
+                            if (rule.element==l.start.element){
+                                //copy.section=l.end.section;
+                                copy.element=l.end.element;
+                            }
+                            // Element not belonging to a rule is being dragged
+                            // and breaks the rule
+                            else if (rule.element>l.start.element && rule.element<=l.end.element){                                        
+                                copy.element=parseInt(copy.element)-1;
+                            }
+                            else if (rule.element<l.start.element && rule.element>=l.end.element){                                        
+                                copy.element=parseInt(copy.element)+1;
+                            }
                         }
-                        // Element not belonging to a rule is being dragged
-                        // and breaks the rule
-                        else if (rule.element>l.start.element && rule.element<=l.end.element){                                        
-                            copy.element=parseInt(copy.element)-1;
+                        // Element is getting dragged off its section
+                        else if (rule.section==l.start.section && rule.section!=l.end.section){
+                            // Element belonging to a rule is being dragged
+                            if (rule.element==l.start.element){
+                                copy.section=l.end.section;
+                                copy.element=l.end.element;
+                            }
+                            // Element not belonging to a rule is being dragged
+                            // and breaks the rule
+                            else if (rule.element>l.start.element){
+                                copy.element=parseInt(copy.element)-1;
+                            }  
                         }
-                        else if (rule.element<l.start.element && rule.element>=l.end.element){                                        
-                            copy.element=parseInt(copy.element)+1;
+                        // Element is getting dragged on this rule's section
+                        else if (rule.section!=l.start.section && rule.section==l.end.section){
+                            if (rule.element>=l.end.element){
+                               copy.element=parseInt(copy.element)+1;
+                            }
                         }
-                    }
-                    // Element is getting dragged off its section
-                    else if (rule.section==l.start.section && rule.section!=l.end.section){
-                        // Element belonging to a rule is being dragged
-                        if (rule.element==l.start.element){
-                            copy.section=l.end.section;
-                            copy.element=l.end.element;
-                        }
-                        // Element not belonging to a rule is being dragged
-                        // and breaks the rule
-                        else if (rule.element>l.start.element){
-                            copy.element=parseInt(copy.element)-1;
-                        }  
-                    }
-                    // Element is getting dragged on this rule's section
-                    else if (rule.section!=l.start.section && rule.section==l.end.section){
-                        if (rule.element>=l.end.element){
-                           copy.element=parseInt(copy.element)+1;
-                        }
-                    }
                     }
                     if (l.end.section=="delete" && copy.element=="delete"){
                         // rule needs to be deleted                           
@@ -1693,7 +1998,7 @@
             });
         },
         validate_rule: function(rule,bitem){
-            if ( !rule || typeof rule !="object" || !("element" in rule) || !("operator" in rule) || !("section" in rule) || !("value" in rule) ){
+            if ( !global_variation_object || !rule || typeof rule !="object" || !("element" in rule) || !("operator" in rule) || !("section" in rule) || !("value" in rule) ){
                 return [];//false wrong rule
             }else{
                 var section = $(".tm-builder-sections-uniqid[value='"+rule["section"]+"']").closest(".builder_wrapper"),
@@ -1703,26 +2008,27 @@
                 if ($(element).is(".element-radiobuttons,.element-checkboxes,.element-selectbox")){
                     
                     var tm_option_values=$(element).find('.tm_option_value');
-                            
+                    
                     tm_option_values.each(function(index,value){
                         if($.tmEPOAdmin.tm_escape($(value).val())==rule["value"]){
+                            check=true;
+                            return false;
+                        }else if($(value).val()==rule["value"]){
+                            rule["value"]=$.tmEPOAdmin.tm_escape(rule["value"]);
                             check=true;
                             return false;
                         }
                     });
 
                 }else if ($(element).is(".element-variations")){
-                    var tm_current_variations=$( '#variable_product_options' ).find('.woocommerce_variation'),
-                        tm_current_variations_id=$( '#variable_product_options' ).find('[name^="variable_post_id["]');
-
-                    if (tm_current_variations.length && tm_current_variations.length==tm_current_variations_id.length){
-                        tm_current_variations.each(function(index,variation){
-                            if($.tmEPOAdmin.tm_escape(tm_current_variations_id.eq(index).val())==rule["value"]){
-                                check=true;
-                                return false;
-                            }
-                        });
-                    }
+                    var tm_title,
+                        field_values=[];
+                    $(global_variation_object["variations"]).each(function(index,variation){
+                        if($.tmEPOAdmin.tm_escape(variation.variation_id)==rule["value"]){
+                            check=true;
+                            return false;
+                        }
+                    });
                 }else{
                     check=true;//other fields always true if they exist
                 }
@@ -1759,6 +2065,7 @@
             $.tmEPOAdmin.builder_items_sortable_obj={"start":{},"end":{}};
         },
 
+        is_element_dragged:false,
         // Elements sortable
         builder_items_sortable: function(obj) {
             if (!$.tmEPOAdmin.is_original){
@@ -1769,34 +2076,59 @@
                 cursor: "move",
                 items: ".bitem",
                 start: function(e, ui) {
-
+                    ui.placeholder.height(ui.helper.outerHeight());ui.placeholder.width(ui.helper.outerWidth());
+                    $.tmEPOAdmin.is_element_dragged=true;
                     if (!$(ui.item).hasClass("ditem")) {
-                        $(ui.item).closest(".builder_wrapper").addClass("tm-zindex").css("zIndex",3);
-                        $(ui.item).closest(".builder_wrapper").find(".tm_builder_sections").val(function(i, oldval) {
+                        var builder_wrapper=$(ui.item).closest(".builder_wrapper"),
+                            is_slider=builder_wrapper.is(".tm-slider-wizard"),
+                            field_index=$.tmEPOAdmin.find_index(is_slider,$(ui.item) );
+                        builder_wrapper.addClass("tm-zindex").css("zIndex",3);
+                        builder_wrapper.find(".tm_builder_sections").val(function(i, oldval) {
                             return --oldval;
                         });
-                        $.tmEPOAdmin.builder_items_sortable_obj["start"].section=$(ui.item).closest(".builder_wrapper").find(".tm-builder-sections-uniqid").val();
-                        $.tmEPOAdmin.builder_items_sortable_obj["start"].section_eq=$(ui.item).closest(".builder_wrapper").index();
-                        $.tmEPOAdmin.builder_items_sortable_obj["start"].element=$(ui.item).index();                        
+                        builder_wrapper.find(".tm_builder_section_slides").val(function(i, oldval) {
+                            if(!builder_wrapper.is(".tm-slider-wizard")){
+                                return"";
+                            }
+                            return builder_wrapper.find('.bitem_wrapper')
+                            .map(function(i,e){
+                                return $(e).children('.bitem').not('.pl2').length;
+                            }).get().join(",");
+                        });
+                        $.tmEPOAdmin.builder_items_sortable_obj["start"].section=builder_wrapper.find(".tm-builder-sections-uniqid").val();
+                        $.tmEPOAdmin.builder_items_sortable_obj["start"].section_eq=builder_wrapper.index();
+                        $.tmEPOAdmin.builder_items_sortable_obj["start"].element=field_index;                        
                     }else{                        
                         $.tmEPOAdmin.builder_items_sortable_obj["start"].section="drag";
                         $.tmEPOAdmin.builder_items_sortable_obj["start"].section_eq="drag";
                         $.tmEPOAdmin.builder_items_sortable_obj["start"].element="drag";
                     }
 
-                    $(".builder_layout .bitem_wrapper").addClass("highlight");
+                    $(".builder_layout .bitem_wrapper").not(".tma-variations-wrap .bitem_wrapper").addClass("highlight");
                 },
-                stop: function(e, ui) {
-
+                stop: function(e, ui) { 
+                    $.tmEPOAdmin.is_element_dragged=false;
+                    var builder_wrapper=$(ui.item).closest(".builder_wrapper"),
+                        is_slider=builder_wrapper.is(".tm-slider-wizard"),
+                        field_index=$.tmEPOAdmin.find_index(is_slider,$(ui.item) );
                     if (!$(ui.item).hasClass("ditem")) {
                         $(".builder_wrapper.tm-zindex").css("zIndex","").removeClass("tm-zindex");
-                        $(ui.item).closest(".builder_wrapper").find(".tm_builder_sections").val(function(i, oldval) {
+                        builder_wrapper.find(".tm_builder_sections").val(function(i, oldval) {
                             return ++oldval;
                         });
+                        builder_wrapper.find(".tm_builder_section_slides").val(function(i, oldval) {
+                            if(!builder_wrapper.is(".tm-slider-wizard")){
+                                return"";
+                            }
+                            return builder_wrapper.find('.bitem_wrapper')
+                            .map(function(i,e){
+                                return $(e).children('.bitem').not('.pl2').length;
+                            }).get().join(",");
+                        });
                     }
-                    $.tmEPOAdmin.builder_items_sortable_obj["end"].section=$(ui.item).closest(".builder_wrapper").find(".tm-builder-sections-uniqid").val();
-                    $.tmEPOAdmin.builder_items_sortable_obj["end"].section_eq=$(ui.item).closest(".builder_wrapper").index();
-                    $.tmEPOAdmin.builder_items_sortable_obj["end"].element=$(ui.item).index();
+                    $.tmEPOAdmin.builder_items_sortable_obj["end"].section=builder_wrapper.find(".tm-builder-sections-uniqid").val();
+                    $.tmEPOAdmin.builder_items_sortable_obj["end"].section_eq=builder_wrapper.index();
+                    $.tmEPOAdmin.builder_items_sortable_obj["end"].element=field_index;
                     
                     $.tmEPOAdmin.builder_reorder_multiple();
                     if ($(ui.item).hasClass("ditem")) {
@@ -1807,7 +2139,7 @@
                     $(".builder_layout .bitem_wrapper").removeClass("highlight");
 
                 },
-                tolerance: 'pointer',
+                tolerance: 'intersect',
                 forcePlaceholderSize: true,
                 placeholder: 'bitem pl2',
                 
@@ -1821,14 +2153,18 @@
         // Element delete button
         builder_delete_onClick: function() {
             if (confirm(tm_epo_admin.builder_delete)) {
-                var _bitem=$(this).closest(".bitem");
-                $(this).closest(".builder_wrapper").find(".tm_builder_sections").val(function(i, oldval) {
+                var builder_wrapper=$(this).closest(".builder_wrapper"),
+                    _bitem=$(this).closest(".bitem"),
+                    is_slider=builder_wrapper.is(".tm-slider-wizard"),
+                    field_index=$.tmEPOAdmin.find_index(is_slider,_bitem );
+                builder_wrapper.find(".tm_builder_sections").val(function(i, oldval) {
                     return --oldval;
                 });
                 
-                $.tmEPOAdmin.builder_items_sortable_obj["start"].section=_bitem.closest(".builder_wrapper").find(".tm-builder-sections-uniqid").val();
-                $.tmEPOAdmin.builder_items_sortable_obj["start"].section_eq=_bitem.closest(".builder_wrapper").index();
-                $.tmEPOAdmin.builder_items_sortable_obj["start"].element=_bitem.index();
+                
+                $.tmEPOAdmin.builder_items_sortable_obj["start"].section=builder_wrapper.find(".tm-builder-sections-uniqid").val();
+                $.tmEPOAdmin.builder_items_sortable_obj["start"].section_eq=builder_wrapper.index();
+                $.tmEPOAdmin.builder_items_sortable_obj["start"].element=field_index;
 
                 $.tmEPOAdmin.builder_items_sortable_obj["end"].section="delete";
                 $.tmEPOAdmin.builder_items_sortable_obj["end"].section_eq="delete";
@@ -1836,6 +2172,16 @@
                 $(this).closest(".bitem").remove();
                 $.tmEPOAdmin.logic_reindex();
                 
+                builder_wrapper.find(".tm_builder_section_slides").val(function(i, oldval) {
+                    if(!builder_wrapper.is(".tm-slider-wizard")){
+                        return"";
+                    }
+                    return builder_wrapper.find('.bitem_wrapper')
+                    .map(function(i,e){
+                        return $(e).children('.bitem').not('.pl2').length;
+                    }).get().join(",");
+                });
+
                 $.tmEPOAdmin.builder_reorder_multiple();
             }
         },
@@ -1849,11 +2195,11 @@
                 handle_wrapper = handle_wrap.find(".tma-handle-wrapper").first();
             if (!$this.data("folded") && $this.data("folded")!=undefined ){
                 $this.data("folded",true);
-                $this.removeClass("fa-caret-down").addClass("fa-caret-up");
+                $this.removeClass("tcfa-caret-down").addClass("tcfa-caret-up");
                 handle_wrapper.addClass('tm-hidden');
             }else{
                 $this.data("folded",false);
-                $this.removeClass("fa-caret-up").addClass("fa-caret-down");
+                $this.removeClass("tcfa-caret-up").addClass("tcfa-caret-down");
                 handle_wrapper.removeClass('tm-hidden');
             }
         },
@@ -1862,14 +2208,14 @@
                 bitem_wrapper=builder_wrapper.find(".bitem_wrapper");
             if (!$(this).data("folded")){
                 $(this).data("folded",true);
-                bitem_wrapper.hide();
-                $(this).removeClass("fa-caret-down").addClass("fa-caret-up");
+                builder_wrapper.addClass("tm-hide-bitems");//hide
+                $(this).removeClass("tcfa-caret-down").addClass("tcfa-caret-up");
             }else{
                 $(this).data("folded",false);
-                bitem_wrapper.show();
-                $(this).removeClass("fa-caret-up").addClass("fa-caret-down");
+                builder_wrapper.removeClass("tm-hide-bitems");//show
+                $(this).removeClass("tcfa-caret-up").addClass("tcfa-caret-down");
             }
-            $(this).closest(".builder_wrapper").find(".builder_add_on_section").data("inserted",0);
+            //$(this).closest(".builder_wrapper").find(".builder_add_on_section").data("inserted",0);
             $(this).closest(".builder_wrapper").find(".float.builder_drag_elements").remove();            
         },
 
@@ -1965,16 +2311,22 @@
         // Section edit button
         builder_section_item_onClick: function() {
             var _bs = $(this).closest(".builder_wrapper");
-            $.tmEPOAdmin.gen_events(_bs);            
+            //$.tmEPOAdmin.gen_events(_bs);
             $.tmEPOAdmin.check_section_logic(_bs);
             var _current_logic=$.tmEPOAdmin.logic_object;             
             $.tmEPOAdmin.logic_init(_bs);
             var _s = $(this).closest(".builder_wrapper").find(".section_elements");
+            var _st=_s.find(".tm-tabs");
+            if(!_st.data('tm-has-tmtabs')){
+                _st.tmtabs();
+            }
             var _c = _s.tm_clone();
+            $.tmEPOAdmin.gen_events(_bs);
             var $_html = $.tmEPOAdmin.builder_floatbox_template({
                 "id": "temp_for_floatbox_insert",
                 "html": "",
-                "title": tm_epo_admin.edit_settings
+                "title": tm_epo_admin.edit_settings,
+                "uniqid":tm_epo_admin.element_uniqid+":"+_s.find(".tm-builder-sections-uniqid").val()
             });
 
             var _to = $("body").tm_floatbox({
@@ -2008,7 +2360,7 @@
                 _s.find(".tm-builder-clogic").val($.tmEPOAdmin.logic_get_JSON(_s));
                 _s.prependTo(_bs).addClass("closed");
                 $.tmEPOAdmin.builder_clone_after_events(_s);
-                
+                _bs.trigger("sections_type_onChange.cpf");
                 $.tmEPOAdmin.logic_reindex_force();
                 if (_to) _to.cancelfunc();
             });
@@ -2019,14 +2371,19 @@
         // Element edit button
         builder_item_onClick: function() {
             var bitem=$(this).closest(".bitem");
+            var bitemt=bitem.find(".tm-tabs");
+            if(!bitemt.data('tm-has-tmtabs')){
+                bitemt.tmtabs();
+            }
             $.tmEPOAdmin.panels_sortable(bitem.find(".panels_wrap"));
-            $.tmEPOAdmin.gen_events(bitem);  
+            //$.tmEPOAdmin.gen_events(bitem);
             $.tmEPOAdmin.check_element_logic(bitem);
             var _current_logic=$.tmEPOAdmin.element_logic_object;             
             $.tmEPOAdmin.element_logic_init(bitem);
             var _bs = $(this).closest(".hstc2");
             var _s = $(this).closest(".hstc2").find(".inside:first");
             var _c = _s.tm_clone();
+            $.tmEPOAdmin.gen_events(bitem);
             var $_html = $.tmEPOAdmin.builder_floatbox_template({
                 "id": "temp_for_floatbox_insert",
                 "html": "",
@@ -2081,13 +2438,15 @@
             $.tm_tooltip($("#temp_for_floatbox_insert").find('.tm-tooltip'));
             $.tmEPOAdmin.tm_weekdays($("#temp_for_floatbox_insert"));
             $.tmEPOAdmin.tm_url();
-            $.tmEPOAdmin.addTinyMCE('.flasho.tm_wrapper');            
+            $.tmEPOAdmin.tm_qty_selector();
+            $.tmEPOAdmin.addTinyMCE('.flasho.tm_wrapper');
+            $.tmEPOAdmin.paginattion_init();           
         },
 
         // Add Element draggable to sortable
         drag_drop: function(event, ui, dropable) {
             var selected_element = $(ui.draggable).attr('class').split(/\s+/).filter(function(item) {
-                return item.indexOf("element-") === -1 ? "" : item;
+                return item.indexOf("element-") === -1 ? "" : item.indexOf("-element-") === -1?item:"";
             }).toString();
             selected_element = selected_element.replace(/element-/gi, "");
             if (selected_element){
@@ -2096,11 +2455,15 @@
         },
 
         // Add Element to sortable via Add button
-        builder_clone_element: function(element, wrapper_selector) {
+        builder_clone_element: function(element, wrapper_selector,append_or_prepend) {
             var _template = $('.builder_hidden_elements').data('template');
             if (!_template) {
                 return;
             }
+            if (!append_or_prepend){
+                append_or_prepend="append";
+            }
+            wrapper_selector = $(wrapper_selector);
             var _clone = $(_template['html']).filter(".bitem.element-" + element).tm_clone(true);
             if (_clone) {
                 _clone.find('.tm-builder-element-uniqid').val($.tm_uniqid("",true));
@@ -2109,18 +2472,47 @@
                 }
                 _clone.addClass("appear");
                 $.tmEPOAdmin.set_field_title(_clone);
-                if ($(wrapper_selector).find(".bitem_wrapper").find(".ditem").length > 0) {
-                    $(wrapper_selector).find(".bitem_wrapper").find(".ditem").replaceWith(_clone);
+                if (wrapper_selector.find(".bitem_wrapper").find(".ditem").length > 0) {
+                    wrapper_selector.find(".bitem_wrapper").find(".ditem").replaceWith(_clone);
                 } else {
-                    $(wrapper_selector).find(".bitem_wrapper").append(_clone);
+                    if (append_or_prepend=="append"){
+                        wrapper_selector.find(".bitem_wrapper").not(".tm-hide").append(_clone);    
+                    }
+                    if (append_or_prepend=="prepend"){
+                        wrapper_selector.find(".bitem_wrapper").not(".tm-hide").prepend(_clone);    
+                    }
+                    
                 }
-                $(wrapper_selector).find(".tm_builder_sections").val(function(i, oldval) {
+                wrapper_selector.find(".tm_builder_sections").val(function(i, oldval) {
                     return ++oldval;
+                });
+                wrapper_selector.find(".tm_builder_section_slides").val(function(i, oldval) {
+                    if(!wrapper_selector.is(".tm-slider-wizard")){
+                        return"";
+                    }
+                    return wrapper_selector.find('.bitem_wrapper')
+                    .map(function(i,e){
+                        return $(e).children('.bitem').not('.pl2').length;
+                    }).get().join(",");
                 });
                 $.tmEPOAdmin.gen_events(_clone);
                 _clone.find(".tm-tabs").tmtabs();
                 _clone.find(".tm-header-title").data("id",_clone);
                 $.tmEPOAdmin.panels_sortable(_clone.find(".panels_wrap"));
+
+                if (append_or_prepend=="prepend"){
+                    var is_slider=wrapper_selector.is(".tm-slider-wizard"),
+                        field_index=$.tmEPOAdmin.find_index(is_slider,_clone );
+                    
+                    $.tmEPOAdmin.builder_items_sortable_obj["start"].section="drag";
+                    $.tmEPOAdmin.builder_items_sortable_obj["start"].section_eq="drag";
+                    $.tmEPOAdmin.builder_items_sortable_obj["start"].element="drag";
+
+                    $.tmEPOAdmin.builder_items_sortable_obj["end"].section=wrapper_selector.find(".tm-builder-sections-uniqid").val();
+                    $.tmEPOAdmin.builder_items_sortable_obj["end"].section_eq=wrapper_selector.index();
+                    $.tmEPOAdmin.builder_items_sortable_obj["end"].element=field_index;                    
+                }
+
                 $.tmEPOAdmin.check_element_logic(_clone);
                 $.tmEPOAdmin.builder_reorder_multiple();
                 return _clone;
@@ -2147,9 +2539,23 @@
                     }
                 });
             if (_clone) {
+                var  is_slider=_clone.closest(".builder_wrapper").is(".tm-slider-wizard");
+                    
                 _bitem.after(_clone);
+
+                var field_index=$.tmEPOAdmin.find_index(is_slider,_clone);
+                
                 _clone.closest(".builder_wrapper").find(".tm_builder_sections").val(function(i, oldval) {
                     return ++oldval;
+                });
+                _clone.closest(".builder_wrapper").find(".tm_builder_section_slides").val(function(i, oldval) {
+                    if(!_clone.closest(".builder_wrapper").is(".tm-slider-wizard")){
+                        return"";
+                    }
+                    return _clone.closest(".builder_wrapper").find('.bitem_wrapper')
+                    .map(function(i,e){
+                        return $(e).children('.bitem').not('.pl2').length;
+                    }).get().join(",");
                 });
                 _clone.find(".tm-header-title").data("id",_clone);
                 _clone.find('.tm-builder-element-uniqid').val($.tm_uniqid("",true));
@@ -2160,7 +2566,7 @@
                 $.tmEPOAdmin.builder_items_sortable_obj["start"].element="clone";
                 $.tmEPOAdmin.builder_items_sortable_obj["end"].section=_bitem.closest(".builder_wrapper").find(".tm-builder-sections-uniqid").val();
                 $.tmEPOAdmin.builder_items_sortable_obj["end"].section_eq=_bitem.closest(".builder_wrapper").index();
-                $.tmEPOAdmin.builder_items_sortable_obj["end"].element=_clone.index();
+                $.tmEPOAdmin.builder_items_sortable_obj["end"].element=field_index;
                 $.tmEPOAdmin.logic_reindex();
             }
         },
@@ -2341,10 +2747,7 @@
 
         // Helper : Generates new event after cloning an element
         builder_clone_after_events: function(_clone) {
-            _clone.find("input.tm-color-picker.minicolors-input").minicolors("destroy").minicolors();
-            _clone.find("input.tm-color-picker-t.minicolors-input").minicolors("destroy").minicolors({
-                'transparent': true
-            });
+            _clone.find("input.tm-color-picker").spectrum("destroy");
             $.tmEPOAdmin.panels_sortable(_clone.find(".panels_wrap"));
             _clone.find(".tm-tabs").tmtabs();
         },
@@ -2354,10 +2757,52 @@
             if (!obj) {
                 obj = $(".builder_layout ");
             }
-            obj.find("input.tm-color-picker").minicolors();
-            obj.find("input.tm-color-picker-t").minicolors({
-                'transparent': true
+            obj.find("input.tm-color-picker").spectrum({
+                showInput: true,
+                showInitial: true,
+                allowEmpty:true,
+                showAlpha:false,
+                showPalette:false,
+                clickoutFiresChange:true,
+                showButtons: false,
+                preferredFormat: "hex"
             });
+        },
+
+        paginattion_init:function(start){
+            var obj=$("#temp_for_floatbox_insert"),
+                pager = obj.find(".tcpagination"),
+                panels_wrap    = obj.find(".panels_wrap"),
+                options_wrap    = panels_wrap.find(".options_wrap"),
+                perpage         = parseInt(pager.attr("data-perpage")),
+                total           = Math.ceil(options_wrap.length/perpage);
+            
+            if (pager.data("tc-pagination")){
+                pager.tcPagination("destroy");
+            }
+            
+            if (start=="last"){
+                start = total;
+            }else{
+                start = 1;
+            }
+            pager.tcPagination({
+                totalPages: total,
+                startPage : start,
+                visiblePages: 10,
+                onPageClick: function (event, page) {
+                    $.tmEPOAdmin.paginationOnClick(page,perpage,options_wrap);
+                }
+            });                
+            
+        },
+        paginationOnClick: function(page,perpage,options_wrap) {
+            var page = parseInt(page);
+
+            options_wrap.addClass("tm-hidden");
+            for (var i = (perpage*page)-1; i >=(perpage*(page-1)) ; i--) {
+                options_wrap.eq(i).removeClass("tm-hidden");
+            };
         },
 
         addTinyMCE: function(element) {
@@ -2381,7 +2826,7 @@
             var tmc_settings, id, tqt_settings;
             var editor_tools_html = $('#wp-' + getter_tmce + '-editor-tools').html();
             var editor_tools_class = $('#wp-' + getter_tmce + '-editor-tools').attr('class');
-            $(element).find('textarea').not(":disabled").each(function(i, textarea) {
+            $(element).find('textarea').not(":disabled").not(".tm-no-editor").each(function(i, textarea) {
                 id = $(textarea).attr('id');
                 if (id) {
                     tmc_settings = $.extend({}, init_settings, {
@@ -2403,8 +2848,11 @@
                                 l = aid.length,
                                 mode = aid.substr(l - 4);
                             $(s).attr('id', id + '-' + mode);
+                            $(s).attr('data-wp-editor-id', id);
                         }
                     });
+                    $('.tm_editor_wrap').find('.insert-media').attr('data-editor', id);
+                    
                     tinymce.init(tmc_settings);
                     if (QTags && quicktags) {
                         quicktags(tqt_settings);
@@ -2420,7 +2868,7 @@
                 return;
             }
             var id, _check='';
-            $(element).find('textarea').not(":disabled").each(function(i, textarea) {
+            $(element).find('textarea').not(":disabled").not(".tm-no-editor").each(function(i, textarea) {
                 id = $(textarea).attr('id');
                 if (id &&  tinyMCE && tinyMCE.editors) {
                     
@@ -2455,7 +2903,7 @@
                 return;
             }
             obj.each(function(i,el){
-                var btxpd = $(this).closest(".builder_element_wrap").find(".builder_textfield_price_div");
+                var btxpd = $(this).closest(".builder_element_wrap").find(".builder_price_div");
 
                 if ($(this).val()=="currentstep"){
                     if ($(btxpd).length)btxpd.hide();
@@ -2502,8 +2950,18 @@
 
         set_hidden: function() {
             $('.builder_wrapper').each(function(i, section) {
-                $(this).find(".tm_builder_sections").val($(this).find(".bitem ").length);
-                $(this).find(".tm_builder_sections_size").val(function() {
+                var $this=$(this);
+                $this.find(".tm_builder_sections").val($(this).find(".bitem ").length);
+                $this.find(".tm_builder_section_slides").val(function(i, oldval) {
+                    if(!$this.is(".tm-slider-wizard")){
+                        return"";
+                    }
+                    return $this.find('.bitem_wrapper')
+                    .map(function(i,e){
+                        return $(e).children('.bitem').not('.pl2').length;
+                    }).get().join(",");
+                });
+                $this.find(".tm_builder_sections_size").val(function() {
                     var _size = $(section).attr("class").split(' ')
                         .map(function(cls) {
                             if (cls.match(/w\d+/g) !== null) {
@@ -2517,7 +2975,7 @@
                         });
                     return _size[0];
                 });
-                $(this).find(".div_size").val(function() {
+                $this.find(".div_size").val(function() {
                     var _size = $(this).closest(".bitem").attr("class").split(' ')
                         .map(function(cls) {
                             if (cls.indexOf("w", 0) !== -1) {
@@ -2614,7 +3072,8 @@
         tm_upload: function (e){
             var $this=$("#temp_for_floatbox_insert"),
                 $use_images_all=$("#temp_for_floatbox_insert .use_images").not(".tm-changes-product-image"),
-                $use_imagesp_all=$("#temp_for_floatbox_insert .tm-changes-product-image"),            
+                $use_imagesp_all=$("#temp_for_floatbox_insert .tm-changes-product-image"),
+                $use_lightbox=$("#temp_for_floatbox_insert .tm-show-when-use-images"),            
                 tm_upload = $this.find(".builder_element_wrap").find(".tm_upload_button").not(".tm_upload_buttonp"),
                 tm_upload_image = $this.find(".builder_element_wrap").find(".tm_upload_image").not(".tm_upload_imagep"),
                 tm_uploadp = $this.find(".builder_element_wrap").find(".tm_upload_buttonp"),
@@ -2626,6 +3085,7 @@
                 tm_uploadp.hide();
                 tm_upload_imagep.hide();
                 tm_cell_images.hide();
+
                 if($use_imagesp_all.val()=="images" && $use_images_all.val()==""){
                     var tm_option_image=$this.find(".tm_option_image").not(".tm_option_imagep"),
                         tm_option_imagep=$this.find(".tm_option_imagep"),
@@ -2654,6 +3114,11 @@
                     tm_uploadp.show();
                     tm_upload_imagep.show();
                     tm_cell_images.show();
+                }
+                if($use_images_all.val()=="images"){
+                    $use_lightbox.show();
+                }else{
+                    $use_lightbox.hide();
                 }
         },
 
@@ -2700,6 +3165,22 @@
             values=$.map(values,function(item){ return item === '' ? null : item });
             $(weekdays).val(values.join(","));
             $.tmEPOAdmin.tm_weekdays($(weekdays).parent());
+        },
+
+        tm_qty_selector: function (e){
+            var $this,$use_url;
+            if (e){
+                $use_url=$(this);                
+            }else{                
+                $use_url=$("#temp_for_floatbox_insert .tm-qty-selector");
+            }
+            $this=$("#temp_for_floatbox_insert");
+            var use_url = $this.find(".builder_element_wrap").find(".tm-show-for-quantity");            
+            if ($use_url.val()!=""){
+                use_url.show();
+            }else{
+                use_url.hide();
+            }
         },
 
         tm_url: function (e){
@@ -2969,10 +3450,11 @@
         border.removeClass('square round shadow thinline').addClass(val);
     }
 
-
     $(document).ready(function() {
         $.tmEPOAdmin.initialitize();
-        if ($('.tm-settings-wrap').length>0){            
+        
+        if ($('.tm-settings-wrap').length>0){
+            $(".tm-settings-wrap .tm-tabs").tmtabs();
             $('.tm-activate-license').on('click', function(e) {
                 e.preventDefault();
                 tm_license_check('activate');
@@ -3003,6 +3485,80 @@
             tm_css_styles_settings($('#tm_epo_css_styles'));
             tm_epo_css_selected_border($('#tm_epo_css_selected_border'));
             tm_epo_css_selected_border_settings($('#tm_epo_css_selected_border'));
+
+            $(document).on("click.cpf", ".tm-mn-movetodir,.tm-mn-deldir,.tm-mn-delfile", function(e) {
+                e.preventDefault();
+                var $this=$(this),
+                    forminp_tm_html=$('.forminp-tm_html');
+
+                if (forminp_tm_html.length>0) {
+                    if (forminp_tm_html.data('doing_ajax')){
+                        return;
+                    }
+                    if ($this.is('.tm-mn-deldir') && !confirm(tm_epo_admin.mn_delete_folder)){
+                        return;
+                    }else if ($this.is('.tm-mn-delfile') && !confirm(tm_epo_admin.mn_delete_file)){
+                        return;
+                    }
+                    $this.prepend('<i class="tm-icon tcfa tcfa-refresh tcfa-spin"></i>');
+
+                    forminp_tm_html.data('doing_ajax',1).block({
+                        message: null,
+                        overlayCSS: {
+                            background: '#fff url(' + tm_epo_admin.plugin_url + '/assets/images/ajax-loader.gif) no-repeat center',
+                            opacity: 0.6
+                        }
+                    });
+                    var action='tm_mn_movetodir',
+                        data = {
+                            action: action,
+                            dir: $this.attr('data-tm-dir'),
+                            security: tm_epo_admin.settings_nonce
+                        };
+
+                    if ($this.is('.tm-mn-deldir')){
+                        data.action='tm_mn_deldir';
+                        data.tmdir=$this.attr('data-tm-deldir');
+                    }else if ($this.is('.tm-mn-delfile')){
+                        data.action='tm_mn_delfile';
+                        data.tmfile=$this.attr('data-tm-delfile');
+                        data.tmdir=$this.attr('data-tm-deldir');
+                    }
+                    $.post(tm_epo_admin.ajax_url, data, function(response) {
+                        if (response && response.result && response.result !=''){
+                            forminp_tm_html.html(response.result);
+                        }else{
+                            if (response && response.error && response.message){
+                                var $_html = $.tmEPOAdmin.builder_floatbox_template_import({
+                                    "id": "temp_for_floatbox_insert",
+                                    "html": '<div class="tm-inner">'+response.message+'</div>',
+                                    "title": tm_epo_admin.i18n_error_title
+                                });
+                                var temp_floatbox = $("body").tm_floatbox({
+                                    "fps": 1,
+                                    "ismodal": true,
+                                    "refresh": "fixed",
+                                    "width": "50%",
+                                    "height": "300px",
+                                    "classname": "flasho tm_wrapper tm-error",
+                                    "data": $_html
+                                });
+                                $(".details_cancel").click(function() {
+                                    if (temp_floatbox) temp_floatbox.cancelfunc(); 
+                                });
+                            }
+                        }
+                    },'json')
+                    .always(function(response) {
+                        forminp_tm_html.data('doing_ajax',0).unblock();
+                        $this.find('.tm-icon').remove();
+                    });
+
+
+
+                }
+            });
+
         }
         $.tm_tooltip();
     });

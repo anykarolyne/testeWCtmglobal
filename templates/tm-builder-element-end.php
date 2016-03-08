@@ -3,7 +3,7 @@
 if (!defined('TM_EPO_PLUGIN_SECURITY')){
 	die();
 }
-if (!in_array($element,array('header','divider'))){
+if (!in_array($element,array('header','divider')) && empty(TM_EPO()->tm_builder_elements[$tm_element_settings['type']]["no_frontend_display"]) ){
 ?>
 
 </ul></div>

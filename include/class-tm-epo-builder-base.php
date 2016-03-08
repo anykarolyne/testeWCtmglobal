@@ -15,6 +15,8 @@ final class TM_EPO_BUILDER_base {
 	var $template_path;
 	var $plugin_url;
 
+	var $elements_namespace = 'TM Extra Product Options';
+
 	private $all_elements;
 
 	// element options
@@ -23,6 +25,8 @@ final class TM_EPO_BUILDER_base {
 	private $addons_array=array();
 
 	private $addons_attributes=array();
+
+	private $default_attributes=array();
 
 	// sections options
 	public $_section_elements=array();
@@ -80,138 +84,186 @@ final class TM_EPO_BUILDER_base {
 		$this->all_elements=array(
 			"header"  		=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Heading", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-header",
+								"icon" 					=> "tcfa-header",
 								"is_post" 				=> "display",
 								"type" 					=> "",
 								"post_name_prefix" 		=> "",
 								"fee_type" 				=> "",
-								"subscription_fee_type" 	=> "" ),
+								"subscription_fee_type" => "" ,
+								"tags" 					=> "content",
+								"show_on_backend"		=> true),
 			"divider"  		=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Divider", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-long-arrow-right",
+								"icon" 					=> "tcfa-long-arrow-right",
 								"is_post" 				=> "none",
 								"type" 					=> "",
 								"post_name_prefix" 		=> "",
 								"fee_type" 				=> "",
-								"subscription_fee_type" 	=> "" ),
+								"subscription_fee_type" => "",
+								"tags" 					=> "content",
+								"show_on_backend"		=> true),
 			"date"  		=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Date", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-calendar",
+								"icon" 					=> "tcfa-calendar",
 								"is_post" 				=> "post",
 								"type" 					=> "single",
 								"post_name_prefix" 		=> "date",
 								"fee_type" 				=> "single",
-								"subscription_fee_type" 	=> "single" ),
+								"subscription_fee_type" => "single",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),
 			"range"  		=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Range picker", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-arrows-h",
+								"icon" 					=> "tcfa-arrows-h",
 								"is_post" 				=> "post",
 								"type" 					=> "single",
 								"post_name_prefix" 		=> "range",
 								"fee_type" 				=> "single",
-								"subscription_fee_type" 	=> "single" ),			
+								"subscription_fee_type" => "single",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),
 			"color"  		=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Color picker", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-eyedropper",
+								"icon" 					=> "tcfa-eyedropper",
 								"is_post" 				=> "post",
 								"type" 					=> "single",
 								"post_name_prefix" 		=> "color",
 								"fee_type" 				=> "single",
-								"subscription_fee_type" 	=> "single" ),
+								"subscription_fee_type" => "single",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),
 			"textarea" 		=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Text Area", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-terminal",
+								"icon" 					=> "tcfa-terminal",
 								"is_post" 				=> "post",
 								"type" 					=> "single",
 								"post_name_prefix" 		=> "textarea",
 								"fee_type" 				=> "single",
-								"subscription_fee_type" 	=> "single" ),
+								"subscription_fee_type" => "single",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),
 			"textfield" 	=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Text Field", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-terminal",
+								"icon" 					=> "tcfa-terminal",
 								"is_post" 				=> "post",
 								"type" 					=> "single",
 								"post_name_prefix" 		=> "textfield",
 								"fee_type" 				=> "single",
-								"subscription_fee_type" 	=> "single" ),			
+								"subscription_fee_type" => "single",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),		
 			"upload" 		=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Upload", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-upload",
+								"icon" 					=> "tcfa-upload",
 								"is_post" 				=> "post",
 								"type" 					=> "single",
 								"post_name_prefix" 		=> "upload",
 								"fee_type" 				=> "",
-								"subscription_fee_type" 	=> "" ),	
+								"subscription_fee_type" => "",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),
 			"selectbox" 	=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Select Box", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-bars",
+								"icon" 					=> "tcfa-bars",
 								"is_post" 				=> "post",
 								"type" 					=> "multiplesingle",
 								"post_name_prefix" 		=> "select",
 								"fee_type" 				=> "multiple",
-								"subscription_fee_type" 	=> "multiple" ),
+								"subscription_fee_type" => "multiple",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),
 			"radiobuttons" 	=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Radio buttons", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-dot-circle-o",
+								"icon" 					=> "tcfa-dot-circle-o",
 								"is_post" 				=> "post",
 								"type" 					=> "multiple",
 								"post_name_prefix" 		=> "radio",
 								"fee_type" 				=> "multiple",
-								"subscription_fee_type" 	=> "multiple" ),
+								"subscription_fee_type" => "multiple",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),
 			"checkboxes" 	=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Checkboxes", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-check-square-o",
+								"icon" 					=> "tcfa-check-square-o",
 								"is_post" 				=> "post",
 								"type" 					=> "multipleall",
 								"post_name_prefix" 		=> "checkbox",
 								"fee_type" 				=> "multiple",
-								"subscription_fee_type"	=> "multiple" ),
+								"subscription_fee_type"	=> "multiple",
+								"tags" 					=> "price content",
+								"show_on_backend"		=> true),
 			"variations" 	=> array( 
 								"_is_addon" 			=> false,
+								"namespace" 			=> $this->elements_namespace,
 								"name" 					=> __( "Variations", TM_EPO_TRANSLATION ),
+								"description" 			=> "",
 								"width" 				=> "w100",
 								"width_display" 		=> "1/1",
-								"icon" 					=> "fa-bullseye",
+								"icon" 					=> "tcfa-bullseye",
 								"is_post" 				=> "display",
 								"type" 					=> "multiplesingle",
 								"post_name_prefix" 		=> "variations",
 								"fee_type" 				=> "",
 								"subscription_fee_type"	=> "",
 								"one_time_field" 		=> true,
-								"no_selection" 			=> true )
+								"no_selection" 			=> true,
+								"tags" 					=> "",
+								"show_on_backend"		=> false)
 		);
 	}
 
@@ -219,11 +271,28 @@ final class TM_EPO_BUILDER_base {
 		return $this->all_elements;
 	}
 
-	private function set_elements($element="",$options=array()){
+	private function set_elements($args=array()){
+
+		$element = $args["name"];
+		$options = $args["options"];
+
 		if( !empty($element) && is_array($options) ){
 			$options["_is_addon"]=true;
+			
+			if(!isset($args["namespace"])){
+				$options["namespace"]="EPD addon ".$element;
+			}else{
+				$options["namespace"]=$args["namespace"];
+			}
+			if ($options["namespace"]==$this->elements_namespace){
+				$options["namespace"]=$this->elements_namespace." addon";
+			}
+
 			if(!isset($options["name"])){
 				$options["name"]="";
+			}
+			if(!isset($options["description"])){
+				$options["description"]="";
 			}
 			if(!isset($options["type"])){
 				$options["type"]="";
@@ -248,7 +317,12 @@ final class TM_EPO_BUILDER_base {
 			}			
 			if(!isset($options["subscription_fee_type"])){
 				$options["subscription_fee_type"]="";
-			}			
+			}
+			
+			$options["tags"]=$options["name"];
+			
+			$options["show_on_backend"]=true;
+			
 			$this->all_elements=array_merge(array($element=>$options),$this->all_elements);
 		}
 	}
@@ -263,13 +337,23 @@ final class TM_EPO_BUILDER_base {
 		return $p;
 	}
 
+	public final function get_default_properties($builder,$_prefix,$_counter,$_elements,$k0){
+		$p=array();
+		foreach ($this->default_attributes as $key => $value) {
+			$p[$value]=isset( $builder[$_prefix.$value][$_counter[$_elements[$k0]]])
+					?$builder[$_prefix.$value][$_counter[$_elements[$k0]]]
+					:"";
+		}
+		return $p;
+	}
+
 	public final function register_addon($args=array()){
-		if ( isset($args["name"]) && isset($args["options"]) && isset($args["settings"]) ){
+		if ( isset($args["namespace"]) && isset($args["name"]) && isset($args["options"]) && isset($args["settings"]) ){
 			$this->elements_array=array_merge(
 				array(
-					$args["name"] => $this->add_element( $args["name"], $args["settings"], true ) 
+					$args["name"] => $this->add_element( $args["name"], $args["settings"], true, isset($args["tabs_override"])?$args["tabs_override"]:array() ) 
 				),$this->elements_array);
-			$this->set_elements($args["name"],$args["options"]);
+			$this->set_elements($args);
 
 			$this->addons_array[]=$args["name"];
 		}
@@ -316,6 +400,16 @@ final class TM_EPO_BUILDER_base {
 					"label"  	=> "",
 					"desc"   	=> ""
 				),
+				"sections_slides"=>array(
+					"id"   		=> "sections_slides",
+					"wpmldisable"=>1,
+					"default" 	=> "",
+					"nodiv"  	=> 1,
+					"type"  	=> "hidden",
+					"tags"  	=> array( "class"=>"tm_builder_section_slides", "name"=>"tm_meta[tmfbuilder][sections_slides][]", "value"=>0 ),
+					"label"  	=> "",
+					"desc"   	=> ""
+				),
 				"sectionsize"=>array(
 					"id"   		=> "sections_size",
 					"wpmldisable"=>1,
@@ -340,19 +434,20 @@ final class TM_EPO_BUILDER_base {
 					"wpmldisable"=>1,
 					"default" 	=> "",
 					"type"  	=> "select",
-					"tags"  	=> array( "id"=>"tm_sections_style", "name"=>"tm_meta[tmfbuilder][sections_style][]" ),
+					"tags"  	=> array( "class"=>"sections_style", "id"=>"tm_sections_style", "name"=>"tm_meta[tmfbuilder][sections_style][]" ),
 					"options" 	=> array(
 						array( "text" => __( "Normal (clear)", TM_EPO_TRANSLATION ), "value"=>"" ),
 						array( "text" => __( "Box", TM_EPO_TRANSLATION ), "value"=>"box" ),
-						array( "text" => __( "Expand and Collapse (start opened)", TM_EPO_TRANSLATION ), "value"=>"collapse" ),
-						array( "text" => __( "Expand and Collapse (start closed)", TM_EPO_TRANSLATION ), "value"=>"collapseclosed" ),
-						array( "text" => __( "Accordion", TM_EPO_TRANSLATION ), "value"=>"accordion" )
+						array( "text" => __( "Expand and Collapse (start opened)", TM_EPO_TRANSLATION ), "value"=>"collapse" ,"class"=>"builder_hide_for_variation"),
+						array( "text" => __( "Expand and Collapse (start closed)", TM_EPO_TRANSLATION ), "value"=>"collapseclosed","class"=>"builder_hide_for_variation" ),
+						array( "text" => __( "Accordion", TM_EPO_TRANSLATION ), "value"=>"accordion","class"=>"builder_hide_for_variation" )
 					),
 					"label"		=> __( "Section style", TM_EPO_TRANSLATION ),
 					"desc" 		=> __("Select this section's display style.", TM_EPO_TRANSLATION )
 				),
 				"sectionplacement"=>array(
 					"id"   		=> "sections_placement",
+					"message0x0_class" 	=> "builder_hide_for_variation",
 					"wpmldisable"=>1,
 					"default" 	=> "before",
 					"type"  	=> "select",
@@ -366,13 +461,15 @@ final class TM_EPO_BUILDER_base {
 				),
 				"sectiontype"=>array(
 					"id"   		=> "sections_type",
+					"message0x0_class" 	=> "builder_hide_for_variation",
 					"wpmldisable"=>1,
 					"default" 	=> "",
 					"type"  	=> "select",
-					"tags"  	=> array( "id"=>"sections_type", "name"=>"tm_meta[tmfbuilder][sections_type][]" ),
+					"tags"  	=> array( "class"=>"sections_type", "id"=>"sections_type", "name"=>"tm_meta[tmfbuilder][sections_type][]" ),
 					"options" 	=> array(
 						array( "text" => __( "Normal", TM_EPO_TRANSLATION ), "value"=>"" ),
-						array( "text" => __( "Pop up", TM_EPO_TRANSLATION ), "value"=>"popup" )
+						array( "text" => __( "Pop up", TM_EPO_TRANSLATION ), "value"=>"popup" ),
+						array( "text" => __( "Slider (wizard)", TM_EPO_TRANSLATION ), "value"=>"slider" )
 					),
 					"label"		=> __( "Section type", TM_EPO_TRANSLATION ),
 					"desc" 		=> __("Select this section's display type.", TM_EPO_TRANSLATION )
@@ -550,6 +647,8 @@ final class TM_EPO_BUILDER_base {
 						array( "text"=> __( "Above field", TM_EPO_TRANSLATION ), "value"=>"" ),
 						array( "text"=> __( "Below field", TM_EPO_TRANSLATION ), "value"=>"below" ),
 						array( "text"=> __( "Tooltip", TM_EPO_TRANSLATION ), "value"=>"tooltip" ),
+						array( "text"=> __( "Icon tooltip left", TM_EPO_TRANSLATION ), "value"=>"icontooltipleft" ),
+						array( "text"=> __( "Icon tooltip right", TM_EPO_TRANSLATION ), "value"=>"icontooltipright" ),
 					),
 					"label"		=> __( "Content position", TM_EPO_TRANSLATION ),
 					"desc" 		=> ""
@@ -580,37 +679,37 @@ final class TM_EPO_BUILDER_base {
 			
 			"textarea"=>$this->add_element(
 				"textarea",
-				array("required","price","text_after_price","price_type","hide_amount","quantity","placeholder","min_chars","max_chars","validation1")
+				array("required","price","text_before_price","text_after_price","price_type","hide_amount","quantity","placeholder","min_chars","max_chars","default_value_multiple","validation1")
 				),			
 			
 			"textfield"=>$this->add_element(
 				"textfield",
-				array("required","price","text_after_price","price_type2","hide_amount","quantity","placeholder","min_chars","max_chars","min","max","validation1")
+				array("required","price","sale_price","text_before_price","text_after_price","price_type2","hide_amount","quantity","placeholder","min_chars","max_chars","default_value","min","max","validation1")
 				),
 			
 			"selectbox"=>$this->add_element(
 				"selectbox",
-				array("required","text_after_price",($this->woo_subscriptions_check)?"price_type3":"price_type4","hide_amount","quantity","placeholder","use_url","changes_product_image","options")
+				array("required","text_before_price","text_after_price",($this->woo_subscriptions_check)?"price_type3":"price_type4","hide_amount","quantity","placeholder","use_url","changes_product_image","options")
 				),			
 			
 			"radiobuttons"=>$this->add_element(
 				"radiobuttons",
-				array("required","text_after_price","hide_amount","quantity","use_url","use_images","changes_product_image","swatchmode","items_per_row","clear_options","options")
+				array("required","text_before_price","text_after_price","hide_amount","quantity","use_url","use_images","changes_product_image","use_lightbox", "swatchmode","items_per_row","clear_options","options")
 				),			
 
 			"checkboxes"=>$this->add_element(
 				"checkboxes",
-				array("required","text_after_price","hide_amount","quantity","limit_choices","exactlimit_choices","use_images","changes_product_image","swatchmode","items_per_row","options")
+				array("required","text_before_price","text_after_price","hide_amount","quantity","limit_choices","exactlimit_choices","minimumlimit_choices","use_images","changes_product_image","use_lightbox","swatchmode","items_per_row","options")
 				),			
 
 			"upload"=>$this->add_element(
 				"upload",
-				array("required","price","text_after_price","price_type5","hide_amount","button_type")
+				array("required","price","text_before_price","text_after_price","price_type5","hide_amount","button_type")
 				),			
 			
 			"date"=>$this->add_element(
 				"date",
-				array("required","price","text_after_price","price_type6","hide_amount","quantity","button_type2","date_format","start_year","end_year",
+				array("required","price","text_before_price","text_after_price","price_type6","hide_amount","quantity","button_type2","date_format","start_year","end_year",
 					array(
 						"id" 				=> "date_min_date",
 						"wpmldisable"=>1,
@@ -625,7 +724,7 @@ final class TM_EPO_BUILDER_base {
 						"wpmldisable"=>1,
 						"default"			=> "",
 						"type"				=> "text",
-						"tags"				=> array( "class"=>"n", "id"=>"builder_date_max_date", "name"=>"tm_meta[tmfbuilder][date_max_date][]", "value"=>"" ),
+						"tags"				=> array( "class"=>"t", "id"=>"builder_date_max_date", "name"=>"tm_meta[tmfbuilder][date_max_date][]", "value"=>"" ),
 						"label"				=> __( 'Maximum selectable date', TM_EPO_TRANSLATION ),
 						"desc" 				=> __( 'A number of days from today.', TM_EPO_TRANSLATION )
 					),
@@ -643,7 +742,48 @@ final class TM_EPO_BUILDER_base {
 						"type"				=> "text",
 						"tags"				=> array( "class"=>"t", "id"=>"builder_date_enabled_only_dates", "name"=>"tm_meta[tmfbuilder][date_enabled_only_dates][]", "value"=>"" ),
 						"label"				=> __( 'Enabled dates', TM_EPO_TRANSLATION ),
-						"desc" 				=> __( 'Comma separated dates according to your selected date format. (Two digits for day, two digits for month and four digits for year). Please not that this will override any other setting!', TM_EPO_TRANSLATION )
+						"desc" 				=> __( 'Comma separated dates according to your selected date format. (Two digits for day, two digits for month and four digits for year). Please note that this will override any other setting!', TM_EPO_TRANSLATION )
+					),
+					array(
+						"id" 				=> "date_theme",
+						"wpmldisable" 		=>1,
+						"default"			=> "epo",
+						"type"				=> "select",
+						"tags"				=> array( "id"=>"builder_date_theme", "name"=>"tm_meta[tmfbuilder][date_theme][]" ),
+						"options"			=> array(
+							array( "text"=> __( "Epo White", TM_EPO_TRANSLATION ), "value"=>"epo" ),
+							array( "text"=> __( "Epo Black", TM_EPO_TRANSLATION ), "value"=>"epo-black" ),
+						),
+						"label"		=> __( "Theme", TM_EPO_TRANSLATION ),
+						"desc" 		=> __( "Select the theme for the datepicker.", TM_EPO_TRANSLATION )
+					),
+					array(
+						"id" 				=> "date_theme_size",
+						"wpmldisable" 		=>1,
+						"default"			=> "medium",
+						"type"				=> "select",
+						"tags"				=> array( "id"=>"builder_date_theme_size", "name"=>"tm_meta[tmfbuilder][date_theme_size][]" ),
+						"options"			=> array(
+							array( "text"=> __( "Small", TM_EPO_TRANSLATION ), "value"=>"small" ),
+							array( "text"=> __( "Medium", TM_EPO_TRANSLATION ), "value"=>"medium" ),
+							array( "text"=> __( "Large", TM_EPO_TRANSLATION ), "value"=>"large" ),
+						),
+						"label"		=> __( "Size", TM_EPO_TRANSLATION ),
+						"desc" 		=> __( "Select the size of the datepicker.", TM_EPO_TRANSLATION )
+					),
+					array(
+						"id" 				=> "date_theme_position",
+						"wpmldisable" 		=>1,
+						"default"			=> "normal",
+						"type"				=> "select",
+						"tags"				=> array( "id"=>"builder_date_theme_position", "name"=>"tm_meta[tmfbuilder][date_theme_position][]" ),
+						"options"			=> array(
+							array( "text"=> __( "Normal", TM_EPO_TRANSLATION ), "value"=>"normal" ),
+							array( "text"=> __( "Top of screen", TM_EPO_TRANSLATION ), "value"=>"top" ),
+							array( "text"=> __( "Bottom of screen", TM_EPO_TRANSLATION ), "value"=>"bottom" ),
+						),
+						"label"		=> __( "Position", TM_EPO_TRANSLATION ),
+						"desc" 		=> __( "Select the position of the datepicker.", TM_EPO_TRANSLATION )
 					),
 					array(
 						"id" 		=> "date_disabled_weekdays",
@@ -667,7 +807,7 @@ final class TM_EPO_BUILDER_base {
 						"id" 			=> "date_tranlation_day",
 						"default"		=> "",
 						"type"			=> "text",
-						"tags"			=> array( "class"=>"n", "id"=>"builder_date_tranlation_day", "name"=>"tm_meta[tmfbuilder][date_tranlation_day][]", "value"=>"" ),
+						"tags"			=> array( "class"=>"t", "id"=>"builder_date_tranlation_day", "name"=>"tm_meta[tmfbuilder][date_tranlation_day][]", "value"=>"" ),
 						"label"			=> "",
 						"desc"			=> "",
 						"prepend_element_html" => '<span class="prepend_span">'.__( 'Day', TM_EPO_TRANSLATION ).'</span> ',
@@ -680,7 +820,7 @@ final class TM_EPO_BUILDER_base {
 						"type"			=> "text",
 						"nowrap_start" 	=> 1,
 						"nowrap_end" 	=> 1,
-						"tags"			=> array( "class"=>"n", "id"=>"builder_date_tranlation_month", "name"=>"tm_meta[tmfbuilder][date_tranlation_month][]", "value"=>"" ),
+						"tags"			=> array( "class"=>"t", "id"=>"builder_date_tranlation_month", "name"=>"tm_meta[tmfbuilder][date_tranlation_month][]", "value"=>"" ),
 						"label"			=> "",
 						"desc"			=> "",
 						"prepend_element_html" => '<span class="prepend_span">'.__( 'Month', TM_EPO_TRANSLATION ).'</span> '
@@ -689,7 +829,7 @@ final class TM_EPO_BUILDER_base {
 						"id" 			=> "date_tranlation_year",
 						"default"		=> "",
 						"type"			=> "text",
-						"tags"			=> array( "class"=>"n", "id"=>"builder_date_tranlation_year", "name"=>"tm_meta[tmfbuilder][date_tranlation_year][]", "value"=>"" ),
+						"tags"			=> array( "class"=>"t", "id"=>"builder_date_tranlation_year", "name"=>"tm_meta[tmfbuilder][date_tranlation_year][]", "value"=>"" ),
 						"label"			=> "",
 						"desc"			=> "",
 						"prepend_element_html" => '<span class="prepend_span">'.__( 'Year', TM_EPO_TRANSLATION ).'</span> ',
@@ -700,50 +840,12 @@ final class TM_EPO_BUILDER_base {
 
 			"range"=>$this->add_element(
 				"range",
-				array("required","price","text_after_price","price_type7","hide_amount","quantity","min","max",
-					array(
-						"id" 		=> "range_step",
-						"wpmldisable"=>1,
-						"default"	=> "1",
-						"type"		=> "text",
-						"tags"		=> array( "class"=>"n", "id"=>"builder_range_step", "name"=>"tm_meta[tmfbuilder][range_step][]", "value"=>"" ),
-						"label"		=> __( 'Step value', TM_EPO_TRANSLATION ),
-						"desc" 		=> __( 'Enter the step for the handle.', TM_EPO_TRANSLATION )
-					),
-					array(
-						"id" 		=> "range_show_picker_value",
-						"wpmldisable"=>1,
-						"default"	=> "",
-						"type"		=> "select",
-						"tags"		=> array( "id"=>"builder_range_show_picker_value", "name"=>"tm_meta[tmfbuilder][range_show_picker_value][]" ),
-						"options"	=> array(
-							array( "text"=> __( "Tooltip", TM_EPO_TRANSLATION ), "value"=>"" ),
-							array( "text"=> __( "Left side", TM_EPO_TRANSLATION ), "value"=>"left" ),
-							array( "text"=> __( "Right side", TM_EPO_TRANSLATION ), "value"=>"right" ),
-							array( "text"=> __( "Tooltip and Left side", TM_EPO_TRANSLATION ), "value"=>"tleft" ),
-							array( "text"=> __( "Tooltip and Right side", TM_EPO_TRANSLATION ), "value"=>"tright" )
-						),
-						"label"		=> __( "Show value on", TM_EPO_TRANSLATION ),
-						"desc" 		=> __( "Select how to show the value of the range picker.", TM_EPO_TRANSLATION )
-					),					array(
-						"id" 		=> "range_pips",
-						"wpmldisable"=>1,
-						"default"	=> "",
-						"type"		=> "select",
-						"tags"		=> array( "id"=>"builder_range_pips", "name"=>"tm_meta[tmfbuilder][range_pips][]" ),
-						"options"	=> array(
-							array( "text"=> __( "No", TM_EPO_TRANSLATION ), "value"=>"" ),
-							array( "text"=> __( "Yes", TM_EPO_TRANSLATION ), "value"=>"yes" )
-						),
-						"label"		=> __( "Enable points display?", TM_EPO_TRANSLATION ),
-						"desc" 		=> __( "This allows you to generate points along the range picker.", TM_EPO_TRANSLATION )
-					),"default_value"
-				)
+				array("required","price","text_before_price","text_after_price","price_type7","hide_amount","quantity","min","max","rangestep","show_picker_value","pips","noofpips","default_value")
 				),
 
 			"color"=>$this->add_element(
 				"color",
-				array("required","price","text_after_price","price_type6","hide_amount","quantity","default_value")
+				array("required","price","text_before_price","text_after_price","price_type6","hide_amount","quantity","default_value")
 				),
 
 			"variations"=>$this->add_element(
@@ -757,6 +859,65 @@ final class TM_EPO_BUILDER_base {
 			$this->elements_array["textfield"][20]['options'][]=array( "text"=> __( "Subscription fee", TM_EPO_TRANSLATION ), "value"=>"subscriptionfee" );
 			$this->elements_array["date"][20]['options'][]=array( "text"=> __( "Subscription fee", TM_EPO_TRANSLATION ), "value"=>"subscriptionfee" );
 		}
+	}
+
+	public final function add_setting_pips($name=""){
+		return array(
+					"id" 		=> $name."_pips",
+					"wpmldisable"=>1,
+					"default"	=> "",
+					"type"		=> "select",
+					"tags"		=> array( "id"=>"builder_".$name."_pips", "name"=>"tm_meta[tmfbuilder][".$name."_pips][]" ),
+					"options"	=> array(
+						array( "text"=> __( "No", TM_EPO_TRANSLATION ), "value"=>"" ),
+						array( "text"=> __( "Yes", TM_EPO_TRANSLATION ), "value"=>"yes" )
+					),
+					"label"		=> __( "Enable points display?", TM_EPO_TRANSLATION ),
+					"desc" 		=> __( "This allows you to generate points along the range picker.", TM_EPO_TRANSLATION )
+				);
+	}
+
+	public final function add_setting_noofpips($name=""){
+		return array(
+					"id" 		=> $name."_noofpips",
+					"wpmldisable"=>1,
+					"default"	=> "10",
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_noofpips", "name"=>"tm_meta[tmfbuilder][".$name."_noofpips][]", "value"=>"" ),
+					"label"		=> __( 'Number of points', TM_EPO_TRANSLATION ),
+					"desc" 		=> __( 'Enter the number of values for the points display.', TM_EPO_TRANSLATION )
+				);
+	}
+
+	public final function add_setting_show_picker_value($name=""){
+		return array(
+					"id" 		=> $name."_show_picker_value",
+					"wpmldisable"=>1,
+					"default"	=> "",
+					"type"		=> "select",
+					"tags"		=> array( "id"=>"builder_".$name."_show_picker_value", "name"=>"tm_meta[tmfbuilder][".$name."_show_picker_value][]" ),
+					"options"	=> array(
+						array( "text"=> __( "Tooltip", TM_EPO_TRANSLATION ), "value"=>"" ),
+						array( "text"=> __( "Left side", TM_EPO_TRANSLATION ), "value"=>"left" ),
+						array( "text"=> __( "Right side", TM_EPO_TRANSLATION ), "value"=>"right" ),
+						array( "text"=> __( "Tooltip and Left side", TM_EPO_TRANSLATION ), "value"=>"tleft" ),
+						array( "text"=> __( "Tooltip and Right side", TM_EPO_TRANSLATION ), "value"=>"tright" )
+					),
+					"label"		=> __( "Show value on", TM_EPO_TRANSLATION ),
+					"desc" 		=> __( "Select how to show the value of the range picker.", TM_EPO_TRANSLATION )					
+				);
+	}
+
+	public final function add_setting_rangestep($name=""){
+		return array(
+					"id" 		=> $name."_step",
+					"wpmldisable"=>1,
+					"default"	=> "1",
+					"type"		=> "text",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_step", "name"=>"tm_meta[tmfbuilder][".$name."_step][]", "value"=>"" ),
+					"label"		=> __( 'Step value', TM_EPO_TRANSLATION ),
+					"desc" 		=> __( 'Enter the step for the handle.', TM_EPO_TRANSLATION )
+				);
 	}
 
 	public final function add_setting_validation1($name=""){
@@ -796,22 +957,45 @@ final class TM_EPO_BUILDER_base {
 		return array(
 					"id" 				=> $name."_price",
 					"wpmldisable" 		=> 1,
-					"message0x0_class" 	=> "builder_".$name."_price_div",
+					"message0x0_class" 	=> "builder_".$name."_price_div builder_price_div",
 					"default"			=> "",
-					"type"				=> "text",
-					"tags"				=> array( "class"=>"n", "id"=>"builder_".$name."_price", "name"=>"tm_meta[tmfbuilder][".$name."_price][]", "value"=>"" ),
+					"type"				=> "number",
+					"tags"				=> array( "class"=>"n", "id"=>"builder_".$name."_price", "name"=>"tm_meta[tmfbuilder][".$name."_price][]", "value"=>"", "step"=>"any" ),
 					"label"				=> __( 'Price', TM_EPO_TRANSLATION ),
 					"desc" 				=> __( 'Enter the price for this field or leave it blank for no price.', TM_EPO_TRANSLATION )
 				);
 	}
+	public final function add_setting_sale_price($name=""){
+		return array(
+					"id" 				=> $name."_sale_price",
+					"wpmldisable" 		=> 1,
+					"message0x0_class" 	=> "builder_".$name."_price_div builder_price_div",
+					"default"			=> "",
+					"type"				=> "number",
+					"tags"				=> array( "class"=>"n", "id"=>"builder_".$name."_sale_price", "name"=>"tm_meta[tmfbuilder][".$name."_sale_price][]", "value"=>"", "step"=>"any" ),
+					"label"				=> __( 'Sale Price', TM_EPO_TRANSLATION ),
+					"desc" 				=> __( 'Enter the sale price for this field or leave it blankto use the default price.', TM_EPO_TRANSLATION )
+				);
+	}
+
 	public final function add_setting_text_after_price($name=""){
 		return array(
 					"id" 		=>  $name."_text_after_price",
 					"default"	=> "",
 					"type"		=> "text",
-					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_text_after_price", "name"=>"tm_meta[tmfbuilder][".$name."_text_after_price][]", "value"=>"" ),
+					"tags"		=> array( "class"=>"t", "id"=>"builder_".$name."_text_after_price", "name"=>"tm_meta[tmfbuilder][".$name."_text_after_price][]", "value"=>"" ),
 					"label"		=> __( 'Text after Price', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter a text to display after the price for this field or leave it blank for no text.', TM_EPO_TRANSLATION )
+				);
+	}
+	public final function add_setting_text_before_price($name=""){
+		return array(
+					"id" 		=>  $name."_text_before_price",
+					"default"	=> "",
+					"type"		=> "text",
+					"tags"		=> array( "class"=>"t", "id"=>"builder_".$name."_text_before_price", "name"=>"tm_meta[tmfbuilder][".$name."_text_before_price][]", "value"=>"" ),
+					"label"		=> __( 'Text before Price', TM_EPO_TRANSLATION ),
+					"desc" 		=> __( 'Enter a text to display before the price for this field or leave it blank for no text.', TM_EPO_TRANSLATION )
 				);
 	}
 
@@ -831,6 +1015,7 @@ final class TM_EPO_BUILDER_base {
 						array( "text"=> __( "Percent of the original price per char", TM_EPO_TRANSLATION ), "value"=>"charpercent" ),
 						array( "text"=> __( 'Price per char (no first char)', TM_EPO_TRANSLATION ), "value"=>"charnofirst" ),
 						array( "text"=> __( "Percent of the original price per char (no first char)", TM_EPO_TRANSLATION ), "value"=>"charpercentnofirst" ),
+						array( "text"=> __( 'Price per char (no spaces)', TM_EPO_TRANSLATION ), "value"=>"charnospaces" ),
 						array( "text"=> __( 'Fee', TM_EPO_TRANSLATION ), "value"=>"fee" ),
 					),
 					"label"		=> __( 'Price type', TM_EPO_TRANSLATION )
@@ -855,6 +1040,7 @@ final class TM_EPO_BUILDER_base {
 						array( "text"=> __( "Percent of the original price per char", TM_EPO_TRANSLATION ), "value"=>"charpercent" ),
 						array( "text"=> __( 'Price per char (no first char)', TM_EPO_TRANSLATION ), "value"=>"charnofirst" ),
 						array( "text"=> __( "Percent of the original price per char (no first char)", TM_EPO_TRANSLATION ), "value"=>"charpercentnofirst" ),
+						array( "text"=> __( 'Price per char (no spaces)', TM_EPO_TRANSLATION ), "value"=>"charnospaces" ),
 						array( "text"=> __( "Fee", TM_EPO_TRANSLATION ), "value"=>"fee" ),						
 					),
 					"label"		=> __( 'Price type', TM_EPO_TRANSLATION )
@@ -940,6 +1126,7 @@ final class TM_EPO_BUILDER_base {
 						array( "text"=> __( "Fixed amount", TM_EPO_TRANSLATION ), "value"=>"" ),
 						array( "text"=> __( "Step * price", TM_EPO_TRANSLATION ), "value"=>"step" ),
 						array( "text"=> __( "Current value", TM_EPO_TRANSLATION ), "value"=>"currentstep" ),
+						array( "text"=> __( "Price per Interval", TM_EPO_TRANSLATION ), "value"=>"intervalstep" ),
 						array( "text"=> __( "Percent of the original price", TM_EPO_TRANSLATION ), "value"=>"percent" ),
 						array( "text"=> __( "Percent of the original price + options", TM_EPO_TRANSLATION ), "value"=>"percentcurrenttotal" ),
 						array( "text"=> __( "Fee", TM_EPO_TRANSLATION ), "value"=>"fee" ),
@@ -948,27 +1135,27 @@ final class TM_EPO_BUILDER_base {
 				);
 	}
 
-	public final function add_setting_min($name=""){
-		return array(
+	public final function add_setting_min($name="",$args=array()){
+		return array_merge(array(
 					"id" 		=> $name."_min",
 					"wpmldisable"=>1,
 					"default"	=> "",
-					"type"		=> "text",
-					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_min", "name"=>"tm_meta[tmfbuilder][".$name."_min][]", "value"=>"" ),
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_min", "name"=>"tm_meta[tmfbuilder][".$name."_min][]", "value"=>"", "step"=>"any" ),
 					"label"		=> __( 'Min value', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter the minimum value.', TM_EPO_TRANSLATION )
-				);
+				),$args);
 	}
-	public final function add_setting_max($name=""){
-		return array(
+	public final function add_setting_max($name="",$args=array()){
+		return array_merge(array(
 					"id" 		=> $name."_max",
 					"wpmldisable"=>1,
 					"default"	=> "",
-					"type"		=> "text",
-					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_max", "name"=>"tm_meta[tmfbuilder][".$name."_max][]", "value"=>"" ),
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_max", "name"=>"tm_meta[tmfbuilder][".$name."_max][]", "value"=>"", "step"=>"any" ),
 					"label"		=> __( 'Max value', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter the maximum value.', TM_EPO_TRANSLATION )
-				);
+				),$args);
 	}
 	public final function add_setting_date_format($name=""){
 		return array(
@@ -992,7 +1179,7 @@ final class TM_EPO_BUILDER_base {
 					"id" 		=> $name."_start_year",
 					"wpmldisable"=>1,
 					"default"	=> "1900",
-					"type"		=> "text",
+					"type"		=> "number",
 					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_start_year", "name"=>"tm_meta[tmfbuilder][".$name."_start_year][]", "value"=>"" ),
 					"label"		=> __( 'Start year', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter starting year.', TM_EPO_TRANSLATION )
@@ -1003,7 +1190,7 @@ final class TM_EPO_BUILDER_base {
 					"id" 		=> $name."_end_year",
 					"wpmldisable"=>1,
 					"default"	=> (date("Y")+10),
-					"type"		=> "text",
+					"type"		=> "number",
 					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_end_year", "name"=>"tm_meta[tmfbuilder][".$name."_end_year][]", "value"=>"" ),
 					"label"		=> __( 'End year', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter ending year.', TM_EPO_TRANSLATION )
@@ -1027,6 +1214,7 @@ final class TM_EPO_BUILDER_base {
 	public final function add_setting_options($name=""){
 		return array(
 					"id" 		=> $name."_options",
+					"tmid" 		=> "populate",
 					"default" 	=> "",
 					"type"		=> "custom",
 					"leftclass" => "onerow",
@@ -1061,6 +1249,22 @@ final class TM_EPO_BUILDER_base {
 					),
 					"label"		=> __( 'Use image replacements', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Choose whether to use images in place of radio buttons.', TM_EPO_TRANSLATION )
+				);
+	}
+	public final function add_setting_use_lightbox($name=""){
+		return array(
+					"id" 		=> $name."_use_lightbox",
+					"message0x0_class"=>"tm-show-when-use-images",
+					"wpmldisable"=>1,
+					"default"	=> "",
+					"type"		=> "select",
+					"tags"		=> array( "class"=>"use_lightbox tm-use-lightbox", "id"=>"builder_".$name."_use_lightbox", "name"=>"tm_meta[tmfbuilder][".$name."_use_lightbox][]" ),
+					"options"	=> array(
+						array( "text"=> __( 'No', TM_EPO_TRANSLATION ), "value"=>"" ),
+						array( "text"=> __( 'Yes', TM_EPO_TRANSLATION ), "value"=>"lightbox" )
+					),
+					"label"		=> __( 'Use image lightbox', TM_EPO_TRANSLATION ),
+					"desc" 		=> __( 'Choose whether to enable the lightbox on the thumbnail.', TM_EPO_TRANSLATION )
 				);
 	}
 	public final function add_setting_changes_product_image($name=""){
@@ -1125,8 +1329,8 @@ final class TM_EPO_BUILDER_base {
 					"id" 		=> $name."_limit_choices",
 					"wpmldisable"=>1,
 					"default"	=> "",
-					"type"		=> "text",
-					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_limit_choices", "name"=>"tm_meta[tmfbuilder][".$name."_limit_choices][]" ),
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_limit_choices", "name"=>"tm_meta[tmfbuilder][".$name."_limit_choices][]", "min"=>0 ),
 					"label"		=> __( 'Limit selection', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter a number above 0 to limit the checkbox selection or leave blank for default behaviour.', TM_EPO_TRANSLATION )
 				);
@@ -1136,10 +1340,21 @@ final class TM_EPO_BUILDER_base {
 					"id" 		=> $name."_exactlimit_choices",
 					"wpmldisable"=>1,
 					"default"	=> "",
-					"type"		=> "text",
-					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_exactlimit_choices", "name"=>"tm_meta[tmfbuilder][".$name."_exactlimit_choices][]" ),
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_exactlimit_choices", "name"=>"tm_meta[tmfbuilder][".$name."_exactlimit_choices][]", "min"=>0 ),
 					"label"		=> __( 'Exact selection', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter a number above 0 to have the user select the exact number of checkboxes or leave blank for default behaviour.', TM_EPO_TRANSLATION )
+				);
+	}
+	public final function add_setting_minimumlimit_choices($name=""){
+		return array(
+					"id" 		=> $name."_minimumlimit_choices",
+					"wpmldisable"=>1,
+					"default"	=> "",
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_minimumlimit_choices", "name"=>"tm_meta[tmfbuilder][".$name."_minimumlimit_choices][]", "min"=>0 ),
+					"label"		=> __( 'Minimum selection', TM_EPO_TRANSLATION ),
+					"desc" 		=> __( 'Enter a number above 0 to have the user select at least that number of checkboxes or leave blank for default behaviour.', TM_EPO_TRANSLATION )
 				);
 	}
 	public final function add_setting_button_type($name=""){
@@ -1187,13 +1402,14 @@ final class TM_EPO_BUILDER_base {
 				);
 	}
 	public final function add_setting_quantity($name=""){
-		return array(
+		return array('_multiple_values'=>array(
+				array(
 					"id" 				=> $name."_quantity",
 					"message0x0_class" 	=> "builder_".$name."_quantity_div",
 					"wpmldisable"=>1,
 					"default"			=> "",
 					"type"				=> "select",
-					"tags"				=> array( "id"=>"builder_".$name."_quantity", "name"=>"tm_meta[tmfbuilder][".$name."_quantity][]" ),
+					"tags"				=> array( "id"=>"builder_".$name."_quantity", "class"=>"tm-qty-selector","name"=>"tm_meta[tmfbuilder][".$name."_quantity][]" ),
 					"options"			=> array(
 						array( "text" => __( 'Disable', TM_EPO_TRANSLATION ), "value"=>"" ),
 						array( "text" => __( 'Right', TM_EPO_TRANSLATION ), "value"=>"right" ),
@@ -1203,7 +1419,21 @@ final class TM_EPO_BUILDER_base {
 					),
 					"label"				=> __( 'Quantity selector', TM_EPO_TRANSLATION ),
 					"desc" 				=> __( 'This will show a quantity selector for this option.', TM_EPO_TRANSLATION )
-				);
+				),
+				$this->add_setting_min($name."_quantity",array( "label"=>__( 'Quantity min value', TM_EPO_TRANSLATION ), "message0x0_class"=>"tm-show-for-quantity tm-qty-min")  ),
+				$this->add_setting_max($name."_quantity",array( "label"=>__( 'Quantity max value', TM_EPO_TRANSLATION ), "message0x0_class"=>"tm-show-for-quantity tm-qty-max")  ),
+				array(
+					"id" 		=> $name."_quantity_step",
+					"message0x0_class"=>"tm-show-for-quantity tm-qty-max",
+					"wpmldisable"=>1,
+					"default"	=> "",
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_min", "name"=>"tm_meta[tmfbuilder][".$name."_quantity_step][]", "value"=>"", "step"=>"any", "min"=>0 ),
+					"label"		=> __( 'Quantity step', TM_EPO_TRANSLATION ),
+					"desc" 		=> __( 'Enter the quantity step.', TM_EPO_TRANSLATION )
+				),
+				$this->add_setting_default_value($name."_quantity",array( "label"=>__( 'Quantity Default value', TM_EPO_TRANSLATION ), "message0x0_class"=>"tm-show-for-quantity tm-qty-default","desc" => __( 'Enter a value to be applied to the Quantity field automatically.', TM_EPO_TRANSLATION )  ) ),
+				));
 	}
 	public final function add_setting_placeholder($name=""){
 		return array(
@@ -1220,8 +1450,8 @@ final class TM_EPO_BUILDER_base {
 					"id" 		=> $name."_min_chars",
 					"wpmldisable"=>1,
 					"default"	=> "",
-					"type"		=> "text",
-					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_min_chars", "name"=>"tm_meta[tmfbuilder][".$name."_min_chars][]", "value"=>"" ),
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_min_chars", "name"=>"tm_meta[tmfbuilder][".$name."_min_chars][]", "value"=>"", "min"=>0 ),
 					"label"		=> __( 'Minimum characters', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter a value for the minimum characters the user must enter.', TM_EPO_TRANSLATION )
 				);
@@ -1231,18 +1461,28 @@ final class TM_EPO_BUILDER_base {
 					"id" 		=> $name."_max_chars",
 					"wpmldisable"=>1,
 					"default"	=> "",
-					"type"		=> "text",
-					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_max_chars", "name"=>"tm_meta[tmfbuilder][".$name."_max_chars][]", "value"=>"" ),
+					"type"		=> "number",
+					"tags"		=> array( "class"=>"n", "id"=>"builder_".$name."_max_chars", "name"=>"tm_meta[tmfbuilder][".$name."_max_chars][]", "value"=>"", "min"=>0 ),
 					"label"		=> __( 'Maximum characters', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter a value to limit the maximum characters the user can enter.', TM_EPO_TRANSLATION )
 				);
 	}	
-	public final function add_setting_default_value($name=""){
-		return array(
+	public final function add_setting_default_value($name="",$args=array()){
+		return array_merge(array(
 					"id" 		=> $name."_default_value",
 					"default"	=> "",
 					"type"		=> "text",
 					"tags"		=> array( "class"=>"t", "id"=>"builder_".$name."_default_value", "name"=>"tm_meta[tmfbuilder][".$name."_default_value][]", "value"=>"" ),
+					"label"		=> __( 'Default value', TM_EPO_TRANSLATION ),
+					"desc" 		=> __( 'Enter a value to be applied to the field automatically.', TM_EPO_TRANSLATION )
+				),$args);
+	}
+	public final function add_setting_default_value_multiple($name=""){
+		return array(
+					"id" 		=> $name."_default_value",
+					"default"	=> "",
+					"type"		=> "textarea",
+					"tags"		=> array( "class"=>"t tm-no-editor", "id"=>"builder_".$name."_default_value", "name"=>"tm_meta[tmfbuilder][".$name."_default_value][]", "value"=>"" ),
 					"label"		=> __( 'Default value', TM_EPO_TRANSLATION ),
 					"desc" 		=> __( 'Enter a value to be applied to the field automatically.', TM_EPO_TRANSLATION )
 				);
@@ -1280,51 +1520,102 @@ final class TM_EPO_BUILDER_base {
 		return $str;
 	}
 
-	public final function add_element($name="",$settings=array(), $is_addon=false){
+	private function _add_element_helper($name="",$value="",$_value=array(),$additional_currencies=false, $is_addon=false){
+		
+		$return=array();
+
+		if ($value=="price"){
+						
+			if (!empty($additional_currencies) && is_array($additional_currencies)){
+				$_copy_value = $_value;
+				$_value["label"] .=' <span class="tm-choice-currency">'.TM_EPO_HELPER()->wc_base_currency().'</span>';
+				$return[]=$_value;
+				foreach ($additional_currencies as $ckey => $currency) {
+					$copy_value = $_copy_value;
+					$copy_value["id"] .="_".$currency;
+					$copy_value["label"] .=' <span class="tm-choice-currency">'.$currency.'</span>';
+					$copy_value["desc"] = sprintf( __( 'Leave it blank to calculate it automatically from the %s price', TM_EPO_TRANSLATION ), TM_EPO_HELPER()->wc_base_currency() );
+					$copy_value["tags"]["id"] = "builder_".$name."_price"."_".$currency;
+					$copy_value["tags"]["name"] = "tm_meta[tmfbuilder][".$name."_price_".$currency."][]";
+					$return[]=$copy_value;
+				}
+			}else{
+				$return[]=$_value;
+			}
+		}elseif ($value=="sale_price"){
+						
+			if (!empty($additional_currencies) && is_array($additional_currencies)){
+				$_copy_value = $_value;
+				$_value["label"] .=' <span class="tm-choice-currency">'.TM_EPO_HELPER()->wc_base_currency().'</span>';
+				$return[]=$_value;
+				foreach ($additional_currencies as $ckey => $currency) {
+					$copy_value = $_copy_value;
+					$copy_value["id"] .="_".$currency;
+					$copy_value["label"] .=' <span class="tm-choice-currency">'.$currency.'</span>';
+					$copy_value["desc"] = sprintf( __( 'Leave it blank to calculate it automatically from the %s sale price', TM_EPO_TRANSLATION ), TM_EPO_HELPER()->wc_base_currency() );
+					$copy_value["tags"]["id"] = "builder_".$name."_sale_price"."_".$currency;
+					$copy_value["tags"]["name"] = "tm_meta[tmfbuilder][".$name."_sale_price_".$currency."][]";
+					$return[]=$copy_value;
+				}
+			}else{
+				$return[]=$_value;
+			}
+		}
+		else{
+			$return[]=$_value;	
+		}
+
+		if (isset($_value["id"])){
+			if ($is_addon){
+				$this->addons_attributes[]=$this->remove_prefix($_value["id"],$name."_");
+			}			
+			$this->default_attributes[]=$this->remove_prefix($_value["id"],$name."_");
+		}
+
+		return $return;
+	}
+
+	public final function add_element($name="",$settings=array(), $is_addon=false,$tabs_override=array()){
 		$options = array();
 		$additional_currencies=TM_EPO_HELPER()->wc_aelia_cs_enabled_currencies();
 		foreach ($settings as $key => $value) {
 			if (is_array($value)){
-				if ( $is_addon && isset($value["id"]) ){
-					$this->addons_attributes[]=$value["id"];
-					$value["id"]=$name."_".$value["id"];
-					$value["tags"]=array( 
-                                    "id"=>"builder_".$value["id"], 
-                                    "name"=>"tm_meta[tmfbuilder][".$value["id"]."][]", 
-                                    "value"=>"" 
-                                    );
+				if ( isset($value["id"]) ){
+					$this->default_attributes[]=$value["id"];
+					if($is_addon){
+						$this->addons_attributes[]=$value["id"];
+						$value["id"]=$name."_".$value["id"];
+						$value["tags"]=array( 
+	                                    "id"=>"builder_".$value["id"], 
+	                                    "name"=>"tm_meta[tmfbuilder][".$value["id"]."][]", 
+	                                    "value"=>"" 
+	                                    );
+					}
+					
 				}
 				$options[]=$value;
 			}else{
 				$method="add_setting_".$value;
-				$_value=$this->$method($name);
-								
 
-				if ($value=="price"){
-					
-					if (!empty($additional_currencies) && is_array($additional_currencies)){
-						$_copy_value = $_value;
-						$_value["label"] .=' <span class="tm-choice-currency">'.TM_EPO_HELPER()->wc_base_currency().'</span>';
-						$options[]=$_value;
-						foreach ($additional_currencies as $ckey => $currency) {
-							$copy_value = $_copy_value;
-							$copy_value["id"] .="_".$currency;
-							$copy_value["label"] .=' <span class="tm-choice-currency">'.$currency.'</span>';
-							$copy_value["desc"] = sprintf( __( 'Leave it blank to calculate it automatically from the %s price', TM_EPO_TRANSLATION ), TM_EPO_HELPER()->wc_base_currency() );
-							$copy_value["tags"]["id"] = "builder_".$name."_price"."_".$currency;
-							$copy_value["tags"]["name"] = "tm_meta[tmfbuilder][".$name."_price_".$currency."][]";
-							$options[]=$copy_value;
+				if (method_exists($this, $method)){
+					$_value=$this->$method($name);
+
+					if (isset($_value['_multiple_values'])){
+						foreach ($_value['_multiple_values'] as $mkey => $mvalue) {
+							$r=$this->_add_element_helper($name,$value,$mvalue,$additional_currencies, $is_addon);
+							foreach ($r as $rkey => $rvalue) {
+								$options[]=$rvalue;
+							}
 						}
 					}else{
-						$options[]=$_value;
-					}
-				}else{
-					$options[]=$_value;	
+						$r=$this->_add_element_helper($name,$value,$_value,$additional_currencies, $is_addon);
+						foreach ($r as $rkey => $rvalue) {
+							$options[]=$rvalue;
+						}
+					}					
+
 				}
 
-				if ($is_addon && isset($_value["id"])){
-					$this->addons_attributes[]=$this->remove_prefix($_value["id"],$name."_");
-				}
 			}
 		}
 		return array_merge( 
@@ -1332,31 +1623,32 @@ final class TM_EPO_BUILDER_base {
 
 				// add headers
 				$this->_prepend_div( $name,"tm-tab-headers" ),
-				$this->_prepend_tab( $name."1", __( "Label options", TM_EPO_TRANSLATION ),"closed","tma-tab-label" ),
-				$this->_prepend_tab( $name."2", __( "General options", TM_EPO_TRANSLATION ),"open","tma-tab-general" ),
-				$this->_prepend_tab( $name."3", __( "Conditional Logic", TM_EPO_TRANSLATION ),"closed","tma-tab-logic" ),
-				$this->_prepend_tab( $name."4", __( "CSS settings", TM_EPO_TRANSLATION ),"closed","tma-tab-css" ),
+				!isset($tabs_override["label_options"])?$this->_prepend_tab( $name."1", __( "Label options", TM_EPO_TRANSLATION ),"closed","tma-tab-label" ):array(),
+				!isset($tabs_override["general_options"])?$this->_prepend_tab( $name."2", __( "General options", TM_EPO_TRANSLATION ),"open","tma-tab-general" ):array(),
+				!isset($tabs_override["conditional_logic"])?$this->_prepend_tab( $name."3", __( "Conditional Logic", TM_EPO_TRANSLATION ),"closed","tma-tab-logic" ):array(),
+				!isset($tabs_override["css_settings"])?$this->_prepend_tab( $name."4", __( "CSS settings", TM_EPO_TRANSLATION ),"closed","tma-tab-css" ):array(),
+				//!isset($tabs_override["wooCommerce_settings"])?$this->_prepend_tab( $name."5", __( "WooCommerce", TM_EPO_TRANSLATION ),"closed","tma-tab-wooCommerce" ):array(),
 				$this->_append_div( $name ),
 				
 				// add Label options
-				$this->_prepend_div( $name."1" ),
-				$this->_get_header_array( $name."_header" ),
-				$this->_get_divider_array( $name."_divider", 0 ),
-				$this->_append_div( $name."1" ),
+				!isset($tabs_override["label_options"])?$this->_prepend_div( $name."1" ):array(),
+				!isset($tabs_override["label_options"])?$this->_get_header_array( $name."_header" ):array(),
+				!isset($tabs_override["label_options"])?$this->_get_divider_array( $name."_divider", 0 ):array(),
+				!isset($tabs_override["label_options"])?$this->_append_div( $name."1" ):array(),
 				
 				// add General options
-				$this->_prepend_div( $name."2" ),	
-				$options,
-				$this->_append_div( $name."2" ),
+				!isset($tabs_override["general_options"])?$this->_prepend_div( $name."2" ):array(),
+				!isset($tabs_override["general_options"])?$options:array(),
+				!isset($tabs_override["general_options"])?$this->_append_div( $name."2" ):array(),
 				
 				// add Contitional logic
-				$this->_prepend_div( $name."3" ),
-				$this->_prepend_logic( $name ), 
-				$this->_append_div( $name."3" ),
+				!isset($tabs_override["conditional_logic"])?$this->_prepend_div( $name."3" ):array(),
+				!isset($tabs_override["conditional_logic"])?$this->_prepend_logic( $name ):array(),
+				!isset($tabs_override["conditional_logic"])?$this->_append_div( $name."3" ):array(),
 
 				// add CSS settings
-				$this->_prepend_div( $name."4" ),
-				array(
+				!isset($tabs_override["css_settings"])?$this->_prepend_div( $name."4" ):array(),
+				!isset($tabs_override["css_settings"])?array(
 					array(
 						"id" 		=> $name."_class",
 						"default"	=> "",
@@ -1365,8 +1657,22 @@ final class TM_EPO_BUILDER_base {
 						"label"		=> __( 'Element class name', TM_EPO_TRANSLATION ),
 						"desc" 		=> __( 'Enter an extra class name to add to this element', TM_EPO_TRANSLATION )
 					)
-				),
-				$this->_append_div( $name."4" ),
+				):array(),
+				!isset($tabs_override["css_settings"])?$this->_append_div( $name."4" ):array(),
+
+				/*// add WooCommerce settings
+				!isset($tabs_override["wooCommerce_settings"])?$this->_prepend_div( $name."5" ):array(),
+				!isset($tabs_override["wooCommerce_settings"])?array(
+					array(
+						"id" 		=> $name."_width",
+						"default"	=> "",
+						"type"		=> "text",
+						"tags"		=> array( "class"=>"t", "id"=>"builder_".$name."_width", "name"=>"tm_meta[tmfbuilder][".$name."_width][]", "value"=>"" ),
+						"label"		=> __( 'Weight', 'woocommerce' ) . ' (' . get_option( 'woocommerce_weight_unit' ) . ')',
+						"desc" 		=> __( 'Enter the weight increase or decrease from the base product.', TM_EPO_TRANSLATION )
+					)
+				):array(),
+				!isset($tabs_override["wooCommerce_settings"])?$this->_append_div( $name."5" ):array(),*/
 
 				$this->_append_div( "" )				
 			);
@@ -1387,7 +1693,7 @@ final class TM_EPO_BUILDER_base {
 						"html"		=> "<div class='tm-box".$boxclass."'>"
 										."<h4 data-id='".$id."-tab' class='tab-header".$closed."'>"
 										.$label
-										."<span class='fa fa-angle-down tm-arrow'></span>"
+										."<span class='tcfa tcfa-angle-down tm-arrow'></span>"
 										."</h4></div>",
 						"label"		=> "",
 						"desc" 		=> ""
@@ -1424,8 +1730,8 @@ final class TM_EPO_BUILDER_base {
 	private function builder_showlogic(){
 		$h="";
 		$h .= '<div class="builder-logic-div">';
-			$h .= '<div class="row nopadding">';
-			$h .= '<select class="epo-rule-toggle"><option value="show">Show</option><option value="hide">Hide</option></select><span>this field if</span><select class="epo-rule-what"><option value="all">all</option><option value="any">any</option></select><span>of these rules match:</span>';
+			$h .= '<div class="tm-row nopadding">';
+			$h .= '<select class="epo-rule-toggle"><option value="show">'.__( 'Show', TM_EPO_TRANSLATION ).'</option><option value="hide">'.__( 'Hide', TM_EPO_TRANSLATION ).'</option></select><span>'.__( 'this field if', TM_EPO_TRANSLATION ).'</span><select class="epo-rule-what"><option value="all">'.__( 'all', TM_EPO_TRANSLATION ).'</option><option value="any">'.__( 'any', TM_EPO_TRANSLATION ).'</option></select><span>'.__( 'of these rules match', TM_EPO_TRANSLATION ).':</span>';
 			$h .= '</div>';
 
 			$h .= '<div class="tm-logic-wrapper">';
@@ -1485,7 +1791,7 @@ final class TM_EPO_BUILDER_base {
 			),
 			array(
 				"id" 		=> $id."_title",
-				//"message0x0_class" 	=> "builder_hide_for_variation",
+				"message0x0_class" 	=> "builder_hide_for_variation",
 				"default"	=> "",
 				"type"		=> "text",
 				"tags"		=> array( "class"=>"t tm-header-title", "id"=>"builder_".$id."_title", "name"=>"tm_meta[tmfbuilder][".$id."_title][]", "value"=>"" ),
@@ -1512,7 +1818,7 @@ final class TM_EPO_BUILDER_base {
 				"wpmldisable"=>1,
 				"default"	=> "",
 				"type"		=> "text",
-				"tags"		=> array( "class"=>"tm-color-picker", "id"=>"builder_".$id."_title_color", "name"=>"tm_meta[tmfbuilder][".$id."_title_color][]", "value"=>"" ),
+				"tags"		=> array( "data-show-input"=>"true","data-show-initial"=>"true","data-allow-empty"=>"true","data-show-alpha"=>"false","data-show-palette"=>"false","data-clickout-fires-change"=>"true","data-show-buttons"=>"false","data-preferred-format"=>"hex","class"=>"tm-color-picker", "id"=>"builder_".$id."_title_color", "name"=>"tm_meta[tmfbuilder][".$id."_title_color][]", "value"=>"" ),
 				"label"		=> __( 'Label color', TM_EPO_TRANSLATION ),
 				"desc" 		=> __( 'Leave empty for default value', TM_EPO_TRANSLATION )
 			),
@@ -1536,6 +1842,8 @@ final class TM_EPO_BUILDER_base {
 					array( "text"=> __( "Above field", TM_EPO_TRANSLATION ), "value"=>"" ),
 					array( "text"=> __( "Below field", TM_EPO_TRANSLATION ), "value"=>"below" ),
 					array( "text"=> __( "Tooltip", TM_EPO_TRANSLATION ), "value"=>"tooltip" ),
+					array( "text"=> __( "Icon tooltip left", TM_EPO_TRANSLATION ), "value"=>"icontooltipleft" ),
+					array( "text"=> __( "Icon tooltip right", TM_EPO_TRANSLATION ), "value"=>"icontooltipright" )
 				),
 				"label"		=> __( "Subtitle position", TM_EPO_TRANSLATION ),
 				"desc" 		=> ""
@@ -1632,22 +1940,22 @@ final class TM_EPO_BUILDER_base {
 	 */
 	public function print_elements( $echo=0, $wpml_is_original_product=true ) {
 		$out1='';
-		$drag_elements='';
+		//$drag_elements='';
 		foreach ( $this->get_elements() as $element=>$settings ) {
 			if ( isset( $this->elements_array[$element] ) ) {
-				if(empty($settings['no_selection'])){
-					$drag_elements .="<div data-element='".$element."' class='ditem element-".$element."'><div class='tm-label'><i class='tmfa fa ".$settings["icon"]."'></i> ".$settings["name"]."</div></div>";
-				}
+				/*if(empty($settings['no_selection'])){
+					$drag_elements .="<div data-element='".$element."' class='ditem element-".$element."'><div class='tm-label'><i class='tmfa tcfa ".$settings["icon"]."'></i> ".$settings["name"]."</div></div>";
+				}*/
 				$_temp_option=$this->elements_array[$element];
 				$internal_name_input = '<input type="hidden" value="'.esc_attr($settings["name"]).'" name="tm_meta[tmfbuilder]['.$element.'_internal_name][]" class="t tm-internal-name">';
 				$out1 	.="<div class='bitem element-".$element." ".$settings["width"]."'>"
 						."<input class='builder_element_type' name='tm_meta[tmfbuilder][element_type][]' type='hidden' value='".$element."' />"
 						."<input class='div_size' name='tm_meta[tmfbuilder][div_size][]' type='hidden' value='".$settings["width"]."' />"
-						."<div class='hstc2 closed'><div class='tmicon fa fa-sort move'></div>"
-						."<div class='tmicon fa fa-minus minus'></div><div class='tmicon fa fa-plus plus'></div>"
+						."<div class='hstc2 closed'><div class='tmicon tcfa tcfa-sort move'></div>"
+						."<div class='tmicon tcfa tcfa-minus minus'></div><div class='tmicon tcfa tcfa-plus plus'></div>"
 						."<div class='tmicon size'>".$settings["width_display"]."</div>"
-						."<div class='tmicon fa fa-pencil edit'></div><div class='tmicon fa fa-copy clone'></div><div class='tmicon fa fa-times delete'></div><span class='tm-element-label'>".$settings["name"]."</span>".$internal_name_input
-						."<div class='tm-label-icon'><i class='tmfa fa ".$settings["icon"]."'></i></div>"
+						."<div class='tmicon tcfa tcfa-pencil edit'></div><div class='tmicon tcfa tcfa-copy clone'></div><div class='tmicon tcfa tcfa-times delete'></div><span class='tm-element-label'>".$settings["name"]."</span>".$internal_name_input
+						."<div class='tm-label-icon'><i class='tmfa tcfa ".$settings["icon"]."'></i></div>"
 						."<div class='tm-label'>".$settings["name"]."</div><div class='inside'><div class='manager'>"
 						."<div class='builder_element_wrap'>";
 				foreach ( $_temp_option  as $key=>$value ) {
@@ -1656,10 +1964,11 @@ final class TM_EPO_BUILDER_base {
 				$out1 .="</div></div></div></div></div>";
 			}
 		}
-		$out  ='<div class="builder_elements"><div class="builder_hidden_elements" data-template="'.esc_html( json_encode( array( "html"=>$out1 ) ) ).'"></div>'
+		$drag_elements=TM_EPO_ADMIN_GLOBAL()->js_element_data("ditem");
+		$out  ='<div class="builder_elements closed"><div class="tc-handle tmicon tcfa tcfa-caret-up"></div><div class="builder_hidden_elements" data-template="'.esc_html( json_encode( array( "html"=>$out1 ) ) ).'"></div>'
 				.'<div class="builder_hidden_section" data-template="'.esc_html( json_encode( array( "html"=>$this->section_elements( 0, $wpml_is_original_product ) ) ) ).'"></div>'
 				.(($wpml_is_original_product)?'<div class="builder_drag_elements">'.$drag_elements.'</div>':'')
-				.(($wpml_is_original_product)?'<div class="builder_actions">'.'<a class="builder_add_section tm-button bsbb" href="#"><i class="fa fa-plus-square"></i> '.__("Add section",TM_EPO_TRANSLATION).'</a>'.'</div>':'')
+				.(($wpml_is_original_product)?'<div class="builder_actions">'.'<a class="builder_add_section tm-button bsbb" href="#"><i class="tcfa tcfa-plus-square"></i> '.__("Add section",TM_EPO_TRANSLATION).'</a>'.'</div>':'')
 				."</div>";
 		if ( empty( $echo ) ) {
 			return $out;
@@ -1668,25 +1977,94 @@ final class TM_EPO_BUILDER_base {
 		}
 	}
 
-	private function _section_template($out="",$size="",$section_size="", $elements="", $wpml_is_original_product=true){
-		return "<div class='builder_wrapper ".$section_size."'>"
-			. "<div class='section_elements closed'>"
+	private function _section_template($out="",$size="",$section_size="", $sections_slides="", $elements="", $wpml_is_original_product=true,$sections_internal_name=false){
+		if ($sections_internal_name===false){
+			$sections_internal_name = __("Section",TM_EPO_TRANSLATION);
+		}
+		
+		$adder_prepend='<div class="bitem-add tc-prepend tma-nomove"><div class="tm-add-element-action"><a title="'.__("Add element",TM_EPO_TRANSLATION).'" class="builder_add_element tc-prepend tmfa tcfa tcfa-plus"></a></div></div>';
+		$adder_append='<div class="bitem-add tc-append tma-nomove"><div class="tm-add-element-action"><a title="'.__("Add element",TM_EPO_TRANSLATION).'" class="builder_add_element tc-append tmfa tcfa tcfa-plus"></a></div></div>';
+		if (!$wpml_is_original_product){
+			$adder_prepend=$adder_append='';
+		}
+
+		$internal_name_input = '<input type="hidden" value="'.esc_attr($sections_internal_name).'" name="tm_meta[tmfbuilder][sections_internal_name][]" class="t tm-internal-name">';
+		$t0= "<div class='builder_wrapper ".$section_size."'>";
+		$t1= "<div class='section_elements closed'>"
 			. $out
 			. "</div>"
 			. "<div class='btitle'>"
-			. (($wpml_is_original_product)?"<div class='tmicon fa fa-sort move'></div>":"")
-			. (($wpml_is_original_product)?"<div class='tmicon fa fa-minus minus'></div>":"")
-			. (($wpml_is_original_product)?"<div class='tmicon fa fa-plus plus'></div>":"")
+			. (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-sort move'></div>":"")
+			. (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-minus minus'></div>":"")
+			. (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-plus plus'></div>":"")
 			. "<div class='tmicon size'>".$size."</div>"
-			. (($wpml_is_original_product)?"<div class='tmicon builder_add_on_section'>".__("Add item",TM_EPO_TRANSLATION)." <i class='fa fa-plus plus'></i></div>":"")
-			. (($wpml_is_original_product)?"<div class='tmicon fa fa-times delete'></div>":"")
-			. "<div class='tmicon fa fa-pencil edit'></div>"
-			. (($wpml_is_original_product)?"<div class='tmicon fa fa-copy clone'></div>":"")
-			. "<div class='tmicon fa fa-caret-down fold'></div>"
+			//. (($wpml_is_original_product)?"<div class='tmicon builder_add_on_section'>".__("Add item",TM_EPO_TRANSLATION)." <i class='tcfa tcfa-plus plus'></i></div>":"")
+			. (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-times delete'></div>":"")
+			. "<div class='tmicon tcfa tcfa-pencil edit'></div>"
+			. (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-copy clone'></div>":"")
+			. "<div class='tmicon tcfa tcfa-caret-down fold'></div>"
+			. "<span class='tm-element-label'>".$sections_internal_name."</span>".$internal_name_input
 			. "<div class='tmicon tm-section-label'><div class='tm-label'></div></div>"
-			. "</div>"
-			. "<div class='bitem_wrapper'>".$elements."</div>"
 			. "</div>";
+
+		$t2 = "</div>";
+		$h='';
+
+		if(is_array($elements)){
+			$elements=array_values($elements);
+		}
+		if($sections_slides!=="" && is_array($elements)){
+			$sections_slides= explode( ",", $sections_slides );
+
+			 
+			$s=0;
+			$tabs="";
+			$add='<div class="tm-box tm-add-box"><h4 class="tm-add-tab"><span class="tcfa tcfa-plus"></span></h4></div>';
+			if(!$wpml_is_original_product){
+				$add="";
+			}
+			foreach ($sections_slides as $key => $value) {
+				
+				$tab='<div class="tm-box"><h4 class="tm-slider-wizard-header" data-id="tm-slide'.$s.'">'.($s+1).'</h4></div>';
+				$tabs .=$tab;				
+				 
+				$s++;
+
+			}
+
+			$c=0;
+			$s=0;
+			$h .= "<div class='builder_wrapper tm-slider-wizard ".$section_size."'>".$t1;
+			$h .= '<div class="transition tm-slider-wizard-headers">'.$tabs.$add.'</div>';
+			$h .= $adder_prepend;
+			foreach ($sections_slides as $key => $value) {
+				
+				$value=intval($value);
+
+				$h .= "<div class='bitem_wrapper tm-slider-wizard-tab tm-slide".$s."'>";
+				for ( $_s = $c; $_s < ($c+$value); $_s++ ) {
+					if(isset($elements[$_s])){
+						$h .= $elements[$_s];	
+					}
+				}
+				$h .= "</div>";
+
+				$c=$c+$value;
+				$s++;
+
+			}
+			$h .= $adder_append;
+			$h .= $t2;
+		}else{
+			if(is_array($elements)){
+				$elements = implode("",$elements);	
+			}
+
+			$h = $t0.$t1.$adder_prepend."<div class='bitem_wrapper'>".$elements."</div>".$adder_append.$t2;
+		}
+		
+
+		return $h;
 	}
 	/**
 	 * Generates all hidden sections for use in jQuery.
@@ -1701,7 +2079,7 @@ final class TM_EPO_BUILDER_base {
 			$out .=TM_EPO_HTML()->tm_make_field( $v, 0 );
 		}
 
-		$out = $this->_section_template( $out, $this->sizer["w100"], "","",$wpml_is_original_product );
+		$out = $this->_section_template( $out, $this->sizer["w100"], "","","",$wpml_is_original_product,false );
 
 		if ( empty( $echo ) ) {
 			return $out;
@@ -1757,11 +2135,23 @@ final class TM_EPO_BUILDER_base {
 			// All section sizes
 			$_sections_size=$builder['sections_size'];
 
+			$_sections_slides=isset($builder['sections_slides'])?$builder['sections_slides']:'';
+
+			$_sections_internal_name=isset($builder['sections_internal_name'])?$builder['sections_internal_name']:'';
+
 			if ( !is_array( $_sections ) ){
 				$_sections=array( count( $_elements ) );
 			}
-			if ( !is_array( $_sections_size ) ){
-				$_sections_size=array( "w100" );
+			if ( !is_array( $_sections_size ) ) {
+				$_sections_size=array_fill(0, count( $_sections ) ,"w100");
+			}
+
+			if ( !is_array( $_sections_slides ) ) {
+				$_sections_slides=array_fill(0, count( $_sections ) ,"");
+			}
+
+			if ( !is_array( $_sections_internal_name ) ) {
+				$_sections_internal_name=array_fill(0, count( $_sections ) ,false);
 			}
 
 			$_helper_counter=0;
@@ -1812,9 +2202,11 @@ final class TM_EPO_BUILDER_base {
 				}
 
 				$elements_html='';
+				$elements_html_array=array();
 				for ( $k0 = $_helper_counter; $k0 < intval( $_helper_counter+intval( $_sections[$_s] ) ); $k0++ ) {
 					if (isset($_elements[$k0])){
 						if ( isset( $this->elements_array[$_elements[$k0]] ) ) {
+							$elements_html_array[$k0] = "";
 							$_temp_option=$this->elements_array[$_elements[$k0]];
 							if ( !isset( $_counter[$_elements[$k0]] ) ) {
 								$_counter[$_elements[$k0]]=0;
@@ -1834,23 +2226,23 @@ final class TM_EPO_BUILDER_base {
 							$internal_name_input = '<input type="hidden" value="'.esc_attr($internal_name).'" name="tm_meta[tmfbuilder]['.$_elements[$k0].'_internal_name][]" class="t tm-internal-name">';
 							
 
-							$elements_html .="<div class='bitem element-".$_elements[$k0]." ".$_div_size[$k0]. "'>"
+							$elements_html_array[$k0] .="<div class='bitem element-".$_elements[$k0]." ".$_div_size[$k0]. "'>"
 								 . "<input class='builder_element_type' name='tm_meta[tmfbuilder][element_type][]' type='hidden' value='". $_elements[$k0]."' />"
 								 . "<input class='div_size' name='tm_meta[tmfbuilder][div_size][]' type='hidden' value='". $_div_size[$k0]."' />"
 								 . "<div class='hstc2 closed'>"
-								 . (($wpml_is_original_product)?"<div class='tmicon fa fa-sort move'></div>":"")
-								 . (($wpml_is_original_product)?"<div class='tmicon fa fa-minus minus'></div>":"")
-								 . (($wpml_is_original_product)?"<div class='tmicon fa fa-plus plus'></div>":"")
+								 . (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-sort move'></div>":"")
+								 . (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-minus minus'></div>":"")
+								 . (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-plus plus'></div>":"")
 								 . "<div class='tmicon size'>". $this->sizer[$_div_size[$k0]]."</div>"
-								 . "<div class='tmicon fa fa-pencil edit'></div>"
-								 . (($wpml_is_original_product)?"<div class='tmicon fa fa-copy clone'></div>":"")
-								 . (($wpml_is_original_product)?"<div class='tmicon fa fa-times delete'></div><span class='tm-element-label'>"
+								 . "<div class='tmicon tcfa tcfa-pencil edit'></div>"
+								 . (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-copy clone'></div>":"")
+								 . (($wpml_is_original_product)?"<div class='tmicon tcfa tcfa-times delete'></div><span class='tm-element-label'>"
 								 	.$internal_name."</span>".$internal_name_input:"")
-								 . "<div class='tm-label-icon'><i class='tmfa fa ".$_this_elements[$_elements[$k0]]["icon"]."'></i></div>"
+								 . "<div class='tm-label-icon'><i class='tmfa tcfa ".$_this_elements[$_elements[$k0]]["icon"]."'></i></div>"
 								 . "<div class='tm-label'>".$_this_elements[$_elements[$k0]]["name"]."</div>"
 								 . "<div class='inside'><div class='manager'>";
 
-							$elements_html .="<div class='builder_element_wrap'>";
+							$elements_html_array[$k0] .="<div class='builder_element_wrap'>";
 							foreach ( $_temp_option  as $key=>$value ) {
 								$transition_counter = $_counter[$_elements[$k0]];
 								$use_wpml=false;
@@ -1888,11 +2280,27 @@ final class TM_EPO_BUILDER_base {
 											&& isset($current_builder[$value['id']][$transition_counter])){
 											$value['default'] = $current_builder[$value['id']][$transition_counter];
 										}
+										if ($value['type']=='number'){
+											$value['default'] = tm_convert_local_numbers($value['default']);
+										}
 									}
 									if ($value['id']=="variations_options"){
-										$value['html'] = $this->builder_sub_variations_options( isset($builder[$value['id']])?$builder[$value['id']]:null , $post_id );
+										if ($section_use_wpml 
+											&& isset($current_builder[$value['id']]) 
+											){
+											$value['html'] = $this->builder_sub_variations_options( isset($current_builder[$value['id']])?$current_builder[$value['id']]:null , $current_post_id );
+										}else{
+											$value['html'] = $this->builder_sub_variations_options( isset($builder[$value['id']])?$builder[$value['id']]:null , $current_post_id );
+										}
+										
 									}
-									if (in_array($value['id'],array("checkboxes_options","radiobuttons_options","selectbox_options"))){
+
+									elseif ( (isset($value["tmid"]) && $value["tmid"]=="populate") && 
+										($this->all_elements[$_elements[$k0]]["type"]=="multiple" 
+										|| $this->all_elements[$_elements[$k0]]["type"]=="multipleall"  
+										|| $this->all_elements[$_elements[$k0]]["type"]=="multiplesingle") ){
+										
+									
 										/* holds the default checked values (cannot be cached in $t[$_vid]) */
 										$_default_value=isset($builder['multiple_'.$value['id'].'_default_value'])?$builder['multiple_'.$value['id'].'_default_value']:null;
 										
@@ -1951,9 +2359,20 @@ final class TM_EPO_BUILDER_base {
 													?$current_builder['multiple_'.$value['id'].'_price_type']
 													:$builder['multiple_'.$value['id'].'_price_type'] 	
 												: null;
+
+											$_sale_prices_base = isset($builder['multiple_'.$value['id'].'_sale_price'])
+												? $builder['multiple_'.$value['id'].'_sale_price']
+												: null;
+											$_sale_prices = isset($builder['multiple_'.$value['id'].'_sale_price'])
+												? isset($current_builder['multiple_'.$value['id'].'_sale_price'])
+													?$current_builder['multiple_'.$value['id'].'_sale_price']
+													:$builder['multiple_'.$value['id'].'_sale_price']
+												: null;
 											
 											$c_prices_base = array();
-											$c_prices = array();											
+											$c_prices = array();
+											$c_sale_prices_base = array();
+											$c_sale_prices = array();
 											if (!empty($additional_currencies) && is_array($additional_currencies)){
 												foreach ($additional_currencies as $ckey => $currency) {
 													$mt_prefix = TM_EPO_HELPER()->get_currency_price_prefix($currency);
@@ -1965,6 +2384,14 @@ final class TM_EPO_BUILDER_base {
 															?$current_builder['multiple_'.$value['id'].'_price'.$mt_prefix]
 															:$builder['multiple_'.$value['id'].'_price'.$mt_prefix]
 														: null;
+													$c_sale_prices_base[$currency] = isset($builder['multiple_'.$value['id'].'_sale_price'.$mt_prefix])
+														? $builder['multiple_'.$value['id'].'_sale_price'.$mt_prefix]
+														: null;
+													$c_sale_prices[$currency] = isset($builder['multiple_'.$value['id'].'_sale_price'.$mt_prefix])
+														? isset($current_builder['multiple_'.$value['id'].'_sale_price'.$mt_prefix])
+															?$current_builder['multiple_'.$value['id'].'_sale_price'.$mt_prefix]
+															:$builder['multiple_'.$value['id'].'_sale_price'.$mt_prefix]
+														: null;
 												}
 											}
 
@@ -1975,6 +2402,15 @@ final class TM_EPO_BUILDER_base {
 												? isset($current_builder['multiple_'.$value['id'].'_url'])
 													?$current_builder['multiple_'.$value['id'].'_url']
 													:$builder['multiple_'.$value['id'].'_url']
+												: null;											
+
+											$_description_base = isset($builder['multiple_'.$value['id'].'_description'])
+												? $builder['multiple_'.$value['id'].'_description']
+												: null;											
+											$_description = isset($builder['multiple_'.$value['id'].'_description'])
+												? isset($current_builder['multiple_'.$value['id'].'_description'])
+													?$current_builder['multiple_'.$value['id'].'_description']
+													:$builder['multiple_'.$value['id'].'_description']
 												: null;											
 
 											if (!is_null($_titles_base) && !is_null($_values_base) && !is_null($_prices_base) ){
@@ -1990,10 +2426,23 @@ final class TM_EPO_BUILDER_base {
 												if (is_null($_prices)){
 													$_prices=$_prices_base;
 												}
+												if (is_null($_sale_prices_base)){
+													$_sale_prices_base = array_map(array( $this,'_tm_clear_array_values'), $_titles_base);
+												}												
+
+												if (is_null($_sale_prices)){
+													$_sale_prices=$_sale_prices_base;
+												}
 
 												foreach ($c_prices as $ckey => $cvalue) {
 													if (is_null($cvalue)){
 														$c_prices[$ckey]=$c_prices_base[$ckey];
+													}
+												}
+
+												foreach ($c_sale_prices as $ckey => $cvalue) {
+													if (is_null($cvalue)){
+														$c_sale_prices[$ckey]=$c_sale_prices_base[$ckey];
 													}
 												}
 												
@@ -2024,8 +2473,15 @@ final class TM_EPO_BUILDER_base {
 												if (is_null($_url)){
 													$_url=$_url_base;
 												}
+												if (is_null($_description_base)){
+													$_description_base = array_map(array( $this,'_tm_clear_array_values'), $_titles_base);
+												}
+												if (is_null($_description)){
+													$_description=$_description_base;
+												}
 
 												foreach ($_titles_base as $option_key=>$option_value){
+
 													$use_original_builder=false;
 													$_option_key = $option_key;
 													if(isset( $current_builder[$_elements[$k0]."_uniqid"] ) 
@@ -2046,34 +2502,63 @@ final class TM_EPO_BUILDER_base {
 														$_imagesp_base[$_option_key]=array_map(array( $this,'_tm_clear_array_values'),  $_titles_base[$_option_key]);
 													}
 
+													if (!isset($_sale_prices_base[$_option_key])){
+														$_sale_prices_base[$_option_key]=array_map(array( $this,'_tm_clear_array_values'),  $_titles_base[$_option_key]);
+													}
+
+													if (!isset($_description_base[$_option_key])){
+														$_description_base[$_option_key]=array_map(array( $this,'_tm_clear_array_values'),  $_titles_base[$_option_key]);
+													}
+													
+													if (!isset($_sale_prices[$_option_key])){
+														$_sale_prices[$_option_key]=array_map(array( $this,'_tm_clear_array_values'),  $_titles_base[$_option_key]);
+													}
+
+													if (!isset($_description[$_option_key])){
+														$_description[$_option_key]=array_map(array( $this,'_tm_clear_array_values'),  $_titles_base[$_option_key]);
+													}
+
 													if($use_original_builder){
 														$obvalues=array(
 															"title" => $_titles_base[$_option_key],
 															"value" => $_values_base[$_option_key],
 															"price" => $_prices_base[$_option_key],
+															"sale_price" => $_sale_prices_base[$_option_key],
 															"image" => $_images_base[$_option_key],
 															"imagep" => $_imagesp_base[$_option_key],
 															"price_type" => $_prices_type_base[$_option_key],
-															"url" => $_url_base[$_option_key]
+															"url" => $_url_base[$_option_key],
+															"description" => $_description_base[$_option_key]
 														);
 														foreach ($c_prices_base as $ckey => $cvalue) {
 															$mt_prefix = TM_EPO_HELPER()->get_currency_price_prefix($ckey);
 															$obvalues["price".$mt_prefix]=$cvalue[$_option_key];
 														}
+														foreach ($c_sale_prices_base as $ckey => $cvalue) {
+															$mt_prefix = TM_EPO_HELPER()->get_currency_price_prefix($ckey);
+															$obvalues["sale_price".$mt_prefix]=$cvalue[$_option_key];
+														}
 														$t[$_vid][]=$obvalues;
 													}else{
 														$cbvalues=array(
-															"title" => $_titles[$_option_key],
-															"value" => $_values[$_option_key],
-															"price" => $_prices[$_option_key],
-															"image" => $_images[$_option_key],
-															"imagep" => $_imagesp[$_option_key],
-															"price_type" => $_prices_type[$_option_key],
-															"url" => $_url[$_option_key]
+															"title" => TM_EPO_HELPER()->build_array($_titles[$_option_key],$_titles_base[$_option_key]),
+															"value" => TM_EPO_HELPER()->build_array($_values[$_option_key],$_values_base[$_option_key]),
+															"price" => TM_EPO_HELPER()->build_array($_prices[$_option_key],$_prices_base[$_option_key]),
+															"sale_price" => TM_EPO_HELPER()->build_array($_sale_prices[$_option_key],$_sale_prices_base[$_option_key]),
+															"image" => TM_EPO_HELPER()->build_array($_images[$_option_key],$_images_base[$_option_key]),
+															"imagep" => TM_EPO_HELPER()->build_array($_imagesp[$_option_key],$_imagesp_base[$_option_key]),
+															"price_type" => TM_EPO_HELPER()->build_array($_prices_type[$_option_key],$_prices_type_base[$_option_key]),
+															"url" => TM_EPO_HELPER()->build_array($_url[$_option_key],$_url_base[$_option_key]),
+															"description" => TM_EPO_HELPER()->build_array($_description[$_option_key],$_description_base[$_option_key])
 														);
 														foreach ($c_prices as $ckey => $cvalue) {
 															$mt_prefix = TM_EPO_HELPER()->get_currency_price_prefix($ckey);
-															$cbvalues["price".$mt_prefix]=$cvalue[$_option_key];
+															$cbvalues["price".$mt_prefix]=TM_EPO_HELPER()->build_array($cvalue[$_option_key],
+																$c_prices_base[$ckey][$_option_key]);
+														}
+														foreach ($c_sale_prices as $ckey => $cvalue) {
+															$mt_prefix = TM_EPO_HELPER()->get_currency_price_prefix($ckey);
+															$cbvalues["sale_price".$mt_prefix]=TM_EPO_HELPER()->build_array($cvalue[$_option_key],$c_sale_prices_base[$ckey][$_option_key]);
 														}
 														$t[$_vid][]=$cbvalues;
 													}
@@ -2103,14 +2588,18 @@ final class TM_EPO_BUILDER_base {
 									$value['tags']['id']=$_name.$id_counter[$_name];
 								}
 
-								$elements_html .=TM_EPO_HTML()->tm_make_field( $value, 0 );
+								$elements_html_array[$k0] .=TM_EPO_HTML()->tm_make_field( $value, 0 );
 							}
-							$elements_html .="</div></div></div></div></div>";							
+							$elements_html_array[$k0] .="</div></div></div></div></div>";							
 						}						
 					}
 				}
 
-				$out .= $this->_section_template( $section_html, $this->sizer[$_sections_size[$_s]], $_sections_size[$_s], $elements_html,$wpml_is_original_product );
+				$out .= $this->_section_template( $section_html, $this->sizer[$_sections_size[$_s]], $_sections_size[$_s], 
+					isset($_sections_slides[$_s])?$_sections_slides[$_s]:"",
+					$elements_html_array,$wpml_is_original_product, 
+					isset($_sections_internal_name[$_s] )?$_sections_internal_name[$_s] :""
+					);
 				$_helper_counter=intval( $_helper_counter+intval( $_sections[$_s] ) );
 			}
 		}
@@ -2132,8 +2621,8 @@ final class TM_EPO_BUILDER_base {
 		$name = "tm_builder_variation_options";
 		$class= " withupload";
 
-		$upload = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to use in place of the radio button.", TM_EPO_TRANSLATION )).'" class="tm_upload_button cp_button tm-tooltip"><i class="fa fa-upload"></i></span><span data-tm-tooltip-html="'.esc_attr(__( "Remove the image.", TM_EPO_TRANSLATION )).'" class="tm-upload-button-remove cp-button tm-tooltip"><i class="fa fa-times"></i></span>';
-		$uploadp = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to replace the product image with.", TM_EPO_TRANSLATION )).'" class="tm_upload_button tm_upload_buttonp cp_button tm-tooltip"><i class="fa fa-upload"></i></span><span data-tm-tooltip-html="'.esc_attr(__( "Remove the image.", TM_EPO_TRANSLATION )).'" class="tm-upload-button-remove cp-button tm-tooltip"><i class="fa fa-times"></i></span>';
+		$upload = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to use in place of the radio button.", TM_EPO_TRANSLATION )).'" class="tm_upload_button cp_button tm-tooltip"><i class="tcfa tcfa-upload"></i></span><span data-tm-tooltip-html="'.esc_attr(__( "Remove the image.", TM_EPO_TRANSLATION )).'" class="tm-upload-button-remove cp-button tm-tooltip"><i class="tcfa tcfa-times"></i></span>';
+		$uploadp = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to replace the product image with.", TM_EPO_TRANSLATION )).'" class="tm_upload_button tm_upload_buttonp cp_button tm-tooltip"><i class="tcfa tcfa-upload"></i></span><span data-tm-tooltip-html="'.esc_attr(__( "Remove the image.", TM_EPO_TRANSLATION )).'" class="tm-upload-button-remove cp-button tm-tooltip"><i class="tcfa tcfa-times"></i></span>';
 
 		$settings_attribute=array(
 			array(
@@ -2149,6 +2638,14 @@ final class TM_EPO_BUILDER_base {
 				),
 				"label"		=> __( "Display as", TM_EPO_TRANSLATION ),
 				"desc" 		=> __( "Select the display type of this attribute.", TM_EPO_TRANSLATION )
+			),
+			array(
+				"id" 		=> "variations_label",
+				"default"	=> "",
+				"type"		=> "text",
+				"tags"		=> array( "class"=>"t", "id"=>"builder_%id%", "name"=>"tm_meta[tmfbuilder][variations_options][%attribute_id%][%id%]", "value"=>"" ),
+				"label"		=> __( 'Attribute Label', TM_EPO_TRANSLATION ),
+				"desc" 		=> __( 'Leave blank to use the original attribute label.', TM_EPO_TRANSLATION )
 			),
 			array(
 				"id" 		=> "variations_show_reset_button",
@@ -2276,12 +2773,12 @@ final class TM_EPO_BUILDER_base {
 		}
 
 		if (empty($attributes)){
-			return '<div class="errortitle"><p><i class="fa fa-exclamation-triangle"></i> '.__( 'No saved variations found.', TM_EPO_TRANSLATION ).'</p></div>';
+			return '<div class="errortitle"><p><i class="tcfa tcfa-exclamation-triangle"></i> '.__( 'No saved variations found.', TM_EPO_TRANSLATION ).'</p></div>';
 		}
 
 		foreach ($attributes as $name => $options) {
 			$out .=   '<div class="tma-handle-wrap tm-attribute">'
-					. '<div class="tma-handle"><div class="tma-attribute_label">'.wc_attribute_label($name).'</div><div class="tmicon fa fold fa-caret-up"></div></div>'
+					. '<div class="tma-handle"><div class="tma-attribute_label">'.wc_attribute_label($name).'</div><div class="tmicon tcfa fold tcfa-caret-up"></div></div>'
 					. '<div class="tma-handle-wrapper tm-hidden">'
 					. '<div class="tma-attribute w100">';
 			$attribute_id=sanitize_title( $name );
@@ -2293,7 +2790,7 @@ final class TM_EPO_BUILDER_base {
 					$setting["default"] = $meta[$attribute_id][$setting["id"]];
 				}
 				$out .= TM_EPO_HTML()->tm_make_field( $setting, 0 );
-			}			
+			}
 
 			if ( is_array( $options ) ) {
 
@@ -2323,7 +2820,7 @@ final class TM_EPO_BUILDER_base {
 							}
 							$term_id = $term->slug;
 							$out .=   '<div class="tma-handle-wrap tm-term">'
-									. '<div class="tma-handle"><div class="tma-attribute_label">'.apply_filters( 'woocommerce_variation_option_name', $term->name ) .'</div><div class="tmicon fa fold fa-caret-up"></div></div>'
+									. '<div class="tma-handle"><div class="tma-attribute_label">'.apply_filters( 'woocommerce_variation_option_name', $term->name ) .'</div><div class="tmicon tcfa fold tcfa-caret-up"></div></div>'
 									. '<div class="tma-handle-wrapper tm-hidden">'
 									. '<div class="tma-attribute w100">';
 							foreach ($settings_term as $setting) {
@@ -2331,7 +2828,11 @@ final class TM_EPO_BUILDER_base {
 								$setting["tags"]["name"] = str_replace("%id%", $setting["id"], $setting["tags"]["name"]);
 								$setting["tags"]["name"] = str_replace("%attribute_id%", sanitize_title( $name ), $setting["tags"]["name"]);
 								$setting["tags"]["name"] = str_replace("%term_id%", esc_attr( $term_id ), $setting["tags"]["name"]);
-								if ( !empty($meta) && isset($meta[$attribute_id]) && isset($meta[$attribute_id][$setting["id"]]) && isset($meta[$attribute_id][$setting["id"]][$term_id]) ){
+								
+								if ( !empty($meta) 
+									&& isset($meta[$attribute_id]) 
+									&& isset($meta[$attribute_id][$setting["id"]]) 
+									&& isset($meta[$attribute_id][$setting["id"]][$term_id]) ){
 									$setting["default"] = $meta[$attribute_id][$setting["id"]][$term_id];
 									if(isset($setting["extra"])){
 										$setting["extra"] = str_replace("%value%", $meta[$attribute_id][$setting["id"]][$term_id], $setting["extra"]);
@@ -2351,8 +2852,9 @@ final class TM_EPO_BUILDER_base {
 				} else {
 
 					foreach ( $options as $option ) {
+						$option = html_entity_decode($option,ENT_COMPAT | ENT_HTML401,'UTF-8');
 						$out .=   '<div class="tma-handle-wrap tm-term">'
-								. '<div class="tma-handle"><div class="tma-attribute_label">'.esc_html( apply_filters( 'woocommerce_variation_option_name', $option ) ) .'</div><div class="tmicon fa fold fa-caret-up"></div></div>'
+								. '<div class="tma-handle"><div class="tma-attribute_label">'.esc_html( apply_filters( 'woocommerce_variation_option_name', $option ) ) .'</div><div class="tmicon tcfa fold tcfa-caret-up"></div></div>'
 								. '<div class="tma-handle-wrapper tm-hidden">'
 								. '<div class="tma-attribute w100">';
 
@@ -2361,7 +2863,11 @@ final class TM_EPO_BUILDER_base {
 							$setting["tags"]["name"] = str_replace("%id%", $setting["id"], $setting["tags"]["name"]);
 							$setting["tags"]["name"] = str_replace("%attribute_id%", sanitize_title( $name ), $setting["tags"]["name"]);
 							$setting["tags"]["name"] = str_replace("%term_id%", esc_attr( $option ), $setting["tags"]["name"]);
-							if ( !empty($meta) && isset($meta[$attribute_id]) && isset($meta[$attribute_id][$setting["id"]]) && isset($meta[$attribute_id][$setting["id"]][$option]) ){
+
+							if ( !empty($meta) 
+								&& isset($meta[$attribute_id]) 
+								&& isset($meta[$attribute_id][$setting["id"]]) 
+								&& isset($meta[$attribute_id][$setting["id"]][$option]) ){
 								$setting["default"] = $meta[$attribute_id][$setting["id"]][$option];
 								if(isset($setting["extra"])){
 									$setting["extra"] = str_replace("%value%", $meta[$attribute_id][$setting["id"]][$option], $setting["extra"]);
@@ -2400,16 +2906,16 @@ final class TM_EPO_BUILDER_base {
 		$additional_currencies=TM_EPO_HELPER()->wc_aelia_cs_enabled_currencies();
 		if ($name == "multiple_radiobuttons_options" || $name == "multiple_checkboxes_options"){
 			if ($name == "multiple_radiobuttons_options"){
-				$upload = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to use in place of the radio button.", TM_EPO_TRANSLATION )).'" class="tm_upload_button cp_button tm-tooltip"><i class="fa fa-upload"></i></span>';
+				$upload = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to use in place of the radio button.", TM_EPO_TRANSLATION )).'" class="tm_upload_button cp_button tm-tooltip"><i class="tcfa tcfa-upload"></i></span>';
 			}elseif ($name == "multiple_checkboxes_options"){
-				$upload = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to use in place of the checkbox.", TM_EPO_TRANSLATION )).'" class="tm_upload_button cp_button tm-tooltip"><i class="fa fa-upload"></i></span>';
+				$upload = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to use in place of the checkbox.", TM_EPO_TRANSLATION )).'" class="tm_upload_button cp_button tm-tooltip"><i class="tcfa tcfa-upload"></i></span>';
 			}
 			
-			$uploadp = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to replace the product image with.", TM_EPO_TRANSLATION )).'" class="tm_upload_button tm_upload_buttonp cp_button tm-tooltip"><i class="fa fa-upload"></i></span>';
+			$uploadp = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to replace the product image with.", TM_EPO_TRANSLATION )).'" class="tm_upload_button tm_upload_buttonp cp_button tm-tooltip"><i class="tcfa tcfa-upload"></i></span>';
 			$class= " withupload";
 		}
 		if ($name == "multiple_selectbox_options"){
-			$uploadp = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to replace the product image with.", TM_EPO_TRANSLATION )).'" class="tm_upload_button tm_upload_buttonp cp_button tm-tooltip"><i class="fa fa-upload"></i></span>';
+			$uploadp = '&nbsp;<span data-tm-tooltip-html="'.esc_attr(__( "Choose the image to replace the product image with.", TM_EPO_TRANSLATION )).'" class="tm_upload_button tm_upload_buttonp cp_button tm-tooltip"><i class="tcfa tcfa-upload"></i></span>';
 			$class= " withupload";
 		}
 		$o["title"]= array(
@@ -2430,9 +2936,16 @@ final class TM_EPO_BUILDER_base {
 		$o["price"]= array(
 			"id" 		=> $name."_price",
 			"default"	=> "",
-			"type"		=> "text",
+			"type"		=> "number",
 			"nodiv"		=> 1,
 			"tags"		=> array( "class"=>"n tm_option_price", "id"=>$name."_price", "name"=>$name."_price" ),
+		);
+		$o["sale_price"]= array(
+			"id" 		=> $name."_sale_price",
+			"default"	=> "",
+			"type"		=> "number",
+			"nodiv"		=> 1,
+			"tags"		=> array( "class"=>"n tm_option_sale_price", "id"=>$name."_price", "name"=>$name."_price" ),
 		);
 		$o["image"]= array(
 			"id" 		=> $name."_image",
@@ -2463,10 +2976,18 @@ final class TM_EPO_BUILDER_base {
 		);
 		$o["url"]= array(
 			"id" 		=> $name."_url",
-			"default"	=>"",
+			"default"	=> "",
 			"type"		=> "text",
 			"nodiv"		=> 1,
 			"tags"		=> array( "class"=>"t tm_option_url", "id"=>$name."_url", "name"=>$name."_url", "value"=>"" ),
+			//"extra" 	=> $upload
+		);
+		$o["description"]= array(
+			"id" 		=> $name."_description",
+			"default"	=> "",
+			"type"		=> "text",
+			"nodiv"		=> 1,
+			"tags"		=> array( "class"=>"t tm_option_description", "id"=>$name."_description", "name"=>$name."_description", "value"=>"" ),
 			//"extra" 	=> $upload
 		);
 		if ($this->woo_subscriptions_check && $name!="multiple_selectbox_options"){
@@ -2480,51 +3001,74 @@ final class TM_EPO_BUILDER_base {
 				"title" => array( "" ),
 				"value" => array( "" ),
 				"price" => array( "" ),
+				"sale_price" => array( "" ),
 				"image" => array( "" ),
 				"imagep" => array( "" ),
 				"price_type" => array( "" ),
-				"url" =>array( "" )
+				"url" =>array( "" ),
+				"description" =>array( "" )
 			);
 		}
 
 		$del=TM_EPO_HTML()->tm_make_button( array(
-				"text"=>"<i class='fa fa-times'></i>",
+				"text"=>"<i class='tcfa tcfa-times'></i>",
 				"tags"=>array( "href"=>"#delete", "class"=>"button button-secondary button-small builder_panel_delete" ) 
 				), 0 );
 		$drag=TM_EPO_HTML()->tm_make_button( array(
-				"text"=>"<i class='fa fa-sort'></i>",
+				"text"=>"<i class='tcfa tcfa-sort'></i>",
 				"tags"=>array( "href"=>"#move", "class"=>"builder_panel_move" )
 				), 0 );
 
-		$out  = "<div class='row nopadding multiple_options'>"
-			. "<div class='cell col-auto tm_cell_move'>&nbsp;</div>"
-			. "<div class='cell col-auto tm_cell_default'>".(($name == "multiple_checkboxes_options")?__( "Checked", TM_EPO_TRANSLATION ):__( "Default", TM_EPO_TRANSLATION ))."</div>"
-			. "<div class='cell col-3 tm_cell_title'>".__( "Label", TM_EPO_TRANSLATION )."</div>"
-			. "<div class='cell col-2 tm_cell_images'>".__( "Images", TM_EPO_TRANSLATION )."</div>"
-			//. "<div class='cell col-1 tm_cell_url'>".__( "URL", TM_EPO_TRANSLATION )."</div>"
-			. "<div class='cell col-0 tm_cell_value'>".__( "Value", TM_EPO_TRANSLATION )."</div>"
-			. "<div class='cell col-auto tm_cell_price'>".__( "Price", TM_EPO_TRANSLATION )."</div>"
-			. "<div class='cell col-auto tm_cell_delete'><span class='tm-button button button-primary button-large builder_panel_delete_all'>".__( "Delete all options", TM_EPO_TRANSLATION )."</span></div>"
-			. "</div>"
-			. "<div class='panels_wrap nof_wrapper'>";
+		$out  = "<div class='tm-row nopadding multiple_options tc-clearfix'>"
+			. "<div class='tm-cell col-auto tm_cell_move'>&nbsp;</div>"
+			. "<div class='tm-cell col-auto tm_cell_default'>".(($name == "multiple_checkboxes_options")?__( "Checked", TM_EPO_TRANSLATION ):__( "Default", TM_EPO_TRANSLATION ))."</div>"
+			. "<div class='tm-cell col-3 tm_cell_title'>".__( "Label", TM_EPO_TRANSLATION )."</div>"
+			. "<div class='tm-cell col-2 tm_cell_images'>".__( "Images", TM_EPO_TRANSLATION )."</div>"
+			 
+			. "<div class='tm-cell col-0 tm_cell_value'>".__( "Value", TM_EPO_TRANSLATION )."</div>"
+			. "<div class='tm-cell col-auto tm_cell_price'>".__( "Price", TM_EPO_TRANSLATION )."</div>"
+			. "<div class='tm-cell col-auto tm_cell_delete'><span class='tm-button button button-primary button-large builder_panel_delete_all'>".__( "Delete all options", TM_EPO_TRANSLATION )."</span></div>"
+			. "</div>";
+		
+		$total_entries=count($options["title"]);
+		$per_page=apply_filters('tm_choices_shown',20);
+		if($per_page<=0){
+			$per_page = 20;
+		}
+		if ($total_entries>$per_page){
+			$pages=ceil($total_entries/$per_page);
+			$out .= '<div data-perpage="'.$per_page.'" data-totalpages="'.$pages.'" class="tcpagination tc-clearfix"></div>';
+		}else{
+			$out .= '<div data-perpage="'.$per_page.'" data-totalpages="0" class="tcpagination tc-clearfix"></div>';
+		}
+		$out .= "<div class='panels_wrap nof_wrapper'>";
 		
 		$d_counter=0;
+		$show_counter=0;
 		foreach ( $options["title"] as $ar=>$el ) {
-			$out  	.= "<div class='options_wrap'>"
-					. "<div class='row nopadding'>";
+			$hidden_class='';
+			if ($show_counter>=$per_page){
+				$hidden_class=' tm-hidden ';
+			}
+			$show_counter++;
+			$out  	.= "<div class='options_wrap".$hidden_class."'>"
+					. "<div class='tm-row nopadding tc-clearfix'>";
 
 			$o["title"]["default"]  		= $options["title"][$ar];//label
 			$o["title"]["tags"]["name"] 	= "tm_meta[tmfbuilder][".$name."_title][".( is_null( $counter )?0:$counter )."][]";
 			$o["title"]["tags"]["id"]		= str_replace(array("[","]"), "", $o["title"]["tags"]["name"])."_".$ar;
-			//$o["title"]["extra"]			= $upload.'<span class="tm_upload_image"><img class="tm_upload_image_img" alt="" src="'.$options["image"][$ar].'" /></span>';
 			
 			$o["value"]["default"]  		= $options["value"][$ar];//value
 			$o["value"]["tags"]["name"] 	= "tm_meta[tmfbuilder][".$name."_value][".( is_null( $counter )?0:$counter )."][]";
 			$o["value"]["tags"]["id"]		= str_replace(array("[","]"), "", $o["value"]["tags"]["name"])."_".$ar;
 			
-			$o["price"]["default"]  		= $options["price"][$ar];//price
+			$o["price"]["default"]  		= tm_convert_local_numbers($options["price"][$ar]);//price
 			$o["price"]["tags"]["name"] 	= "tm_meta[tmfbuilder][".$name."_price][".( is_null( $counter )?0:$counter )."][]";
 			$o["price"]["tags"]["id"]		= str_replace(array("[","]"), "", $o["price"]["tags"]["name"])."_".$ar;
+
+			$o["sale_price"]["default"]  	 = tm_convert_local_numbers($options["sale_price"][$ar]);//sale_price
+			$o["sale_price"]["tags"]["name"] = "tm_meta[tmfbuilder][".$name."_sale_price][".( is_null( $counter )?0:$counter )."][]";
+			$o["sale_price"]["tags"]["id"]	 = str_replace(array("[","]"), "", $o["sale_price"]["tags"]["name"])."_".$ar;
 
 			$o["image"]["default"]  		= $options["image"][$ar];//image
 			$o["image"]["tags"]["name"] 	= "tm_meta[tmfbuilder][".$name."_image][".( is_null( $counter )?0:$counter )."][]";
@@ -2544,6 +3088,10 @@ final class TM_EPO_BUILDER_base {
 			$o["url"]["tags"]["name"] 	= "tm_meta[tmfbuilder][".$name."_url][".( is_null( $counter )?0:$counter )."][]";
 			$o["url"]["tags"]["id"]		= str_replace(array("[","]"), "", $o["url"]["tags"]["name"])."_".$ar;
 
+			$o["description"]["default"]  		= $options["description"][$ar];//description
+			$o["description"]["tags"]["name"] 	= "tm_meta[tmfbuilder][".$name."_description][".( is_null( $counter )?0:$counter )."][]";
+			$o["description"]["tags"]["id"]		= str_replace(array("[","]"), "", $o["description"]["tags"]["name"])."_".$ar;
+
 			if ($name == "multiple_checkboxes_options"){
 				$default_select = '<input type="checkbox" value="'.$d_counter.'" name="tm_meta[tmfbuilder]['.$name.'_default_value]['.( is_null( $counter )?0:$counter ).'][]" class="tm-default-checkbox" '.checked(  ( is_null( $counter )?"":isset($default_value[$counter])?in_array($d_counter, $default_value[$counter]):"" ) , true ,0).'>';
 			}else{
@@ -2555,19 +3103,22 @@ final class TM_EPO_BUILDER_base {
 				$d_counter ,0).'>';
 			}
 			$default_select = '<span class="tm-hidden-inline">'.(($name == "multiple_checkboxes_options")?__( "Checked", TM_EPO_TRANSLATION ):__( "Default", TM_EPO_TRANSLATION )).'</span>' . $default_select;
-			$out .= "<div class='cell col-auto tm_cell_move'>".$drag."</div>";
-			$out .= "<div class='cell col-auto tm_cell_default'>".$default_select."</div>";
-			$out .= "<div class='cell col-3 tm_cell_title'>".TM_EPO_HTML()->tm_make_field( $o["title"], 0 )."</div>";
-			$out .= "<div class='cell col-2 tm_cell_images'>".TM_EPO_HTML()->tm_make_field( $o["image"], 0 ).TM_EPO_HTML()->tm_make_field( $o["imagep"], 0 )."</div>";
+			$out .= "<div class='tm-cell col-auto tm_cell_move'>".$drag."</div>";
+			$out .= "<div class='tm-cell col-auto tm_cell_default'>".$default_select."</div>";
+			$out .= "<div class='tm-cell col-3 tm_cell_title'>".TM_EPO_HTML()->tm_make_field( $o["title"], 0 )."</div>";
+			$out .= "<div class='tm-cell col-2 tm_cell_images'>".TM_EPO_HTML()->tm_make_field( $o["image"], 0 ).TM_EPO_HTML()->tm_make_field( $o["imagep"], 0 )."</div>";
 			
-			$out .= "<div class='cell col-0 tm_cell_value'>".TM_EPO_HTML()->tm_make_field( $o["value"], 0 )."</div>";
-			$out .= "<div class='cell col-auto tm_cell_price'>";
+			$out .= "<div class='tm-cell col-0 tm_cell_value'>".TM_EPO_HTML()->tm_make_field( $o["value"], 0 )."</div>";
+			$out .= "<div class='tm-cell col-auto tm_cell_price'>";
 			
 			
 			if (!empty($additional_currencies) && is_array($additional_currencies)){
 				$_copy_value = $o["price"];
+				$_sale_copy_value = $o["sale_price"];
 				$o["price"]["html_before_field"] ='<span class="tm-choice-currency">'.TM_EPO_HELPER()->wc_base_currency().'</span>';
+				$o["sale_price"]["html_before_field"] ='<span class="tm-choice-currency">'.TM_EPO_HELPER()->wc_base_currency().'</span>'.'<span class="tm-choice-sale">'.__( "Sale", TM_EPO_TRANSLATION ).'</span>';
 				$out .=	TM_EPO_HTML()->tm_make_field( $o["price"], 0 );
+				$out .=	TM_EPO_HTML()->tm_make_field( $o["sale_price"], 0 );
 				foreach ($additional_currencies as $ckey => $currency) {
 					$mt_prefix = TM_EPO_HELPER()->get_currency_price_prefix($currency);
 					$copy_value = $_copy_value;
@@ -2578,15 +3129,30 @@ final class TM_EPO_BUILDER_base {
 					$copy_value["tags"]["name"] = "tm_meta[tmfbuilder][".$name."_price".$mt_prefix."][".( is_null( $counter )?0:$counter )."][]";
 					$copy_value["tags"]["id"] = str_replace(array("[","]"), "", $copy_value["tags"]["name"])."_".$ar;
 					$out .=	TM_EPO_HTML()->tm_make_field( $copy_value, 0 );
+
+					$copy_value = $_sale_copy_value;
+					$copy_value["default"] =isset($options["sale_price_".$currency][$ar])?$options["sale_price".$mt_prefix][$ar]:"";
+					$copy_value["id"] .= $mt_prefix;
+
+					$copy_value["html_before_field"] = '<span class="tm-choice-currency">'.$currency.'</span>'.'<span class="tm-choice-sale">'.__( "Sale", TM_EPO_TRANSLATION ).'</span>';
+					$copy_value["tags"]["name"] = "tm_meta[tmfbuilder][".$name."_sale_price".$mt_prefix."][".( is_null( $counter )?0:$counter )."][]";
+					$copy_value["tags"]["id"] = str_replace(array("[","]"), "", $copy_value["tags"]["name"])."_".$ar;
+					$out .=	TM_EPO_HTML()->tm_make_field( $copy_value, 0 );
 				}
 			}else{
 				$out .=	TM_EPO_HTML()->tm_make_field( $o["price"], 0 );
+				$o["sale_price"]["html_before_field"] ='<span class="tm-choice-sale">'.__( "Sale", TM_EPO_TRANSLATION ).'</span>';
+				$out .=	TM_EPO_HTML()->tm_make_field( $o["sale_price"], 0 );
 			}
+
+
 			
 			$out .= TM_EPO_HTML()->tm_make_field( $o["price_type"], 0 )."</div>";
-			$out .= "<div class='cell col-auto tm_cell_delete'>".$del."</div>";
-
-			$out .= "<div class='cell col-12 tm_cell_url'><span class='tm-inline-label'>".__( "URL", TM_EPO_TRANSLATION )."</span>".TM_EPO_HTML()->tm_make_field( $o["url"], 0 )."</div>";
+			$out .= "<div class='tm-cell col-auto tm_cell_delete'>".$del."</div>";
+			
+			$out .= "<div class='tm-cell col-12 tm_cell_description'><span class='tm-inline-label bsbb'>".__( "Description", TM_EPO_TRANSLATION )."</span>".TM_EPO_HTML()->tm_make_field( $o["description"], 0 )."</div>";
+			
+			$out .= "<div class='tm-cell col-12 tm_cell_url'><span class='tm-inline-label bsbb'>".__( "URL", TM_EPO_TRANSLATION )."</span>".TM_EPO_HTML()->tm_make_field( $o["url"], 0 )."</div>";
 
 			$out .="</div></div>";
 			$d_counter++;

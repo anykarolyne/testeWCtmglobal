@@ -57,11 +57,11 @@ $tm_meta_cpf_mode=isset($tm_meta_cpf['mode'])?$tm_meta_cpf['mode']:'';
                 'post_type'     => TM_EPO_GLOBAL_POST_TYPE,
                 'post_status'   => array( 'publish' ), // get only enabled global extra options
                 'numberposts'   => -1,
-                'orderby'       => 'date',
+                'orderby'       => 'title',
                 'order'         => 'asc'
             );
         $tmp_tmglobalprices  = get_posts( $args );
-        echo '<div class="message0x0 clearfix">'.
+        echo '<div class="message0x0 tc-clearfix">'.
                 '<div class="message2x1">'.
                     '<label for="tm_meta_cpf_exclude"><span>'.__( 'Include additional Global forms', TM_EPO_TRANSLATION ).'</span></label>'.
                     '<div class="messagexdesc">&nbsp;</div>'.
@@ -87,7 +87,7 @@ $tm_meta_cpf_mode=isset($tm_meta_cpf['mode'])?$tm_meta_cpf['mode']:'';
 
         /* Ouput Exclude */
         $tm_exclude=isset($tm_meta_cpf['exclude'])?$tm_meta_cpf['exclude']:'';
-        echo '<div class="message0x0 clearfix">'.
+        echo '<div class="message0x0 tc-clearfix">'.
                 '<div class="message2x1">'.
                     '<label for="tm_meta_cpf_exclude"><span>'.__( 'Exclude from Global Extra Product Options', TM_EPO_TRANSLATION ).'</span></label>'.
                     '<div class="messagexdesc">&nbsp;</div>'.
@@ -99,7 +99,7 @@ $tm_meta_cpf_mode=isset($tm_meta_cpf['mode'])?$tm_meta_cpf['mode']:'';
 
         /* Ouput Override */
         $tm_override_display=isset($tm_meta_cpf['override_display'])?$tm_meta_cpf['override_display']:'';
-        echo '<div class="message0x0 clearfix">'.
+        echo '<div class="message0x0 tc-clearfix">'.
                 '<div class="message2x1">'.
                     '<label for="tm_meta_cpf_override_display"><span>'.__( 'Override global display', TM_EPO_TRANSLATION ).'</span></label>'.
                     '<div class="messagexdesc">&nbsp;</div>'.
@@ -115,7 +115,7 @@ $tm_meta_cpf_mode=isset($tm_meta_cpf['mode'])?$tm_meta_cpf['mode']:'';
 
         /* Ouput Override */
         $tm_override_final_total_box=isset($tm_meta_cpf['override_final_total_box'])?$tm_meta_cpf['override_final_total_box']:'';
-        echo '<div class="message0x0 clearfix">'.
+        echo '<div class="message0x0 tc-clearfix">'.
                 '<div class="message2x1">'.
                     '<label for="tm_meta_cpf_override_final_total_box"><span>'.__( 'Override Final total box', TM_EPO_TRANSLATION ).'</span></label>'.
                     '<div class="messagexdesc">&nbsp;</div>'.

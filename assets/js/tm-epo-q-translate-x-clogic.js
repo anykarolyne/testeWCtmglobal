@@ -25,7 +25,7 @@
         if(start < this.length){
             arr.push(this.slice(start));
         }
-        if(start == this.length)}
+        if(start == this.length){
             arr.push('');
         }
         return arr;

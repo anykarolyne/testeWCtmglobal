@@ -11,6 +11,11 @@ if (!empty($form_prefix)){
 	$classcart="tm-cart-".$form_prefix;
 }
 ?>
-<div data-cart-id="<?php echo $forcart;?>" data-product-id="<?php echo $product_id;?>" class="tm-extra-product-options tm-custom-prices tm-product-id-<?php echo $product_id;?> <?php echo $classcart;?>" id="tm-extra-product-options<?php echo $form_prefix;?>">
+<div 
+data-epo-id="<?php echo $epo_internal_counter;?>" 
+data-cart-id="<?php echo $forcart;?>" 
+data-product-id="<?php echo $product_id;?>" 
+class="tc-extra-product-options tm-extra-product-options tm-custom-prices tm-product-id-<?php echo $product_id;?> <?php echo $classcart;?>" 
+id="tm-extra-product-options<?php echo $form_prefix;?>">
     <div class="tm-extra-product-options-inner">
         <ul id="tm-extra-product-options-fields" class="tm-extra-product-options-fields">                            

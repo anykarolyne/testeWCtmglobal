@@ -7,6 +7,7 @@ if ( !empty( $class ) ) {
 	$class=" ".$class;
 	$divclass=$class."-div";
 	$ulclass=$class."-ul";
+	$class="";
 }else{
 	$class="";
 	$divclass="";
@@ -21,19 +22,24 @@ if (!empty($exactlimit)){
 }else{
 	$exactlimit="";
 }
+if (!empty($minimumlimit)){
+	$minimumlimit =" ".$minimumlimit;
+}else{
+	$minimumlimit="";
+}
 $tm_product_id_class="";
 if (!empty($tm_product_id)){
 	$tm_product_id_class=" tm-product-id-".$tm_product_id;
+}
+
+if(!empty(TM_EPO()->tm_builder_elements[$tm_element_settings['type']]["no_frontend_display"])){
+	$divclass .=" tm-hidden";
 }
 ?>
 <div data-uniqid="<?php echo $uniqid;?>" 
 	data-logic="<?php echo $logic;?>" 
 	data-haslogic="<?php echo $haslogic;?>" 
-	class="cpf_hide_element cell <?php echo $column; ?> cpf-type-<?php echo $type.$divclass.$tm_product_id_class; ?>"
-	<?php if($type.$divclass.$tm_product_id_class == 'header'): ?>
-	onclick="checkShowFields(jQuery(this));return false;"
-	<?php endif; ?>
-	>
+	class="cpf_hide_element tm-cell <?php echo $column; ?> cpf-type-<?php echo $type.$divclass.$tm_product_id_class; ?>">
 <?php
 $use=" ".$class_id;
 if (!empty($use_images)){
@@ -71,7 +77,7 @@ if (empty($title) && !empty($required)){
 	$title='&nbsp;';
 }
 if ($element!="divider"){
-	if ((!empty($title) && $title_position!="disable") || !empty($required) || !empty($clear_options)){
+	if ((!empty($title) && $title_position!="disable") || !empty($required) || !empty($clear_options) || (!empty($description) && ($description_position=="icontooltipright" | $description_position=="icontooltipleft") ) ){
 		echo '<'.$title_size;
 		if(!empty($title_color)){
 			echo ' style="color:'.$title_color.'"';
@@ -93,6 +99,10 @@ if ($element!="divider"){
 		if($required && !empty(TM_EPO()->tm_epo_global_required_indicator) && TM_EPO()->tm_epo_global_required_indicator_position=='left'){
 			echo '<span class="tm-epo-required">'.TM_EPO()->tm_epo_global_required_indicator.'</span>&nbsp;';
 		}
+		if($description_position=="icontooltipleft"){
+			echo '<i data-tm-tooltip-swatch="on" class="tm-tooltip tc-tooltip tcfa tcfa-question-circle"></i>';
+		}
+
 		if(!empty($title) && $title_position!="disable"){
 			echo $title;
 		}else{
@@ -106,27 +116,33 @@ if ($element!="divider"){
 			echo $tm_undo_button;
 		}
 		if (!empty($clear_options)){
-			echo '<span class="tm-epo-reset-radio">'.apply_filters('tm_undo_radio_text','<i class="fa fa-undo"></i>').'</span>';
+			echo '<span class="tm-epo-reset-radio">'.apply_filters('tm_undo_radio_text','<i class="tcfa tcfa-undo"></i>').'</span>';
 		}
+		if($description_position=="icontooltipright"){
+			echo '<i data-tm-tooltip-swatch="on" class="tm-tooltip tc-tooltip tcfa tcfa-question-circle"></i>';
+		}
+
 		echo '</'.$title_size.'>';
 	}
-	if(!empty($description) && (empty($description_position) || $description_position=="tooltip") ){
+	if(!empty($description) && (empty($description_position) || $description_position=="tooltip" || $description_position=="icontooltipright" | $description_position=="icontooltipleft") ){
 		echo'<div'; 
 		if(!empty($description_color)){
 			echo ' style="color:'.$description_color.'"';
 		}
-		echo' class="tm-description'.($description_position=="tooltip"?" tm-tip-html":"").'">'.do_shortcode($description).'</div>';
+		echo' class="tm-description'.($description_position=="tooltip" || $description_position=="icontooltipright" || $description_position=="icontooltipleft"?" tm-tip-html":"").'">'.do_shortcode($description).'</div>';
+		
 	}
+
 
 }
 echo $divider;
-if (!in_array($element,array('header','divider'))){
+if (!in_array($element,array('header','divider')) && empty(TM_EPO()->tm_builder_elements[$tm_element_settings['type']]["no_frontend_display"]) ){
 ?>
 	<div class="tm-extra-product-options-container">
-        <ul data-rules="<?php echo $rules;?>"
-        	data-rulestype="<?php echo $rules_type; ?>"
+        <ul data-rules="<?php echo $rules;?>" 
+        	data-rulestype="<?php echo $rules_type; ?>" 
         	<?php if(!empty($tm_validation)){?>data-tm-validation="<?php echo $tm_validation; ?>" <?php } ?>
-        	class="tmcp-ul-wrap tmcp-elements tm-extra-product-options-<?php echo $type.$use.$ulclass.$exactlimit; ?>">
+        	class="tmcp-ul-wrap tmcp-elements tm-extra-product-options-<?php echo $type.$use.$ulclass.$exactlimit.$minimumlimit; ?>">
 <?php 
 }
 ?>

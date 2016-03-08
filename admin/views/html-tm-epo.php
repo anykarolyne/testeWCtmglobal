@@ -42,7 +42,7 @@ if ( ! ( $attributes  ) ) : ?>
         </div>
 <?php else : ?>
         <p class="toolbar">
-            <a href="#" class="close_all"><?php _e( 'Close all', TM_EPO_TRANSLATION ); ?></a><a href="#" class="expand_all"><?php _e( 'Expand all', TM_EPO_TRANSLATION ); ?></a>
+            <a href="#" class="close_all tm-button tc-clearfix"><?php _e( 'Close all', TM_EPO_TRANSLATION ); ?></a><a href="#" class="expand_all tm-button tc-clearfix"><?php _e( 'Expand all', TM_EPO_TRANSLATION ); ?></a>
         </p>
         <div class="woocommerce_tm_epos wc-metaboxes">
 <?php

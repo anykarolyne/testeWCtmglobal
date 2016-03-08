@@ -9,8 +9,15 @@ if ($style=="box"){
 if ($style=="collapse" || $style=="collapseclosed" || $style=="accordion"){
 	echo '</div></div>';
 }	
-if (!empty ($sections_type)){
+if (isset($sections_type) && $sections_type=="popup"){
 	echo '</div>';
+}
+if(!empty($description) && !empty($description_position) && $description_position=="below" ){
+	echo'<div';
+	if(!empty($description_color)){
+		echo ' style="color:'.$description_color.'"';
+	}
+	echo' class="tm-description">'.do_shortcode($description).'</div>';
 }
 ?>
 </div>

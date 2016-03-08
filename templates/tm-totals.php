@@ -13,14 +13,11 @@ if (!empty($form_prefix)){
 	$classtotalform="tm-totals-form-".$form_prefix_id;
 }
 ?>
-<div class="<?php echo $classtotalform;?>" data-product-id="<?php echo $product_id;?>"><input 
-type="hidden" 
-value="<?php echo $price;?>" 
-name="cpf_product_price<?php echo $form_prefix;?>" 
-class="cpf-product-price" />
-<div 
-id="tm-epo-totals<?php echo $form_prefix;?>" 
-class="tm-epo-totals tm-custom-prices-total<?php echo $hidden;?> <?php echo $classcart;?>" 
+<div class="tc-totals-form tm-product-id-<?php echo $product_id;?> <?php echo $classtotalform;?>" data-epo-id="<?php echo $epo_internal_counter;?>"  data-product-id="<?php echo $product_id;?>">
+<input type="hidden" value="<?php echo $price;?>" name="cpf_product_price<?php echo $form_prefix;?>" class="cpf-product-price" />
+<div id="tm-epo-totals<?php echo $form_prefix;?>" 
+class="tc-epo-totals tm-product-id-<?php echo $product_id;?> tm-epo-totals tm-custom-prices-total<?php echo $hidden;?> <?php echo $classcart;?>" 
+data-epo-id="<?php echo $epo_internal_counter;?>" 
 data-theme-name="<?php echo $theme_name;?>"
 data-cart-id="<?php echo $forcart;?>"
 data-is-subscription="<?php echo $is_subscription;?>" 

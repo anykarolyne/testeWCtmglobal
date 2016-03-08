@@ -6,6 +6,10 @@ if (!defined('TM_EPO_PLUGIN_SECURITY')){
 if (!isset($fieldtype)){
 	$fieldtype="tmcp-field";
 }
+if (isset($textbeforeprice) && $textbeforeprice!=''){
+	$textbeforeprice = '<span class="before-amount'.(!empty($hide_amount)?" ".$hide_amount:"").'">'.$textbeforeprice.'</span>';
+}
+
 if (isset($textafterprice) && $textafterprice!=''){
 	$textafterprice = '<span class="after-amount'.(!empty($hide_amount)?" ".$hide_amount:"").'">'.$textafterprice.'</span>';
 }
@@ -29,7 +33,7 @@ if (!empty($class)){
   	data-show-palette="false"
   	data-clickout-fires-change="true"
   	data-show-buttons="false"
-  	data-preferred-format="name"
+  	data-preferred-format="hex"
 	data-price="" 
 	data-rules="<?php echo $rules; ?>" 
 	data-rulestype="<?php echo $rules_type; ?>" 
@@ -45,7 +49,7 @@ if (!empty($class)){
 	id="<?php echo $id; ?>" 
 	tabindex="<?php echo $tabindex; ?>" 
 	type="text" />
-	<span class="amount<?php if (!empty($hide_amount)){echo " ".$hide_amount;} ?>"><?php echo $amount; ?></span>
-	<?php echo $textafterprice; ?>
+	<?php include('_price.php'); ?>
 	<?php include('_quantity_end.php'); ?>
+	<?php do_action( 'tm_after_element' , isset($tm_element_settings)?$tm_element_settings:array() ); ?>
 </li>
